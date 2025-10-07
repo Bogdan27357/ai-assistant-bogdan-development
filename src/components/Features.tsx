@@ -61,9 +61,9 @@ const features = [
   {
     icon: 'Settings',
     title: 'Гибкие настройки',
-    description: 'Настройка температуры, промптов, выбор между 3 ИИ моделями',
+    description: 'Настройка температуры, системных промптов, персонализация ответов',
     gradient: 'from-amber-500 to-orange-600',
-    examples: ['Gemini 2.0', 'Llama 3.2', 'GigaChat']
+    examples: ['Температура', 'Токены', 'Промпты']
   }
 ];
 

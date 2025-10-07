@@ -21,6 +21,8 @@ const AdminPanel = () => {
   });
   const [knowledgeFiles, setKnowledgeFiles] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [testing, setTesting] = useState<Record<string, boolean>>({});
+  const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string } | null>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -166,6 +168,81 @@ const AdminPanel = () => {
     }));
   };
 
+  const handleTestApi = async (modelId: string) => {
+    setTesting(prev => ({ ...prev, [modelId]: true }));
+    setTestResults(prev => ({ ...prev, [modelId]: null }));
+
+    try {
+      const apiKey = configs[modelId].apiKey.replace(/•/g, '');
+      
+      if (!apiKey || apiKey.length < 10) {
+        setTestResults(prev => ({
+          ...prev,
+          [modelId]: { success: false, message: 'Введите корректный API ключ' }
+        }));
+        setTesting(prev => ({ ...prev, [modelId]: false }));
+        return;
+      }
+
+      let response;
+      if (modelId === 'gemini') {
+        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Привет! Ответь одним словом: работает?' }] }]
+          })
+        });
+      } else if (modelId === 'llama') {
+        response = await fetch('https://api.together.xyz/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'meta-llama/Llama-3.2-3B-Instruct-Turbo',
+            messages: [{ role: 'user', content: 'Привет! Ответь одним словом: работает?' }],
+            max_tokens: 10
+          })
+        });
+      }
+
+      if (response && response.ok) {
+        const data = await response.json();
+        setTestResults(prev => ({
+          ...prev,
+          [modelId]: { 
+            success: true, 
+            message: '✅ API ключ работает! Модель ответила успешно.' 
+          }
+        }));
+        toast.success(`${models.find(m => m.id === modelId)?.name} - тест пройден!`);
+      } else {
+        const errorData = await response?.json().catch(() => ({}));
+        setTestResults(prev => ({
+          ...prev,
+          [modelId]: { 
+            success: false, 
+            message: `❌ Ошибка: ${errorData?.error?.message || 'Неверный API ключ'}` 
+          }
+        }));
+        toast.error('Тест не пройден. Проверьте API ключ.');
+      }
+    } catch (error: any) {
+      setTestResults(prev => ({
+        ...prev,
+        [modelId]: { 
+          success: false, 
+          message: `❌ Ошибка подключения: ${error.message}` 
+        }
+      }));
+      toast.error('Ошибка тестирования API');
+    } finally {
+      setTesting(prev => ({ ...prev, [modelId]: false }));
+    }
+  };
+
   return (
     <div className="pt-24 pb-12 px-6 min-h-screen">
       <div className="container mx-auto max-w-7xl">
@@ -263,8 +340,40 @@ const AdminPanel = () => {
                         <Icon name="Save" size={18} className="mr-2" />
                         Сохранить
                       </Button>
+                      <Button
+                        onClick={() => handleTestApi(model.id)}
+                        disabled={!configs[model.id].enabled || !configs[model.id].apiKey || testing[model.id]}
+                        variant="outline"
+                        className="border-slate-600 text-gray-300 hover:bg-slate-800"
+                      >
+                        {testing[model.id] ? (
+                          <>
+                            <Icon name="Loader" size={18} className="mr-2 animate-spin" />
+                            Тестирую...
+                          </>
+                        ) : (
+                          <>
+                            <Icon name="Play" size={18} className="mr-2" />
+                            Тест
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
+
+                  {testResults[model.id] && (
+                    <div className={`p-4 rounded-xl border ${
+                      testResults[model.id]?.success 
+                        ? 'bg-emerald-500/10 border-emerald-500/30' 
+                        : 'bg-red-500/10 border-red-500/30'
+                    }`}>
+                      <p className={`text-sm ${
+                        testResults[model.id]?.success ? 'text-emerald-300' : 'text-red-300'
+                      }`}>
+                        {testResults[model.id]?.message}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-2 text-sm">
                     <div className={`w-2 h-2 rounded-full ${configs[model.id].enabled ? 'bg-emerald-400' : 'bg-gray-600'}`} />

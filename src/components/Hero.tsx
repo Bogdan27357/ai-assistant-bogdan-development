@@ -26,8 +26,8 @@ const Hero = ({ onStartChat }: HeroProps) => {
           </h1>
 
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Интеллектуальный помощник для решения любых задач. 
-            Умный анализ, креативные решения, мгновенные ответы. Всегда на связи.
+            Создан сотрудниками аэропорта Пулково для помощи путешественникам.
+            Интеллектуальный помощник, который объединяет опыт работы с людьми и мощь ИИ.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mb-12 max-w-4xl mx-auto">
@@ -85,7 +85,7 @@ const Hero = ({ onStartChat }: HeroProps) => {
                 <Icon name="Brain" size={28} className="text-white" />
               </div>
               <div className="text-lg font-bold text-white mb-1">Умный</div>
-              <div className="text-sm text-gray-400">3 ИИ модели</div>
+              <div className="text-sm text-gray-400">Современный ИИ</div>
             </div>
             <div className="text-center animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
