@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { sendMessageToAI, saveMessageToDB, generateSessionId } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,6 +18,11 @@ const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [activeModel, setActiveModel] = useState('gemini');
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState('');
+
+  useEffect(() => {
+    setSessionId(generateSessionId());
+  }, []);
 
   const models = [
     { id: 'gemini', name: 'Gemini 2.0 Flash', icon: 'Sparkles', color: 'text-blue-400', fullName: 'Gemini 2.0 Flash Experimental' },
@@ -25,23 +31,42 @@ const ChatInterface = () => {
   ];
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !sessionId) return;
 
     const userMessage: Message = { role: 'user', content: input };
+    const userInput = input;
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      await saveMessageToDB(sessionId, activeModel, 'user', userInput);
+
+      const aiResponse = await sendMessageToAI(activeModel as 'gemini' | 'llama' | 'gigachat', userInput, sessionId);
+
       const aiMessage: Message = {
         role: 'assistant',
-        content: `Это демо-ответ от модели ${models.find(m => m.id === activeModel)?.name}. Для полноценной работы подключите API ключи в админ-панели.`,
+        content: aiResponse,
         model: activeModel
       };
+
+      await saveMessageToDB(sessionId, activeModel, 'assistant', aiResponse);
+
       setMessages(prev => [...prev, aiMessage]);
-      setIsLoading(false);
       toast.success('Ответ получен!');
-    }, 1500);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка';
+      toast.error(errorMessage);
+      
+      const fallbackMessage: Message = {
+        role: 'assistant',
+        content: `Ошибка: ${errorMessage}. Убедитесь, что API ключи настроены в админ-панели.`,
+        model: activeModel
+      };
+      setMessages(prev => [...prev, fallbackMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -1,0 +1,7 @@
+{
+  "save-message": "https://functions.poehali.dev/6ff4ff7a-3331-40ce-ba16-7fd13be4e583",
+  "gemini-chat": "https://functions.poehali.dev/115c6576-1517-4c2e-a0a3-7f3b5958db06",
+  "get-history": "https://functions.poehali.dev/aa1d79d8-9887-428e-87c1-cda250564de1",
+  "llama-chat": "https://functions.poehali.dev/c158551d-e67d-4da9-a077-86c7aac3884f",
+  "gigachat-chat": "https://functions.poehali.dev/24b1e4ee-8de7-46f0-8c12-cc937d4e9a8e"
+}
