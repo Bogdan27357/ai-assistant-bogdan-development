@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Test save API key",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "model_id": "gemini",
+        "api_key": "test-key-123",
+        "enabled": true
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

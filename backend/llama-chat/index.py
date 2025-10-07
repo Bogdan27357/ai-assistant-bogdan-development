@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, Any
 import requests
+import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -32,14 +33,39 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    api_key = os.environ.get('LLAMA_API_KEY')
-    if not api_key:
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
         return {
             'statusCode': 500,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'LLAMA_API_KEY not configured'}),
+            'body': json.dumps({'error': 'DATABASE_URL not configured'}),
             'isBase64Encoded': False
         }
+    
+    conn = psycopg2.connect(db_url)
+    cur = conn.cursor()
+    cur.execute("SELECT api_key, enabled FROM api_keys WHERE model_id = 'llama'")
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    if not row or not row[0]:
+        return {
+            'statusCode': 400,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'Llama API key not configured in admin panel'}),
+            'isBase64Encoded': False
+        }
+    
+    if not row[1]:
+        return {
+            'statusCode': 400,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'Llama model is disabled'}),
+            'isBase64Encoded': False
+        }
+    
+    api_key = row[0]
     
     body_data = json.loads(event.get('body', '{}'))
     message = body_data.get('message', '')

@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Test get API keys",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "keys": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { saveApiKey, getApiKeys } from '@/lib/api';
 
 interface ApiConfig {
   enabled: boolean;
@@ -19,6 +20,26 @@ const AdminPanel = () => {
     llama: { enabled: true, apiKey: '' },
     gigachat: { enabled: true, apiKey: '' }
   });
+
+  useEffect(() => {
+    loadApiKeys();
+  }, []);
+
+  const loadApiKeys = async () => {
+    try {
+      const keys = await getApiKeys();
+      const newConfigs: Record<string, ApiConfig> = {};
+      keys.forEach(key => {
+        newConfigs[key.model_id] = {
+          enabled: key.enabled,
+          apiKey: key.has_key ? '••••••••••••' : ''
+        };
+      });
+      setConfigs(newConfigs);
+    } catch (error) {
+      toast.error('Ошибка загрузки ключей');
+    }
+  };
 
   const models = [
     { 
@@ -53,16 +74,28 @@ const AdminPanel = () => {
     }
   ];
 
-  const handleToggle = (modelId: string) => {
-    setConfigs(prev => ({
-      ...prev,
-      [modelId]: { ...prev[modelId], enabled: !prev[modelId].enabled }
-    }));
-    toast.success(`${models.find(m => m.id === modelId)?.name} ${configs[modelId].enabled ? 'отключена' : 'включена'}`);
+  const handleToggle = async (modelId: string) => {
+    const newEnabled = !configs[modelId].enabled;
+    try {
+      await saveApiKey(modelId, configs[modelId].apiKey.replace(/•/g, ''), newEnabled);
+      setConfigs(prev => ({
+        ...prev,
+        [modelId]: { ...prev[modelId], enabled: newEnabled }
+      }));
+      toast.success(`${models.find(m => m.id === modelId)?.name} ${newEnabled ? 'включена' : 'отключена'}`);
+    } catch (error) {
+      toast.error('Ошибка сохранения');
+    }
   };
 
-  const handleSaveKey = (modelId: string) => {
-    toast.success(`API ключ для ${models.find(m => m.id === modelId)?.name} сохранён`);
+  const handleSaveKey = async (modelId: string) => {
+    try {
+      await saveApiKey(modelId, configs[modelId].apiKey, configs[modelId].enabled);
+      toast.success(`API ключ для ${models.find(m => m.id === modelId)?.name} сохранён`);
+      await loadApiKeys();
+    } catch (error) {
+      toast.error('Ошибка сохранения ключа');
+    }
   };
 
   const handleUpdateApiKey = (modelId: string, value: string) => {

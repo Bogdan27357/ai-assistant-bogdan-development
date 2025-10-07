@@ -3,7 +3,9 @@ const API_URLS = {
   llama: 'https://functions.poehali.dev/c158551d-e67d-4da9-a077-86c7aac3884f',
   gigachat: 'https://functions.poehali.dev/24b1e4ee-8de7-46f0-8c12-cc937d4e9a8e',
   saveMessage: 'https://functions.poehali.dev/6ff4ff7a-3331-40ce-ba16-7fd13be4e583',
-  getHistory: 'https://functions.poehali.dev/aa1d79d8-9887-428e-87c1-cda250564de1'
+  getHistory: 'https://functions.poehali.dev/aa1d79d8-9887-428e-87c1-cda250564de1',
+  saveApiKey: 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437',
+  getApiKeys: 'https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa'
 };
 
 export interface ChatMessage {
@@ -72,4 +74,37 @@ export const getChatHistory = async (sessionId: string): Promise<ChatMessage[]> 
 
 export const generateSessionId = (): string => {
   return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
+export const saveApiKey = async (
+  modelId: string,
+  apiKey: string,
+  enabled: boolean
+): Promise<void> => {
+  const response = await fetch(API_URLS.saveApiKey, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model_id: modelId,
+      api_key: apiKey,
+      enabled
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to save API key');
+  }
+};
+
+export const getApiKeys = async (): Promise<Array<{model_id: string, enabled: boolean, has_key: boolean}>> => {
+  const response = await fetch(API_URLS.getApiKeys);
+  
+  if (!response.ok) {
+    throw new Error('Failed to get API keys');
+  }
+
+  const data = await response.json();
+  return data.keys;
 };
