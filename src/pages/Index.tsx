@@ -27,7 +27,7 @@ const Index = () => {
         </>
       )}
       
-      {currentPage === 'chat' && <ChatInterface />}
+      {currentPage === 'chat' && <ChatInterface onNavigateToAdmin={() => setCurrentPage('admin')} />}
       {currentPage === 'features' && <AdvancedFeatures />}
       {currentPage === 'tools' && <AITools />}
       {currentPage === 'admin' && <AdminPanel />}

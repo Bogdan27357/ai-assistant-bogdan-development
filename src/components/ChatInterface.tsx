@@ -18,7 +18,11 @@ interface Message {
   attachments?: string[];
 }
 
-const ChatInterface = () => {
+interface ChatInterfaceProps {
+  onNavigateToAdmin?: () => void;
+}
+
+const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [activeModel, setActiveModel] = useState('gemini');
@@ -84,11 +88,25 @@ const ChatInterface = () => {
       toast.success('Ответ получен!');
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка';
-      toast.error(errorMessage);
+      
+      let userFriendlyMessage = '';
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('API ключи')) {
+        userFriendlyMessage = '⚠️ API ключи не настроены.\n\n' +
+          '📋 Инструкция:\n' +
+          '1. Перейдите в "Админ-панель" (верхнее меню)\n' +
+          '2. Откройте "Настройка API ключей"\n' +
+          '3. Введите API ключ от Gemini, Llama или GigaChat\n' +
+          '4. Включите модель и сохраните\n\n' +
+          'После этого я смогу отвечать на ваши вопросы! 🚀';
+        toast.error('Настройте API ключи в админ-панели');
+      } else {
+        userFriendlyMessage = `❌ Ошибка: ${errorMessage}\n\nПопробуйте:\n• Проверить подключение к интернету\n• Обновить страницу\n• Настроить API ключи в админ-панели`;
+        toast.error(errorMessage);
+      }
       
       const fallbackMessage: Message = {
         role: 'assistant',
-        content: `Ошибка: ${errorMessage}. Убедитесь, что API ключи настроены в админ-панели.`,
+        content: userFriendlyMessage,
         model: activeModel
       };
       setMessages(prev => [...prev, fallbackMessage]);
@@ -188,9 +206,31 @@ const ChatInterface = () => {
                   <Icon name="MessageCircle" size={40} className="text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">Начните беседу</h3>
-                <p className="text-gray-400 max-w-md">
+                <p className="text-gray-400 max-w-md mb-6">
                   Выберите ИИ модель выше и задайте любой вопрос. Богдан готов помочь!
                 </p>
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 max-w-md">
+                  <div className="flex items-start gap-3 mb-3">
+                    <Icon name="Info" size={20} className="text-amber-400 mt-0.5" />
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-amber-300 mb-1">Настройка API ключей</p>
+                      <p className="text-xs text-amber-200/80 mb-3">
+                        Для работы ИИ-помощника нужно настроить API ключи в админ-панели. 
+                        Перейдите в раздел "Админ-панель" → "Настройка API ключей".
+                      </p>
+                      {onNavigateToAdmin && (
+                        <Button
+                          onClick={onNavigateToAdmin}
+                          size="sm"
+                          className="bg-amber-500 hover:bg-amber-600 text-white"
+                        >
+                          <Icon name="Settings" size={16} className="mr-2" />
+                          Перейти к настройкам
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               messages.map((message, index) => (
@@ -217,6 +257,16 @@ const ChatInterface = () => {
                     <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
                     {message.role === 'assistant' && (
                       <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700">
+                        {message.content.includes('API ключи не настроены') && onNavigateToAdmin && (
+                          <Button
+                            size="sm"
+                            onClick={onNavigateToAdmin}
+                            className="text-xs bg-amber-500 hover:bg-amber-600 text-white"
+                          >
+                            <Icon name="Settings" size={14} className="mr-1" />
+                            Настроить API
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="ghost"
