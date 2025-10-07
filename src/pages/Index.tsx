@@ -1,12 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { Toaster } from "@/components/ui/sonner";
+import Hero from '@/components/Hero';
+import Features from '@/components/Features';
+import Integrations from '@/components/Integrations';
+import ChatInterface from '@/components/ChatInterface';
+import AdminPanel from '@/components/AdminPanel';
+import Navigation from '@/components/Navigation';
 
 const Index = () => {
+  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin'>('home');
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
+      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
+      
+      {currentPage === 'home' && (
+        <>
+          <Hero onStartChat={() => setCurrentPage('chat')} />
+          <Features />
+          <Integrations />
+        </>
+      )}
+      
+      {currentPage === 'chat' && <ChatInterface />}
+      {currentPage === 'admin' && <AdminPanel />}
+      
+      <Toaster />
     </div>
   );
 };
