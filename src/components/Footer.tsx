@@ -12,26 +12,10 @@ const Footer = () => {
         <div className="mb-12">
           <h3 className="text-3xl font-bold text-white mb-8 text-center">О нас</h3>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Андрей Пашков */}
-            <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-indigo-500/30">
-                  <img 
-                    src="https://cdn.poehali.dev/files/b273b4f3-9e5a-4903-9a20-079f3956ace6.png" 
-                    alt="Андрей Пашков"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h4 className="text-xl font-bold text-white mb-2">Андрей Пашков</h4>
-                <p className="text-indigo-400 font-semibold mb-3">Заместитель создателя</p>
-                <p className="text-gray-400 text-sm">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
-              </div>
-            </Card>
-
             {/* Богдан Копаев */}
-            <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
+            <Card className="p-6 bg-gradient-to-br from-purple-900/50 to-slate-800 border-purple-500/30">
               <div className="flex flex-col items-center text-center">
-                <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-purple-500/30">
+                <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-purple-500/50">
                   <img 
                     src="https://cdn.poehali.dev/files/5fc6fcd5-6e3d-43da-853e-c5244ae6d026.png" 
                     alt="Богдан Копаев"
@@ -40,6 +24,22 @@ const Footer = () => {
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Богдан Копаев</h4>
                 <p className="text-purple-400 font-semibold mb-3">Создатель</p>
+                <p className="text-gray-400 text-sm">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
+              </div>
+            </Card>
+
+            {/* Андрей Пашков */}
+            <Card className="p-6 bg-gradient-to-br from-indigo-900/50 to-slate-800 border-indigo-500/30">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-indigo-500/50">
+                  <img 
+                    src="https://cdn.poehali.dev/files/b273b4f3-9e5a-4903-9a20-079f3956ace6.png" 
+                    alt="Андрей Пашков"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h4 className="text-xl font-bold text-white mb-2">Андрей Пашков</h4>
+                <p className="text-indigo-400 font-semibold mb-3">Заместитель создателя</p>
                 <p className="text-gray-400 text-sm">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
               </div>
             </Card>

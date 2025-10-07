@@ -3,40 +3,67 @@ import { Card } from '@/components/ui/card';
 
 const features = [
   {
-    icon: 'Brain',
-    title: 'Интеллектуальный анализ',
-    description: 'Глубокий анализ данных с использованием нейросетей последнего поколения',
-    gradient: 'from-indigo-500 to-purple-600'
+    icon: 'Code',
+    title: 'Генерация кода',
+    description: 'Создание кода на Python, JavaScript, SQL и других языках с объяснениями',
+    gradient: 'from-indigo-500 to-purple-600',
+    examples: ['Python скрипты', 'SQL запросы', 'API интеграции']
   },
   {
-    icon: 'Zap',
-    title: 'Мгновенные ответы',
-    description: 'Обработка запросов в реальном времени с минимальной задержкой',
-    gradient: 'from-purple-500 to-pink-600'
+    icon: 'FileText',
+    title: 'Анализ документов',
+    description: 'Обработка и анализ текстовых файлов, извлечение ключевой информации',
+    gradient: 'from-purple-500 to-pink-600',
+    examples: ['PDF анализ', 'Резюме текстов', 'Извлечение данных']
   },
   {
-    icon: 'Shield',
-    title: 'Безопасность данных',
-    description: 'Шифрование API ключей и защита конфиденциальной информации',
-    gradient: 'from-blue-500 to-cyan-600'
+    icon: 'Languages',
+    title: 'Переводы',
+    description: 'Профессиональный перевод на 100+ языков с учетом контекста',
+    gradient: 'from-blue-500 to-cyan-600',
+    examples: ['Русский ⟷ English', 'Деловая переписка', 'Техническая документация']
   },
   {
-    icon: 'Layers',
-    title: 'Мультимодальность',
-    description: 'Работа с текстом, кодом, изображениями и документами',
-    gradient: 'from-emerald-500 to-teal-600'
+    icon: 'Lightbulb',
+    title: 'Креативное письмо',
+    description: 'Создание статей, сценариев, маркетинговых текстов и контента',
+    gradient: 'from-emerald-500 to-teal-600',
+    examples: ['Статьи', 'Email рассылки', 'Посты для соцсетей']
   },
   {
-    icon: 'TrendingUp',
-    title: 'Обучение на ходу',
-    description: 'Адаптация к вашему стилю общения и предпочтениям',
-    gradient: 'from-orange-500 to-red-600'
+    icon: 'BookOpen',
+    title: 'Обучение и объяснения',
+    description: 'Простые объяснения сложных концепций, решение задач, помощь в учебе',
+    gradient: 'from-orange-500 to-red-600',
+    examples: ['Математика', 'Программирование', 'Наука']
   },
   {
-    icon: 'Globe',
-    title: 'Мультиязычность',
-    description: 'Поддержка более 100 языков с высокой точностью перевода',
-    gradient: 'from-violet-500 to-purple-600'
+    icon: 'Database',
+    title: 'База знаний',
+    description: 'Загрузка своих документов для персонализированных ответов ИИ',
+    gradient: 'from-violet-500 to-purple-600',
+    examples: ['Корпоративные данные', 'Инструкции', 'Справочники']
+  },
+  {
+    icon: 'Workflow',
+    title: 'Автоматизация задач',
+    description: 'Создание планов проектов, чек-листов, структурирование информации',
+    gradient: 'from-pink-500 to-rose-600',
+    examples: ['Планы проектов', 'TODO списки', 'Mind maps']
+  },
+  {
+    icon: 'MessageSquare',
+    title: 'Контекстные беседы',
+    description: 'ИИ помнит историю чата и адаптируется к вашему стилю общения',
+    gradient: 'from-cyan-500 to-blue-600',
+    examples: ['Длинные диалоги', 'Уточнения', 'Контекст сессии']
+  },
+  {
+    icon: 'Settings',
+    title: 'Гибкие настройки',
+    description: 'Настройка температуры, промптов, выбор между 3 ИИ моделями',
+    gradient: 'from-amber-500 to-orange-600',
+    examples: ['Gemini 2.0', 'Llama 3.2', 'GigaChat']
   }
 ];
 
@@ -64,7 +91,17 @@ const Features = () => {
                 <Icon name={feature.icon as any} size={28} className="text-white" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+              <p className="text-gray-400 leading-relaxed mb-4">{feature.description}</p>
+              <div className="flex flex-wrap gap-2">
+                {feature.examples?.map((example, i) => (
+                  <span 
+                    key={i}
+                    className="text-xs px-3 py-1 rounded-full bg-slate-800/80 text-gray-400 border border-slate-700/50"
+                  >
+                    {example}
+                  </span>
+                ))}
+              </div>
             </Card>
           ))}
         </div>

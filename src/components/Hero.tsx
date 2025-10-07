@@ -25,10 +25,33 @@ const Hero = ({ onStartChat }: HeroProps) => {
             <span className="text-white">Ваш личный ИИ-помощник</span>
           </h1>
 
-          <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
             Интеллектуальный помощник для решения любых задач. 
             Умный анализ, креативные решения, мгновенные ответы. Всегда на связи.
           </p>
+
+          <div className="flex flex-wrap justify-center gap-4 mb-12 max-w-4xl mx-auto">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
+              <Icon name="Code" size={16} className="text-indigo-400" />
+              <span className="text-sm text-gray-300">Генерация кода</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
+              <Icon name="FileText" size={16} className="text-purple-400" />
+              <span className="text-sm text-gray-300">Анализ документов</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
+              <Icon name="Languages" size={16} className="text-blue-400" />
+              <span className="text-sm text-gray-300">Переводы</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
+              <Icon name="Lightbulb" size={16} className="text-yellow-400" />
+              <span className="text-sm text-gray-300">Креативные идеи</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
+              <Icon name="Search" size={16} className="text-green-400" />
+              <span className="text-sm text-gray-300">Поиск информации</span>
+            </div>
+          </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Button 
@@ -49,24 +72,34 @@ const Hero = ({ onStartChat }: HeroProps) => {
             </Button>
           </div>
 
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-3xl mx-auto">
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             <div className="text-center animate-scale-in">
-              <div className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-2">
-                3
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <Icon name="Zap" size={28} className="text-white" />
               </div>
-              <div className="text-sm text-gray-400">ИИ модели</div>
+              <div className="text-lg font-bold text-white mb-1">Быстрый</div>
+              <div className="text-sm text-gray-400">Мгновенные ответы</div>
             </div>
             <div className="text-center animate-scale-in" style={{ animationDelay: '0.1s' }}>
-              <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
-                24/7
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                <Icon name="Brain" size={28} className="text-white" />
               </div>
-              <div className="text-sm text-gray-400">Доступность</div>
+              <div className="text-lg font-bold text-white mb-1">Умный</div>
+              <div className="text-sm text-gray-400">3 ИИ модели</div>
             </div>
             <div className="text-center animate-scale-in" style={{ animationDelay: '0.2s' }}>
-              <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent mb-2">
-                ∞
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                <Icon name="Shield" size={28} className="text-white" />
               </div>
-              <div className="text-sm text-gray-400">Возможности</div>
+              <div className="text-lg font-bold text-white mb-1">Безопасный</div>
+              <div className="text-sm text-gray-400">Защита данных</div>
+            </div>
+            <div className="text-center animate-scale-in" style={{ animationDelay: '0.3s' }}>
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center">
+                <Icon name="Infinity" size={28} className="text-white" />
+              </div>
+              <div className="text-lg font-bold text-white mb-1">Безграничный</div>
+              <div className="text-sm text-gray-400">Любые задачи</div>
             </div>
           </div>
         </div>
