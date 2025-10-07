@@ -45,18 +45,21 @@ const AITools = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/text-translator', {
+      const response = await fetch('https://functions.poehali.dev/ai-tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          tool: 'translate',
           text: translatorText,
-          target_lang: targetLang,
-          source_lang: sourceLang
+          params: {
+            target_lang: targetLang,
+            source_lang: sourceLang
+          }
         })
       });
 
       const data = await response.json();
-      setTranslatedText(data.translated);
+      setTranslatedText(data.result);
       toast.success('Текст переведен!');
     } catch (error) {
       toast.error('Ошибка перевода');
@@ -73,17 +76,20 @@ const AITools = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/text-to-speech', {
+      const response = await fetch('https://functions.poehali.dev/ai-tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          tool: 'tts',
           text: ttsText,
-          lang: ttsLang
+          params: {
+            lang: ttsLang
+          }
         })
       });
 
       const data = await response.json();
-      const audio = `data:audio/mp3;base64,${data.audio}`;
+      const audio = `data:audio/mp3;base64,${data.result}`;
       setAudioUrl(audio);
       toast.success('Аудио создано!');
     } catch (error) {
@@ -101,17 +107,20 @@ const AITools = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/text-summarizer', {
+      const response = await fetch('https://functions.poehali.dev/ai-tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          tool: 'summarize',
           text: summaryText,
-          length: summaryLength
+          params: {
+            length: summaryLength
+          }
         })
       });
 
       const data = await response.json();
-      setSummaryResult(data.summary);
+      setSummaryResult(data.result);
       toast.success('Краткое содержание готово!');
     } catch (error) {
       toast.error('Ошибка создания краткого содержания');
@@ -128,14 +137,17 @@ const AITools = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/sentiment-analysis', {
+      const response = await fetch('https://functions.poehali.dev/ai-tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: sentimentText })
+        body: JSON.stringify({
+          tool: 'sentiment',
+          text: sentimentText
+        })
       });
 
       const data = await response.json();
-      setSentimentResult(data);
+      setSentimentResult(data.result);
       toast.success('Анализ завершен!');
     } catch (error) {
       toast.error('Ошибка анализа');

@@ -1,0 +1,53 @@
+{
+  "tests": [
+    {
+      "name": "Translate text",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "tool": "translate",
+        "text": "Привет мир",
+        "params": {
+          "target_lang": "en",
+          "source_lang": "ru"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "result": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Summarize text",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "tool": "summarize",
+        "text": "Long text to summarize...",
+        "params": {
+          "length": "medium"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "result": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Analyze sentiment",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "tool": "sentiment",
+        "text": "Это потрясающе! Я очень доволен."
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "result": "object"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

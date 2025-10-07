@@ -1,9 +1,9 @@
 {
+  "ai-tools": "https://functions.poehali.dev/dda897f1-19b4-4712-9f18-ab52803fbadc",
   "save-api-key": "https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437",
   "get-api-keys": "https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa",
   "save-message": "https://functions.poehali.dev/6ff4ff7a-3331-40ce-ba16-7fd13be4e583",
   "gemini-chat": "https://functions.poehali.dev/115c6576-1517-4c2e-a0a3-7f3b5958db06",
   "get-history": "https://functions.poehali.dev/aa1d79d8-9887-428e-87c1-cda250564de1",
-  "llama-chat": "https://functions.poehali.dev/c158551d-e67d-4da9-a077-86c7aac3884f",
-  "gigachat-chat": "https://functions.poehali.dev/24b1e4ee-8de7-46f0-8c12-cc937d4e9a8e"
+  "llama-chat": "https://functions.poehali.dev/c158551d-e67d-4da9-a077-86c7aac3884f"
 }
