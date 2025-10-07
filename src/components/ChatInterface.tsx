@@ -19,9 +19,9 @@ const ChatInterface = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const models = [
-    { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'text-blue-400' },
-    { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'text-purple-400' },
-    { id: 'gigachat', name: 'GigaChat', icon: 'MessageSquare', color: 'text-emerald-400' }
+    { id: 'gemini', name: 'Gemini 2.0 Flash', icon: 'Sparkles', color: 'text-blue-400', fullName: 'Gemini 2.0 Flash Experimental' },
+    { id: 'llama', name: 'Llama 3.3 70B', icon: 'Cpu', color: 'text-purple-400', fullName: 'Llama 3.3 70B Instruct' },
+    { id: 'gigachat', name: 'GigaChat', icon: 'MessageSquare', color: 'text-emerald-400', fullName: 'GigaChat' }
   ];
 
   const handleSend = async () => {
@@ -130,6 +130,53 @@ const ChatInterface = () => {
           </div>
 
           <div className="p-6 border-t border-slate-700">
+            <div className="mb-3 flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-600 text-gray-400 hover:text-white text-xs"
+                onClick={() => setInput('Напиши код на Python')}
+              >
+                <Icon name="Code" size={14} className="mr-1" />
+                Код
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-600 text-gray-400 hover:text-white text-xs"
+                onClick={() => setInput('Проанализируй этот текст')}
+              >
+                <Icon name="FileText" size={14} className="mr-1" />
+                Анализ
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-600 text-gray-400 hover:text-white text-xs"
+                onClick={() => setInput('Переведи на английский')}
+              >
+                <Icon name="Languages" size={14} className="mr-1" />
+                Перевод
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-600 text-gray-400 hover:text-white text-xs"
+                onClick={() => setInput('Создай креативный текст')}
+              >
+                <Icon name="Lightbulb" size={14} className="mr-1" />
+                Креатив
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-600 text-gray-400 hover:text-white text-xs"
+                onClick={() => setInput('Объясни простыми словами')}
+              >
+                <Icon name="BookOpen" size={14} className="mr-1" />
+                Объяснение
+              </Button>
+            </div>
             <div className="flex gap-3">
               <Input
                 value={input}

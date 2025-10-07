@@ -23,24 +23,33 @@ const AdminPanel = () => {
   const models = [
     { 
       id: 'gemini', 
-      name: 'Google Gemini', 
+      name: 'Gemini 2.0 Flash Experimental', 
+      provider: 'Google',
       icon: 'Sparkles', 
       color: 'from-blue-500 to-cyan-500',
-      description: 'Мультимодальная модель от Google'
+      description: 'Мультимодальная модель с поддержкой изображений, аудио и видео',
+      status: 'FREE',
+      features: ['Мультимодальность', 'Быстрая обработка', 'Длинный контекст', 'Бесплатно']
     },
     { 
       id: 'llama', 
-      name: 'Meta Llama', 
+      name: 'Llama 3.3 70B Instruct', 
+      provider: 'Meta',
       icon: 'Cpu', 
       color: 'from-purple-500 to-pink-500',
-      description: 'Открытая модель от Meta'
+      description: '70B параметров для сложных задач и глубокого анализа',
+      status: 'FREE',
+      features: ['Open Source', 'Reasoning', 'Инструкции', 'Бесплатно']
     },
     { 
       id: 'gigachat', 
       name: 'GigaChat', 
+      provider: 'Сбербанк',
       icon: 'MessageSquare', 
       color: 'from-emerald-500 to-teal-500',
-      description: 'Российская модель от Сбера'
+      description: 'Российская языковая модель с поддержкой русского языка',
+      status: 'API',
+      features: ['Русский язык', 'Локальные данные', 'Безопасность', 'API ключ']
     }
   ];
 
@@ -100,20 +109,36 @@ const AdminPanel = () => {
                       <Icon name={model.icon as any} size={28} className="text-white" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-white mb-1">{model.name}</h3>
-                      <p className="text-gray-400 text-sm">{model.description}</p>
+                      <p className="text-xs text-gray-500 mb-1">{model.provider}</p>
+                      <h3 className="text-xl font-bold text-white mb-1">{model.name}</h3>
+                      <p className="text-gray-400 text-xs mb-2">{model.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {model.features.map((feature, idx) => (
+                          <span key={idx} className="text-xs px-2 py-1 rounded-md bg-slate-800/50 text-gray-400">
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <Label htmlFor={`toggle-${model.id}`} className="text-sm text-gray-400">
-                      {configs[model.id].enabled ? 'Включена' : 'Отключена'}
-                    </Label>
-                    <Switch
-                      id={`toggle-${model.id}`}
-                      checked={configs[model.id].enabled}
-                      onCheckedChange={() => handleToggle(model.id)}
-                    />
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                      background: model.status === 'FREE' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(99, 102, 241, 0.1)',
+                      color: model.status === 'FREE' ? '#10b981' : '#6366f1'
+                    }}>
+                      {model.status}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Label htmlFor={`toggle-${model.id}`} className="text-sm text-gray-400">
+                        {configs[model.id].enabled ? 'Включена' : 'Отключена'}
+                      </Label>
+                      <Switch
+                        id={`toggle-${model.id}`}
+                        checked={configs[model.id].enabled}
+                        onCheckedChange={() => handleToggle(model.id)}
+                      />
+                    </div>
                   </div>
                 </div>
 

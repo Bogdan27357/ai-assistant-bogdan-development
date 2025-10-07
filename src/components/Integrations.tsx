@@ -3,25 +3,31 @@ import Icon from '@/components/ui/icon';
 
 const integrations = [
   {
-    name: 'Google Gemini',
-    description: 'Мультимодальная модель от Google для комплексного анализа',
+    name: 'Gemini 2.0 Flash Experimental',
+    subtitle: 'Google',
+    description: 'Мультимодальная модель с поддержкой изображений, аудио и видео',
     icon: 'Sparkles',
     color: 'from-blue-500 to-cyan-500',
-    status: 'active'
+    status: 'free',
+    features: ['Мультимодальность', 'Быстрая обработка', 'Длинный контекст']
   },
   {
-    name: 'Meta Llama',
-    description: 'Открытая модель для генерации и обработки текста',
+    name: 'Llama 3.3 70B Instruct',
+    subtitle: 'Meta',
+    description: '70B параметров для сложных задач и глубокого анализа',
     icon: 'Cpu',
     color: 'from-purple-500 to-pink-500',
-    status: 'active'
+    status: 'free',
+    features: ['Open Source', 'Reasoning', 'Инструкции']
   },
   {
     name: 'GigaChat',
-    description: 'Российская языковая модель от Сбера',
+    subtitle: 'Сбер',
+    description: 'Российская языковая модель с поддержкой русского языка',
     icon: 'MessageSquare',
     color: 'from-emerald-500 to-teal-500',
-    status: 'active'
+    status: 'api',
+    features: ['Русский язык', 'Локальные данные', 'Безопасность']
   }
 ];
 
@@ -52,17 +58,33 @@ const Integrations = () => {
                   <Icon name={integration.icon as any} size={32} className="text-white" />
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-white">{integration.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-xs text-emerald-400 font-semibold uppercase">Active</span>
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="text-sm text-gray-400 mb-1">{integration.subtitle}</p>
+                      <h3 className="text-xl font-bold text-white">{integration.name}</h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-xs text-emerald-400 font-semibold uppercase">
+                        {integration.status === 'free' ? 'FREE' : 'API'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <p className="text-gray-400 leading-relaxed mb-6">
+                <p className="text-gray-400 leading-relaxed mb-4 text-sm">
                   {integration.description}
                 </p>
+
+                <div className="space-y-2 mb-4">
+                  {integration.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-xs text-gray-400">
+                      <div className="w-1 h-1 rounded-full bg-indigo-400" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
 
                 <div className="flex items-center gap-3 text-sm">
                   <div className="flex items-center gap-1.5 text-gray-400">

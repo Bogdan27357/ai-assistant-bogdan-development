@@ -5,10 +5,11 @@ import Features from '@/components/Features';
 import Integrations from '@/components/Integrations';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
+import AdvancedFeatures from '@/components/AdvancedFeatures';
 import Navigation from '@/components/Navigation';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features'>('home');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
@@ -23,6 +24,7 @@ const Index = () => {
       )}
       
       {currentPage === 'chat' && <ChatInterface />}
+      {currentPage === 'features' && <AdvancedFeatures />}
       {currentPage === 'admin' && <AdminPanel />}
       
       <Toaster />

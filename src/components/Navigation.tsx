@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface NavigationProps {
-  currentPage: 'home' | 'chat' | 'admin';
-  onNavigate: (page: 'home' | 'chat' | 'admin') => void;
+  currentPage: 'home' | 'chat' | 'admin' | 'features';
+  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features') => void;
 }
 
 const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
@@ -20,29 +20,41 @@ const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
             </h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button
               variant={currentPage === 'home' ? 'default' : 'ghost'}
               onClick={() => onNavigate('home')}
               className={currentPage === 'home' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+              size="sm"
             >
-              <Icon name="Home" size={18} className="mr-2" />
+              <Icon name="Home" size={16} className="mr-2" />
               Главная
             </Button>
             <Button
               variant={currentPage === 'chat' ? 'default' : 'ghost'}
               onClick={() => onNavigate('chat')}
               className={currentPage === 'chat' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+              size="sm"
             >
-              <Icon name="MessageSquare" size={18} className="mr-2" />
+              <Icon name="MessageSquare" size={16} className="mr-2" />
               Чат
+            </Button>
+            <Button
+              variant={currentPage === 'features' ? 'default' : 'ghost'}
+              onClick={() => onNavigate('features')}
+              className={currentPage === 'features' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+              size="sm"
+            >
+              <Icon name="Sparkles" size={16} className="mr-2" />
+              Функции
             </Button>
             <Button
               variant={currentPage === 'admin' ? 'default' : 'ghost'}
               onClick={() => onNavigate('admin')}
               className={currentPage === 'admin' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+              size="sm"
             >
-              <Icon name="Settings" size={18} className="mr-2" />
+              <Icon name="Settings" size={16} className="mr-2" />
               Админ
             </Button>
           </div>
