@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import Features2 from '@/components/Features2';
-import Integrations from '@/components/Integrations';
+import Footer from '@/components/Footer';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
 import AdvancedFeatures from '@/components/AdvancedFeatures';
@@ -21,7 +21,7 @@ const Index = () => {
         <>
           <Hero onStartChat={() => setCurrentPage('chat')} />
           <Features2 />
-          <Integrations />
+          <Footer />
         </>
       )}
       

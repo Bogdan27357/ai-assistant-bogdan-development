@@ -78,11 +78,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    conn = psycopg2.connect(db_url)
+    cur = conn.cursor()
+    cur.execute("SELECT file_name, content FROM knowledge_base ORDER BY created_at DESC LIMIT 10")
+    knowledge_files = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    context = ""
+    if knowledge_files:
+        context = "\n\n=== База знаний ===\n"
+        for file_name, content in knowledge_files:
+            context += f"\n[{file_name}]:\n{content[:1000]}\n"
+        context += "===================\n\n"
+    
+    enhanced_message = f"{context}Пользователь спрашивает: {message}"
+    
     url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}'
     
     payload = {
         'contents': [{
-            'parts': [{'text': message}]
+            'parts': [{'text': enhanced_message}]
         }]
     }
     
