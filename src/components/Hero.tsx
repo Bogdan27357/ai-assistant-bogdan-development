@@ -14,7 +14,7 @@ const Hero = ({ onStartChat }: HeroProps) => {
         <div className="text-center animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8">
             <Icon name="Sparkles" size={16} className="text-indigo-400" />
-            <span className="text-sm text-indigo-300">Powered by Gemini, Llama & GigaChat</span>
+            <span className="text-sm text-indigo-300">Интеллектуальный помощник нового поколения</span>
           </div>
 
           <h1 className="text-6xl md:text-7xl font-black mb-6 leading-tight">
@@ -22,12 +22,12 @@ const Hero = ({ onStartChat }: HeroProps) => {
               Богдан
             </span>
             <br />
-            <span className="text-white">ИИ-помощник будущего</span>
+            <span className="text-white">Ваш личный ИИ-помощник</span>
           </h1>
 
           <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Объединяем мощь трёх передовых ИИ-моделей для решения любых задач. 
-            Умный анализ, креативные решения, мгновенные ответы.
+            Интеллектуальный помощник для решения любых задач. 
+            Умный анализ, креативные решения, мгновенные ответы. Всегда на связи.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">

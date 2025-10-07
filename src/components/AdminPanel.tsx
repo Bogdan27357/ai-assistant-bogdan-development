@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,12 +17,15 @@ interface ApiConfig {
 const AdminPanel = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
     gemini: { enabled: true, apiKey: '' },
-    llama: { enabled: true, apiKey: '' },
-    gigachat: { enabled: true, apiKey: '' }
+    llama: { enabled: true, apiKey: '' }
   });
+  const [knowledgeFiles, setKnowledgeFiles] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadApiKeys();
+    loadKnowledgeFiles();
   }, []);
 
   const loadApiKeys = async () => {
@@ -41,36 +44,94 @@ const AdminPanel = () => {
     }
   };
 
+  const loadKnowledgeFiles = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8');
+      const data = await response.json();
+      setKnowledgeFiles(data.files || []);
+    } catch (error) {
+      console.error('Ошибка загрузки файлов');
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    
+    for (const file of Array.from(files)) {
+      try {
+        const reader = new FileReader();
+        
+        await new Promise((resolve, reject) => {
+          reader.onload = async () => {
+            try {
+              const base64 = (reader.result as string).split(',')[1];
+              
+              const response = await fetch('https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  file_name: file.name,
+                  file_content: base64,
+                  file_type: file.type || 'text/plain'
+                })
+              });
+              
+              if (response.ok) {
+                toast.success(`Файл ${file.name} загружен`);
+              }
+              resolve(true);
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      } catch (error) {
+        toast.error(`Ошибка загрузки ${file.name}`);
+      }
+    }
+    
+    setUploading(false);
+    loadKnowledgeFiles();
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDeleteFile = async (fileId: number) => {
+    try {
+      await fetch(`https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8?id=${fileId}`, {
+        method: 'DELETE'
+      });
+      toast.success('Файл удален');
+      loadKnowledgeFiles();
+    } catch (error) {
+      toast.error('Ошибка удаления');
+    }
+  };
+
   const models = [
     { 
       id: 'gemini', 
-      name: 'Gemini 2.0 Flash Experimental', 
-      provider: 'Google',
+      name: 'Модель A', 
+      provider: 'Основной помощник',
       icon: 'Sparkles', 
       color: 'from-blue-500 to-cyan-500',
-      description: 'Мультимодальная модель с поддержкой изображений, аудио и видео',
+      description: 'Быстрый и точный помощник для большинства задач',
       status: 'FREE',
-      features: ['Мультимодальность', 'Быстрая обработка', 'Длинный контекст', 'Бесплатно']
+      features: ['Быстрая обработка', 'Длинный контекст', 'Бесплатно']
     },
     { 
       id: 'llama', 
-      name: 'Llama 3.3 70B Instruct', 
-      provider: 'Meta',
+      name: 'Модель B', 
+      provider: 'Резервный помощник',
       icon: 'Cpu', 
       color: 'from-purple-500 to-pink-500',
-      description: '70B параметров для сложных задач и глубокого анализа',
+      description: 'Мощный помощник для сложных аналитических задач',
       status: 'FREE',
-      features: ['Open Source', 'Reasoning', 'Инструкции', 'Бесплатно']
-    },
-    { 
-      id: 'gigachat', 
-      name: 'GigaChat', 
-      provider: 'Сбербанк',
-      icon: 'MessageSquare', 
-      color: 'from-emerald-500 to-teal-500',
-      description: 'Российская языковая модель с поддержкой русского языка',
-      status: 'API',
-      features: ['Русский язык', 'Локальные данные', 'Безопасность', 'API ключ']
+      features: ['Глубокий анализ', 'Reasoning', 'Инструкции', 'Бесплатно']
     }
   ];
 
@@ -118,6 +179,10 @@ const AdminPanel = () => {
             <TabsTrigger value="api-keys" className="data-[state=active]:bg-indigo-600">
               <Icon name="Key" size={16} className="mr-2" />
               API Ключи
+            </TabsTrigger>
+            <TabsTrigger value="knowledge" className="data-[state=active]:bg-indigo-600">
+              <Icon name="FileUp" size={16} className="mr-2" />
+              База знаний
             </TabsTrigger>
             <TabsTrigger value="settings" className="data-[state=active]:bg-indigo-600">
               <Icon name="Settings" size={16} className="mr-2" />
@@ -210,6 +275,73 @@ const AdminPanel = () => {
                 </div>
               </Card>
             ))}
+          </TabsContent>
+
+          <TabsContent value="knowledge" className="space-y-6">
+            <Card className="p-8 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <Icon name="FileUp" size={24} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white">База знаний</h3>
+                  <p className="text-gray-400 text-sm">Загружайте файлы для обучения помощника</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:border-indigo-500 transition-colors cursor-pointer">
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    className="hidden" 
+                    multiple 
+                    accept=".txt,.pdf,.doc,.docx" 
+                  />
+                  <label htmlFor="fileUpload" className="cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    <Icon name="Upload" size={48} className="mx-auto text-gray-500 mb-4" />
+                    <p className="text-white font-semibold mb-2">{uploading ? 'Загрузка...' : 'Перетащите файлы сюда'}</p>
+                    <p className="text-gray-400 text-sm mb-4">или нажмите для выбора</p>
+                    <p className="text-xs text-gray-500">Поддерживаются: TXT, PDF, DOC, DOCX</p>
+                  </label>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="text-white font-semibold">Загруженные файлы ({knowledgeFiles.length})</h4>
+                  {knowledgeFiles.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <Icon name="FileText" size={48} className="mx-auto mb-3 opacity-50" />
+                      <p>Файлы еще не загружены</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {knowledgeFiles.map((file) => (
+                        <div key={file.id} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Icon name="FileText" size={20} className="text-indigo-400" />
+                            <div>
+                              <p className="text-white font-medium">{file.file_name}</p>
+                              <p className="text-xs text-gray-500">
+                                {(file.file_size / 1024).toFixed(2)} KB • {new Date(file.created_at).toLocaleDateString('ru-RU')}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteFile(file.id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            <Icon name="Trash2" size={18} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">

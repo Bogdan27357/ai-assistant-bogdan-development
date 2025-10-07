@@ -19,26 +19,42 @@ export const sendMessageToAI = async (
   message: string,
   sessionId: string
 ): Promise<string> => {
-  const url = API_URLS[model];
+  const models: Array<'gemini' | 'llama'> = ['gemini', 'llama'];
+  const startIndex = models.indexOf(model as 'gemini' | 'llama');
+  const attempts = startIndex >= 0 ? [...models.slice(startIndex), ...models.slice(0, startIndex)] : models;
   
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      message,
-      session_id: sessionId
-    })
-  });
+  let lastError: Error | null = null;
+  
+  for (const currentModel of attempts) {
+    try {
+      const url = API_URLS[currentModel];
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          session_id: sessionId
+        })
+      });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to get AI response');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to get AI response');
+      }
+
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`Модель ${currentModel} недоступна, переключаюсь на следующую...`);
+      continue;
+    }
   }
-
-  const data = await response.json();
-  return data.response;
+  
+  throw lastError || new Error('Все модели недоступны');
 };
 
 export const saveMessageToDB = async (

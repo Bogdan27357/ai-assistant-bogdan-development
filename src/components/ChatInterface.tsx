@@ -25,9 +25,8 @@ const ChatInterface = () => {
   }, []);
 
   const models = [
-    { id: 'gemini', name: 'Gemini 2.0 Flash', icon: 'Sparkles', color: 'text-blue-400', fullName: 'Gemini 2.0 Flash Experimental' },
-    { id: 'llama', name: 'Llama 3.3 70B', icon: 'Cpu', color: 'text-purple-400', fullName: 'Llama 3.3 70B Instruct' },
-    { id: 'gigachat', name: 'GigaChat', icon: 'MessageSquare', color: 'text-emerald-400', fullName: 'GigaChat' }
+    { id: 'gemini', name: 'Основной помощник', icon: 'Sparkles', color: 'text-blue-400', fullName: 'Основной помощник' },
+    { id: 'llama', name: 'Резервный помощник', icon: 'Cpu', color: 'text-purple-400', fullName: 'Резервный помощник' }
   ];
 
   const handleSend = async () => {

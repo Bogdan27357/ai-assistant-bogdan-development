@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Toaster } from "@/components/ui/sonner";
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
+import Features2 from '@/components/Features2';
 import Integrations from '@/components/Integrations';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
@@ -19,7 +20,7 @@ const Index = () => {
       {currentPage === 'home' && (
         <>
           <Hero onStartChat={() => setCurrentPage('chat')} />
-          <Features />
+          <Features2 />
           <Integrations />
         </>
       )}
