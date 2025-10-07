@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface NavigationProps {
-  currentPage: 'home' | 'chat' | 'admin' | 'features';
-  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features') => void;
+  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools';
+  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools') => void;
 }
 
 const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
@@ -47,6 +47,15 @@ const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
             >
               <Icon name="Sparkles" size={16} className="mr-2" />
               Функции
+            </Button>
+            <Button
+              variant={currentPage === 'tools' ? 'default' : 'ghost'}
+              onClick={() => onNavigate('tools')}
+              className={currentPage === 'tools' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+              size="sm"
+            >
+              <Icon name="Wrench" size={16} className="mr-2" />
+              ИИ Инструменты
             </Button>
             <Button
               variant={currentPage === 'admin' ? 'default' : 'ghost'}

@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Recognize speech from audio",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "audio_base64": "test",
+        "lang": "ru-RU"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "text": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

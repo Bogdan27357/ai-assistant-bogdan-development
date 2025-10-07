@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Generate image from prompt",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "prompt": "A beautiful sunset over mountains",
+        "width": 1024,
+        "height": 1024
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "prompt": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

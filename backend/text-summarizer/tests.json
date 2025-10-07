@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Summarize text",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "text": "Long text to summarize...",
+        "length": "medium"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "summary": "string",
+        "original_length": "number",
+        "summary_length": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
