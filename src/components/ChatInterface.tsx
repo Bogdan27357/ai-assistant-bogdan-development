@@ -9,6 +9,8 @@ import { Slider } from '@/components/ui/slider';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { sendMessageToAI, saveMessageToDB, generateSessionId } from '@/lib/api';
+import ChatMenu from '@/components/chat/ChatMenu';
+import { Language, getTranslations } from '@/lib/i18n';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -33,8 +35,11 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
   const [systemPrompt, setSystemPrompt] = useState('Ты Богдан - умный и дружелюбный помощник.');
   const [showSettings, setShowSettings] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [language, setLanguage] = useState<Language>('ru');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const t = getTranslations(language).chat;
 
   useEffect(() => {
     setSessionId(generateSessionId());
@@ -45,8 +50,8 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
   }, [messages]);
 
   const models = [
-    { id: 'gemini', name: 'Основной помощник', icon: 'Sparkles', color: 'text-blue-400', fullName: 'Основной помощник' },
-    { id: 'llama', name: 'Резервный помощник', icon: 'Cpu', color: 'text-purple-400', fullName: 'Резервный помощник' }
+    { id: 'gemini', name: t.primaryModel, icon: 'Sparkles', color: 'text-blue-400', fullName: t.primaryModel },
+    { id: 'llama', name: t.backupModel, icon: 'Cpu', color: 'text-purple-400', fullName: t.backupModel }
   ];
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +90,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
       await saveMessageToDB(sessionId, activeModel, 'assistant', aiResponse);
 
       setMessages(prev => [...prev, aiMessage]);
-      toast.success('Ответ получен!');
+      toast.success(t.responseReceived);
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка';
       
@@ -118,7 +123,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
 
   const exportChat = () => {
     const chatText = messages
-      .map(m => `[${m.role === 'user' ? 'Вы' : 'Богдан'}]: ${m.content}`)
+      .map(m => `[${m.role === 'user' ? t.you : 'Bogdan'}]: ${m.content}`)
       .join('\n\n');
     const blob = new Blob([chatText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -126,12 +131,36 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
     a.href = url;
     a.download = `chat-${new Date().toISOString().split('T')[0]}.txt`;
     a.click();
-    toast.success('Чат экспортирован!');
+    toast.success(t.chatExported);
   };
 
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
-    toast.success('Скопировано в буфер обмена!');
+    toast.success(t.copied);
+  };
+
+  const handleTranslate = async (text: string, from: Language, to: Language) => {
+    setInput('');
+    setIsLoading(true);
+    setIsTyping(true);
+
+    try {
+      const aiResponse = await sendMessageToAI(activeModel as 'gemini' | 'llama' | 'gigachat', text, sessionId);
+      
+      const aiMessage: Message = {
+        role: 'assistant',
+        content: aiResponse,
+        model: activeModel
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      toast.success(t.responseReceived);
+    } catch (error: any) {
+      toast.error('Translation error');
+    } finally {
+      setIsLoading(false);
+      setIsTyping(false);
+    }
   };
 
   const regenerateResponse = async () => {
@@ -150,8 +179,13 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
         <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 overflow-hidden">
           <div className="p-6 border-b border-slate-700">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-3xl font-bold text-white">Чат с Богданом</h2>
+              <h2 className="text-3xl font-bold text-white">{t.title}</h2>
               <div className="flex gap-2">
+                <ChatMenu 
+                  language={language}
+                  onLanguageChange={setLanguage}
+                  onTranslate={handleTranslate}
+                />
                 <Button
                   variant="outline"
                   size="sm"
@@ -160,7 +194,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
                   disabled={messages.length === 0}
                 >
                   <Icon name="Download" size={16} className="mr-2" />
-                  Экспорт
+                  {t.export}
                 </Button>
                 <Button
                   variant="outline"
@@ -169,7 +203,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
                   className="border-slate-600 text-gray-400 hover:text-white"
                 >
                   <Icon name="Settings" size={16} className="mr-2" />
-                  Настройки
+                  {t.settings}
                 </Button>
                 <Button
                   variant="outline"
@@ -178,7 +212,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
                   className="border-slate-600 text-gray-400 hover:text-white"
                 >
                   <Icon name="Trash2" size={16} className="mr-2" />
-                  Очистить
+                  {t.clear}
                 </Button>
               </div>
             </div>
@@ -205,32 +239,10 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6">
                   <Icon name="MessageCircle" size={40} className="text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Начните беседу</h3>
-                <p className="text-gray-400 max-w-md mb-6">
-                  Выберите ИИ модель выше и задайте любой вопрос. Богдан готов помочь!
+                <h3 className="text-2xl font-bold text-white mb-2">{t.startConversation}</h3>
+                <p className="text-gray-400 max-w-md">
+                  {t.selectModel}
                 </p>
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 max-w-md">
-                  <div className="flex items-start gap-3 mb-3">
-                    <Icon name="Info" size={20} className="text-amber-400 mt-0.5" />
-                    <div className="text-left">
-                      <p className="text-sm font-semibold text-amber-300 mb-1">Настройка API ключей</p>
-                      <p className="text-xs text-amber-200/80 mb-3">
-                        Для работы ИИ-помощника нужно настроить API ключи в админ-панели. 
-                        Перейдите в раздел "Админ-панель" → "Настройка API ключей".
-                      </p>
-                      {onNavigateToAdmin && (
-                        <Button
-                          onClick={onNavigateToAdmin}
-                          size="sm"
-                          className="bg-amber-500 hover:bg-amber-600 text-white"
-                        >
-                          <Icon name="Settings" size={16} className="mr-2" />
-                          Перейти к настройкам
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
               </div>
             ) : (
               messages.map((message, index) => (
@@ -441,7 +453,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
                     handleSend();
                   }
                 }}
-                placeholder="Напишите сообщение... (Shift+Enter для новой строки)"
+                placeholder={t.inputPlaceholder}
                 className="bg-slate-800 border-slate-700 text-white placeholder:text-gray-500 min-h-[60px] resize-none"
                 disabled={isLoading}
                 rows={2}
