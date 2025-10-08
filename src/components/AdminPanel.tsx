@@ -31,6 +31,7 @@ const AdminPanel = () => {
   useEffect(() => {
     loadApiKeys();
     loadKnowledgeFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -63,18 +64,20 @@ const AdminPanel = () => {
 
           <TabsContent value="api-keys" className="space-y-6">
             {models.map((model, index) => (
-              <ApiKeyCard
-                key={model.id}
-                model={model}
-                index={index}
-                config={configs[model.id]}
-                testing={testing[model.id] || false}
-                testResult={testResults[model.id] || null}
-                onToggle={handleToggle}
-                onSaveKey={handleSaveKey}
-                onUpdateApiKey={handleUpdateApiKey}
-                onTestApi={handleTestApi}
-              />
+              configs[model.id] && (
+                <ApiKeyCard
+                  key={model.id}
+                  model={model}
+                  index={index}
+                  config={configs[model.id]}
+                  testing={testing[model.id] || false}
+                  testResult={testResults[model.id] || null}
+                  onToggle={handleToggle}
+                  onSaveKey={handleSaveKey}
+                  onUpdateApiKey={handleUpdateApiKey}
+                  onTestApi={handleTestApi}
+                />
+              )
             ))}
           </TabsContent>
 

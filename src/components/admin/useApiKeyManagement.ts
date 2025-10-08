@@ -10,23 +10,25 @@ interface ApiConfig {
 export const models = [
   { 
     id: 'gemini', 
-    name: 'Модель A', 
-    provider: 'Основной помощник',
+    name: 'Google Gemini 2.0 Flash', 
+    provider: 'Google AI',
     icon: 'Sparkles', 
     color: 'from-blue-500 to-cyan-500',
-    description: 'Быстрый и точный помощник для большинства задач',
+    description: 'Быстрый и точный помощник от Google для большинства задач',
     status: 'FREE',
-    features: ['Быстрая обработка', 'Длинный контекст', 'Бесплатно']
+    features: ['Быстрая обработка', 'Длинный контекст', 'Бесплатно'],
+    apiDocsUrl: 'https://ai.google.dev/gemini-api/docs/api-key'
   },
   { 
     id: 'llama', 
-    name: 'Модель B', 
-    provider: 'Резервный помощник',
+    name: 'Meta Llama 3.2 Turbo', 
+    provider: 'Together AI',
     icon: 'Cpu', 
     color: 'from-purple-500 to-pink-500',
-    description: 'Мощный помощник для сложных аналитических задач',
+    description: 'Мощная модель от Meta для сложных аналитических задач',
     status: 'FREE',
-    features: ['Глубокий анализ', 'Reasoning', 'Инструкции', 'Бесплатно']
+    features: ['Глубокий анализ', 'Reasoning', 'Инструкции', 'Бесплатно'],
+    apiDocsUrl: 'https://www.together.ai/products'
   }
 ];
 

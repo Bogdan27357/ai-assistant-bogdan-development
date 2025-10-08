@@ -19,6 +19,7 @@ interface Model {
   description: string;
   status: string;
   features: string[];
+  apiDocsUrl?: string;
 }
 
 interface ApiKeyCardProps {
@@ -90,9 +91,22 @@ const ApiKeyCard = ({
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor={`api-${model.id}`} className="text-white mb-2 block">
-            API Ключ
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor={`api-${model.id}`} className="text-white">
+              API Ключ
+            </Label>
+            {model.apiDocsUrl && (
+              <a 
+                href={model.apiDocsUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+              >
+                <Icon name="ExternalLink" size={12} />
+                Получить ключ
+              </a>
+            )}
+          </div>
           <div className="flex gap-3">
             <Input
               id={`api-${model.id}`}
