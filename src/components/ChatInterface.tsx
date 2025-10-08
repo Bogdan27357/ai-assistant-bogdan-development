@@ -42,9 +42,9 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   const t = getTranslations(language).chat;
 
   const availableModels = [
-    { id: 'gemini', name: 'Gemini 2.0', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500' },
-    { id: 'llama', name: 'Llama 3.3', icon: 'Cpu', color: 'from-purple-500 to-pink-500' },
-    { id: 'deepseek', name: 'DeepSeek V3', icon: 'Brain', color: 'from-violet-500 to-purple-500' },
+    { id: 'gemini', name: 'ИИ Скорость', icon: 'Zap', color: 'from-blue-500 to-cyan-500' },
+    { id: 'llama', name: 'ИИ Логика', icon: 'Brain', color: 'from-purple-500 to-pink-500' },
+    { id: 'deepseek', name: 'ИИ Код', icon: 'Code', color: 'from-violet-500 to-purple-500' },
   ];
 
   const currentModel = availableModels.find(m => m.id === activeModel) || availableModels[0];
@@ -130,9 +130,9 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
       // Уведомляем если модель переключилась автоматически
       if (result.usedModel !== activeModel) {
         const modelNames: Record<string, string> = {
-          gemini: 'Gemini 2.0',
-          llama: 'Llama 3.3',
-          deepseek: 'DeepSeek V3'
+          gemini: 'ИИ Скорость',
+          llama: 'ИИ Логика',
+          deepseek: 'ИИ Код'
         };
         toast.info(`Переключено на ${modelNames[result.usedModel]} (основная модель недоступна)`);
       }
