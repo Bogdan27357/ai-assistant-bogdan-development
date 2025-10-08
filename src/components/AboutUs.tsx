@@ -9,7 +9,7 @@ interface AboutUsProps {
 
 const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
   const isRu = language === 'ru';
-  const [blockOrder, setBlockOrder] = useState(['stats', 'mission', 'team', 'features']);
+  const [blockOrder, setBlockOrder] = useState(['stats', 'mission', 'features']);
   const isAdminMode = false;
 
   const moveBlockUp = (index: number) => {
@@ -33,24 +33,7 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
     { value: '∞', label: isRu ? 'Возможности' : 'Capabilities', icon: 'Infinity', gradient: 'from-purple-500 to-pink-600' },
   ];
 
-  const team = [
-    {
-      name: 'Богдан Копаев',
-      role: isRu ? 'Создатель' : 'Creator',
-      position: isRu ? 'Агент отдела дополнительного обслуживания пассажиров' : 'Passenger Service Agent',
-      image: 'https://cdn.poehali.dev/files/5fc6fcd5-6e3d-43da-853e-c5244ae6d026.png',
-      gradient: 'from-purple-500 to-violet-600',
-      borderGradient: 'from-purple-500/50 to-violet-600/50'
-    },
-    {
-      name: 'Андрей Пашков',
-      role: isRu ? 'Заместитель создателя' : 'Co-Creator',
-      position: isRu ? 'Агент отдела дополнительного обслуживания пассажиров' : 'Passenger Service Agent',
-      image: 'https://cdn.poehali.dev/files/b273b4f3-9e5a-4903-9a20-079f3956ace6.png',
-      gradient: 'from-indigo-500 to-blue-600',
-      borderGradient: 'from-indigo-500/50 to-blue-600/50'
-    }
-  ];
+
 
   const features = [
     {
@@ -156,60 +139,7 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
         </div>
       </Card>
     ),
-    team: (
-      <div key="team" className="mb-24 relative">
-        {isAdminMode && (
-          <div className="absolute -top-12 right-0 flex gap-2">
-            <button onClick={() => moveBlockUp(blockOrder.indexOf('team'))} className="px-3 py-1 bg-indigo-600 rounded text-white text-sm hover:bg-indigo-700">↑</button>
-            <button onClick={() => moveBlockDown(blockOrder.indexOf('team'))} className="px-3 py-1 bg-indigo-600 rounded text-white text-sm hover:bg-indigo-700">↓</button>
-          </div>
-        )}
-        <h3 className="text-4xl font-black text-center text-white mb-4">
-          {isRu ? 'Люди, которые создали Богдана' : 'People Who Created Bogdan'}
-        </h3>
-        <p className="text-xl text-gray-400 text-center mb-12 max-w-3xl mx-auto">
-          {isRu 
-            ? 'Профессионалы аэропорта Пулково, каждый день помогающие тысячам путешественников'
-            : 'Pulkovo Airport professionals helping thousands of travelers every day'}
-        </p>
-        <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-          {team.map((member, idx) => (
-            <Card 
-              key={idx}
-              className="p-0 bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-2 border-slate-700/50 hover:border-transparent transition-all duration-500 animate-scale-in backdrop-blur-xl shadow-2xl hover:shadow-indigo-500/40 group cursor-pointer overflow-hidden"
-              style={{ animationDelay: `${idx * 0.15}s` }}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${member.borderGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative p-8">
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative mb-6">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${member.gradient} rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity`} />
-                    <div className={`relative w-48 h-48 rounded-full overflow-hidden border-4 border-transparent bg-gradient-to-br ${member.gradient} p-1`}>
-                      <div className="w-full h-full rounded-full overflow-hidden">
-                        <img 
-                          src={member.image} 
-                          alt={member.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <h4 className="text-3xl font-black text-white mb-2 group-hover:text-indigo-300 transition-colors">{member.name}</h4>
-                  <div className={`inline-block px-4 py-2 rounded-full bg-gradient-to-r ${member.gradient} mb-4`}>
-                    <p className="text-white font-bold text-sm">{member.role}</p>
-                  </div>
-                  <p className="text-gray-300 text-base leading-relaxed">
-                    {member.position}
-                    <br />
-                    <span className="text-indigo-400 font-semibold">{isRu ? 'Аэропорт Пулково' : 'Pulkovo Airport'}</span>
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-    ),
+
     features: (
       <div key="features" className="grid md:grid-cols-2 gap-8 relative">
         {isAdminMode && (
