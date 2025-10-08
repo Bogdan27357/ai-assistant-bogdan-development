@@ -115,11 +115,10 @@ const ApiKeyCard = ({
               onChange={(e) => onUpdateApiKey(model.id, e.target.value)}
               placeholder="Введите API ключ..."
               className="bg-slate-800 border-slate-700 text-white"
-              disabled={!config.enabled}
             />
             <Button
               onClick={() => onSaveKey(model.id)}
-              disabled={!config.enabled || !config.apiKey}
+              disabled={!config.apiKey}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
               <Icon name="Save" size={18} className="mr-2" />
