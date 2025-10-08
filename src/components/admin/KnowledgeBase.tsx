@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import JSZip from 'jszip';
 
 interface KnowledgeFile {
   id: number;
@@ -116,6 +117,37 @@ const KnowledgeBase = ({
     }
   };
 
+  const handleExportZip = async () => {
+    if (selectedFiles.size === 0) return;
+    
+    const zip = new JSZip();
+    const selectedFilesList = knowledgeFiles.filter(f => selectedFiles.has(f.id));
+    
+    toast.loading('📦 Создаю ZIP-архив...');
+    
+    try {
+      for (const file of selectedFilesList) {
+        const blob = new Blob([`Файл: ${file.file_name}\nРазмер: ${formatFileSize(file.file_size)}\nТип: ${file.file_type}\nДата: ${new Date(file.created_at).toLocaleString('ru-RU')}`], { type: 'text/plain' });
+        zip.file(file.file_name, blob);
+      }
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `knowledge-base-${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      const fileWord = selectedFiles.size === 1 ? 'файл' : selectedFiles.size < 5 ? 'файла' : 'файлов';
+      toast.success(`✅ Экспортировано ${selectedFiles.size} ${fileWord}`);
+    } catch (error) {
+      toast.error('❌ Ошибка при создании архива');
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'a' && filteredFiles.length > 0) {
@@ -129,6 +161,11 @@ const KnowledgeBase = ({
       
       if (e.key === 'Delete' && selectedFiles.size > 0) {
         handleBulkDelete();
+      }
+      
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e' && selectedFiles.size > 0) {
+        e.preventDefault();
+        handleExportZip();
       }
     };
 
@@ -151,6 +188,7 @@ const KnowledgeBase = ({
         {selectedFiles.size > 0 && (
           <div className="text-xs text-gray-500 bg-slate-800/50 px-3 py-2 rounded-lg border border-slate-700">
             <p className="mb-1">⌨️ Горячие клавиши:</p>
+            <p><kbd className="bg-slate-700 px-1.5 py-0.5 rounded text-gray-300">Ctrl+E</kbd> — экспорт</p>
             <p><kbd className="bg-slate-700 px-1.5 py-0.5 rounded text-gray-300">Delete</kbd> — удалить</p>
             <p><kbd className="bg-slate-700 px-1.5 py-0.5 rounded text-gray-300">Esc</kbd> — снять выделение</p>
           </div>
@@ -239,16 +277,26 @@ const KnowledgeBase = ({
             <div className="flex items-center gap-3">
               <h4 className="text-white font-semibold">Загруженные файлы ({knowledgeFiles.length})</h4>
               {selectedFiles.size > 0 && (
-                <Button
-                  onClick={handleBulkDelete}
-                  disabled={isDeleting}
-                  size="sm"
-                  variant="destructive"
-                  className="bg-red-600 hover:bg-red-700"
-                >
-                  <Icon name="Trash2" size={16} className="mr-2" />
-                  Удалить ({selectedFiles.size})
-                </Button>
+                <>
+                  <Button
+                    onClick={handleExportZip}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Icon name="Download" size={16} className="mr-2" />
+                    Экспорт ({selectedFiles.size})
+                  </Button>
+                  <Button
+                    onClick={handleBulkDelete}
+                    disabled={isDeleting}
+                    size="sm"
+                    variant="destructive"
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    <Icon name="Trash2" size={16} className="mr-2" />
+                    Удалить ({selectedFiles.size})
+                  </Button>
+                </>
               )}
             </div>
             <div className="flex gap-2">
