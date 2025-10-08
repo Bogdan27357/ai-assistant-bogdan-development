@@ -18,7 +18,8 @@ export const sendMessageToAI = async (
   model: 'gemini' | 'llama' | 'gigachat' | 'deepseek',
   message: string,
   sessionId: string,
-  files?: { name: string; type: string; size: number; content: string }[]
+  files?: { name: string; type: string; size: number; content: string }[],
+  conversationHistory?: ChatMessage[]
 ): Promise<{ response: string; usedModel: string }> => {
   // Приоритет моделей для фолбека: выбранная модель -> gemini -> llama -> deepseek
   const allModels: Array<'gemini' | 'llama' | 'deepseek'> = ['gemini', 'llama', 'deepseek'];
@@ -58,7 +59,8 @@ export const sendMessageToAI = async (
         body: JSON.stringify({
           message: enhancedMessage,
           session_id: sessionId,
-          model_id: currentModel
+          model_id: currentModel,
+          conversation_history: conversationHistory || []
         })
       });
 

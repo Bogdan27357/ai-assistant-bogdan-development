@@ -45,6 +45,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     message = body_data.get('message', '')
     model_id = body_data.get('model_id', 'gemini')
+    conversation_history = body_data.get('conversation_history', [])
     
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
@@ -96,6 +97,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     enhanced_message = f"{context}Пользователь спрашивает: {message}"
     
     if model_id == 'gigachat':
+        # Формируем историю для GigaChat
+        gigachat_messages = []
+        for msg in conversation_history:
+            gigachat_messages.append({'role': msg['role'], 'content': msg['content']})
+        gigachat_messages.append({'role': 'user', 'content': enhanced_message})
+        
         token_response = requests.post(
             'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',
             headers={'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json', 'RqUID': 'AI-Platform'},
@@ -117,7 +124,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         response = requests.post(
             'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
             headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'},
-            json={'model': 'GigaChat-Pro', 'messages': [{'role': 'user', 'content': enhanced_message}]},
+            json={'model': 'GigaChat-Pro', 'messages': gigachat_messages},
             verify=False
         )
         
@@ -141,9 +148,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         model_name = model_mapping.get(model_id, 'google/gemini-2.0-flash-exp:free')
         
+        # Формируем историю для OpenRouter
+        messages = []
+        for msg in conversation_history:
+            messages.append({'role': msg['role'], 'content': msg['content']})
+        messages.append({'role': 'user', 'content': enhanced_message})
+        
         payload = {
             'model': model_name,
-            'messages': [{'role': 'user', 'content': enhanced_message}]
+            'messages': messages
         }
         
         headers = {

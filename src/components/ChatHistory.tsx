@@ -14,6 +14,7 @@ import {
   getAllTags,
   filterAndSortSessions
 } from './chat-history/utils';
+import { perform_sql_query } from '@/lib/api';
 
 const ChatHistory = () => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);

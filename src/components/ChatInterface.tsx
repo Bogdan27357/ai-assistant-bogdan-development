@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
-import { sendMessageToAI, saveMessageToDB, generateSessionId } from '@/lib/api';
+import { sendMessageToAI, saveMessageToDB, generateSessionId, getChatHistory } from '@/lib/api';
 import { Language, getTranslations } from '@/lib/i18n';
 import { useVoice } from '@/hooks/useVoice';
+import MarkdownMessage from '@/components/MarkdownMessage';
+import { promptCategories } from '@/data/promptCategories';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +17,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -120,11 +129,19 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
 
     try {
       await saveMessageToDB(sessionId, activeModel, 'user', messageContent);
+      
+      // Формируем историю диалога (последние 10 сообщений для контекста)
+      const conversationHistory = messages.slice(-10).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      
       const result = await sendMessageToAI(
         activeModel as 'gemini' | 'llama' | 'gigachat' | 'deepseek', 
         userInput, 
         sessionId,
-        uploadedFiles.length > 0 ? uploadedFiles : undefined
+        uploadedFiles.length > 0 ? uploadedFiles : undefined,
+        conversationHistory
       );
 
       // Уведомляем если модель переключилась автоматически
@@ -213,6 +230,58 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 </div>
               </div>
               <div className="flex gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-slate-600 text-gray-300 hover:text-white hover:bg-slate-700"
+                    >
+                      <Icon name="Sparkles" size={16} className="mr-2" />
+                      Промпты
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-slate-900 border-slate-700 max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold text-gradient">
+                        Библиотека промптов
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-6">
+                      {promptCategories.map((category) => (
+                        <div key={category.id} className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center`}>
+                              <Icon name={category.icon as any} size={20} className="text-white" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white">{category.name}</h3>
+                          </div>
+                          <div className="grid md:grid-cols-2 gap-3">
+                            {category.prompts.map((prompt) => (
+                              <Card
+                                key={prompt.id}
+                                className="p-4 glass-effect border-slate-700/50 hover:border-indigo-500/50 cursor-pointer transition-all"
+                                onClick={() => {
+                                  setInput(prompt.prompt);
+                                  toast.success('Промпт добавлен! Заполните переменные.');
+                                }}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <Icon name={prompt.icon as any} size={18} className="text-indigo-400 mt-1" />
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-white mb-1">{prompt.title}</h4>
+                                    <p className="text-xs text-gray-400">{prompt.description}</p>
+                                  </div>
+                                </div>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -329,7 +398,11 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                         : 'glass-effect text-gray-100'
                     }`}
                   >
-                    <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    {message.role === 'assistant' ? (
+                      <MarkdownMessage content={message.content} />
+                    ) : (
+                      <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    )}
                     {message.role === 'assistant' && (
                       <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700/50">
                         {message.content.includes('API ключи') && onNavigateToAdmin && (
