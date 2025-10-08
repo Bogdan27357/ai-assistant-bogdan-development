@@ -17,7 +17,8 @@ export interface ChatMessage {
 export const sendMessageToAI = async (
   model: 'gemini' | 'llama' | 'gigachat',
   message: string,
-  sessionId: string
+  sessionId: string,
+  files?: { name: string; type: string; size: number; content: string }[]
 ): Promise<string> => {
   const models: Array<'gemini' | 'llama'> = ['gemini', 'llama'];
   const startIndex = models.indexOf(model as 'gemini' | 'llama');
@@ -29,13 +30,28 @@ export const sendMessageToAI = async (
     try {
       const url = API_URLS.gemini;
       
+      // Если есть файлы, добавляем их содержимое к сообщению
+      let enhancedMessage = message;
+      if (files && files.length > 0) {
+        const filesContent = files.map(f => {
+          try {
+            const decoded = atob(f.content);
+            return `\n\n--- Файл: ${f.name} ---\n${decoded}\n--- Конец файла ---`;
+          } catch (e) {
+            return `\n\n--- Файл: ${f.name} (не удалось прочитать) ---`;
+          }
+        }).join('\n');
+        
+        enhancedMessage = `${message}\n\n📎 Загруженные файлы для анализа:${filesContent}`;
+      }
+      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message,
+          message: enhancedMessage,
           session_id: sessionId,
           model_id: currentModel
         })

@@ -67,11 +67,17 @@ export const useApiKeyManagement = () => {
   const loadApiKeys = async () => {
     try {
       const keys = await getApiKeys();
-      const newConfigs: Record<string, ApiConfig> = {};
+      const newConfigs: Record<string, ApiConfig> = {
+        gemini: { enabled: true, apiKey: '' },
+        llama: { enabled: true, apiKey: '' },
+        gigachat: { enabled: false, apiKey: '' },
+        deepseek: { enabled: true, apiKey: '' }
+      };
+      
       keys.forEach(key => {
         newConfigs[key.model_id] = {
           enabled: key.enabled,
-          apiKey: key.has_key ? '••••••••••••' : ''
+          apiKey: '' // Всегда пустое поле для безопасности
         };
       });
       setConfigs(newConfigs);
@@ -83,7 +89,8 @@ export const useApiKeyManagement = () => {
   const handleToggle = async (modelId: string) => {
     const newEnabled = !configs[modelId].enabled;
     try {
-      await saveApiKey(modelId, configs[modelId].apiKey.replace(/•/g, ''), newEnabled);
+      // Отправляем пустую строку если нет ключа
+      await saveApiKey(modelId, configs[modelId].apiKey || '', newEnabled);
       setConfigs(prev => ({
         ...prev,
         [modelId]: { ...prev[modelId], enabled: newEnabled }
@@ -116,9 +123,9 @@ export const useApiKeyManagement = () => {
     setTestResults(prev => ({ ...prev, [modelId]: null }));
 
     try {
-      const apiKey = configs[modelId].apiKey.replace(/•/g, '');
+      const apiKey = configs[modelId].apiKey;
       
-      if (!apiKey || apiKey.length < 10) {
+      if (!apiKey || apiKey.trim().length < 10) {
         setTestResults(prev => ({
           ...prev,
           [modelId]: { success: false, message: 'Введите корректный API ключ' }

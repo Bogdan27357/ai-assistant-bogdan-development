@@ -111,8 +111,13 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     setIsLoading(true);
 
     try {
-      await saveMessageToDB(sessionId, activeModel, 'user', userInput);
-      const aiResponse = await sendMessageToAI(activeModel as 'gemini' | 'llama' | 'gigachat' | 'deepseek', userInput, sessionId);
+      await saveMessageToDB(sessionId, activeModel, 'user', messageContent);
+      const aiResponse = await sendMessageToAI(
+        activeModel as 'gemini' | 'llama' | 'gigachat' | 'deepseek', 
+        userInput, 
+        sessionId,
+        uploadedFiles.length > 0 ? uploadedFiles : undefined
+      );
 
       const aiMessage: Message = {
         role: 'assistant',
