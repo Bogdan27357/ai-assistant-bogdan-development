@@ -5,8 +5,8 @@ import Icon from '@/components/ui/icon';
 import { Language, languages, getTranslations } from '@/lib/i18n';
 
 interface NavigationProps {
-  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api';
-  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api') => void;
+  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api' | 'content-editor';
+  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api' | 'content-editor') => void;
   language?: Language;
   onLanguageChange?: (lang: Language) => void;
   user?: { email: string; name: string } | null;
@@ -91,8 +91,8 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant={['images', 'prompts', 'code', 'assistants', 'voice', 'documents', 'telegram', 'history', 'api'].includes(currentPage) ? 'default' : 'ghost'}
-                  className={['images', 'prompts', 'code', 'assistants', 'voice', 'documents', 'telegram', 'history', 'api'].includes(currentPage) ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+                  variant={['images', 'prompts', 'code', 'assistants', 'voice', 'documents', 'telegram', 'history', 'api', 'content-editor'].includes(currentPage) ? 'default' : 'ghost'}
+                  className={['images', 'prompts', 'code', 'assistants', 'voice', 'documents', 'telegram', 'history', 'api', 'content-editor'].includes(currentPage) ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
                   size="sm"
                 >
                   <Icon name="Grid3x3" size={16} className="mr-2" />
@@ -163,6 +163,13 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
                 >
                   <Icon name="Code2" size={16} className="mr-2" />
                   API для разработчиков
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onNavigate('content-editor')}
+                  className="text-white hover:bg-slate-800 cursor-pointer"
+                >
+                  <Icon name="Edit" size={16} className="mr-2" />
+                  Редактор контента
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

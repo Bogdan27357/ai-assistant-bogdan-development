@@ -1,16 +1,25 @@
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Language } from '@/lib/i18n';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface AboutUsProps {
   language?: Language;
+}
+
+interface TeamMember {
+  name: string;
+  role: string;
+  telegram: string;
+  photo: string;
+  description: string;
 }
 
 const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
   const isRu = language === 'ru';
   const [blockOrder, setBlockOrder] = useState(['stats', 'mission', 'features']);
   const isAdminMode = false;
+  const [teamData, setTeamData] = useState<TeamMember[]>([]);
 
   const moveBlockUp = (index: number) => {
     if (index === 0) return;
@@ -35,24 +44,35 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
 
 
 
-  const team = [
-    {
-      name: 'Богдан Копаев',
-      role: isRu ? 'Основатель и разработчик' : 'Founder & Developer',
-      telegram: '@Bogdan2733',
-      photo: '👨‍💻',
-      gradient: 'from-indigo-500 to-purple-600',
-      description: isRu ? 'Создатель AI платформы Богдан' : 'Creator of Bogdan AI Platform'
-    },
-    {
-      name: 'Андрей Пашков',
-      role: isRu ? 'Сооснователь' : 'Co-Founder',
-      telegram: '@suvarchikk',
-      photo: '🚀',
-      gradient: 'from-purple-500 to-pink-600',
-      description: isRu ? 'Эксперт по продукту и стратегии' : 'Product & Strategy Expert'
+  useEffect(() => {
+    const savedContent = localStorage.getItem('site_content');
+    if (savedContent) {
+      const content = JSON.parse(savedContent);
+      setTeamData(content.team);
+    } else {
+      setTeamData([
+        {
+          name: 'Богдан Копаев',
+          role: 'Создатель',
+          telegram: '@Bogdan2733',
+          photo: 'https://cdn.poehali.dev/files/7bf062e6-83f5-4f27-bfde-bf075558730b.png',
+          description: 'Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково'
+        },
+        {
+          name: 'Андрей Пашков',
+          role: 'Заместитель создателя',
+          telegram: '@suvarchikk',
+          photo: 'https://cdn.poehali.dev/files/7bf062e6-83f5-4f27-bfde-bf075558730b.png',
+          description: 'Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково'
+        }
+      ]);
     }
-  ];
+  }, []);
+
+  const team = teamData.map((member, idx) => ({
+    ...member,
+    gradient: idx === 0 ? 'from-indigo-500 to-purple-600' : 'from-purple-500 to-pink-600'
+  }));
 
   const features = [
     {
@@ -178,8 +198,12 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
               style={{ animationDelay: `${idx * 0.1}s` }}
             >
               <div className="text-center">
-                <div className={`w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-6xl shadow-2xl group-hover:scale-110 transition-transform`}>
-                  {member.photo}
+                <div className={`w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform overflow-hidden`}>
+                  {member.photo.startsWith('http') ? (
+                    <img src={member.photo} alt={member.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-6xl">{member.photo}</span>
+                  )}
                 </div>
                 <h4 className="text-2xl font-black text-white mb-2">{member.name}</h4>
                 <p className="text-indigo-400 font-medium mb-4">{member.role}</p>
