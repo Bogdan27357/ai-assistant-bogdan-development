@@ -35,26 +35,49 @@ const AITools = () => {
 
     setLoading(true);
     try {
-      const translationMap: Record<string, Record<string, string>> = {
-        'Привет, как дела?': { en: 'Hello, how are you?', es: 'Hola, ¿cómo estás?', fr: 'Bonjour, comment allez-vous?', de: 'Hallo, wie geht es dir?', zh: '你好，你好吗？', ja: 'こんにちは、お元気ですか？', ko: '안녕하세요, 어떻게 지내세요?', ar: 'مرحبا، كيف حالك؟', pt: 'Olá, como vai?' },
-        'Hello, how are you?': { ru: 'Привет, как дела?', es: 'Hola, ¿cómo estás?', fr: 'Bonjour, comment allez-vous?', de: 'Hallo, wie geht es dir?', zh: '你好，你好吗？', ja: 'こんにちは、お元気ですか？', ko: '안녕하세요, 어떻게 지내세요?', ar: 'مرحبا، كيف حالك؟', pt: 'Olá, como vai?' }
-      };
+      await new Promise(resolve => setTimeout(resolve, 600));
 
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      const exactTranslation = translationMap[translatorText]?.[targetLang];
+      const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(translatorText)}`;
       
-      if (exactTranslation) {
-        setTranslatedText(exactTranslation);
-      } else {
-        const langNames: Record<string, string> = {
-          en: 'английский', es: 'испанский', fr: 'французский', de: 'немецкий',
-          zh: 'китайский', ja: 'японский', ko: 'корейский', ar: 'арабский', pt: 'португальский', ru: 'русский'
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        if (data && data[0] && data[0][0] && data[0][0][0]) {
+          const translated = data[0].map((item: any) => item[0]).join('');
+          setTranslatedText(translated);
+          toast.success('Текст переведен!');
+        } else {
+          throw new Error('Invalid response');
+        }
+      } catch (apiError) {
+        const fallbackTranslations: Record<string, Record<string, string>> = {
+          'Привет': { en: 'Hello', es: 'Hola', fr: 'Bonjour', de: 'Hallo', zh: '你好', ja: 'こんにちは', ko: '안녕하세요', ar: 'مرحبا', pt: 'Olá' },
+          'Спасибо': { en: 'Thank you', es: 'Gracias', fr: 'Merci', de: 'Danke', zh: '谢谢', ja: 'ありがとう', ko: '감사합니다', ar: 'شكرا', pt: 'Obrigado' },
+          'Как дела?': { en: 'How are you?', es: '¿Cómo estás?', fr: 'Comment allez-vous?', de: 'Wie geht es dir?', zh: '你好吗？', ja: 'お元気ですか？', ko: '어떻게 지내세요?', ar: 'كيف حالك؟', pt: 'Como vai?' },
+          'Да': { en: 'Yes', es: 'Sí', fr: 'Oui', de: 'Ja', zh: '是', ja: 'はい', ko: '네', ar: 'نعم', pt: 'Sim' },
+          'Нет': { en: 'No', es: 'No', fr: 'Non', de: 'Nein', zh: '不', ja: 'いいえ', ko: '아니요', ar: 'لا', pt: 'Não' },
+          'Пожалуйста': { en: 'Please', es: 'Por favor', fr: "S'il vous plaît", de: 'Bitte', zh: '请', ja: 'お願いします', ko: '제발', ar: 'من فضلك', pt: 'Por favor' },
+          'Извините': { en: 'Sorry', es: 'Lo siento', fr: 'Désolé', de: 'Entschuldigung', zh: '对不起', ja: 'ごめんなさい', ko: '죄송합니다', ar: 'آسف', pt: 'Desculpe' },
+          'Hello': { ru: 'Привет', es: 'Hola', fr: 'Bonjour', de: 'Hallo', zh: '你好', ja: 'こんにちは', ko: '안녕하세요', ar: 'مرحبا', pt: 'Olá' },
+          'Thank you': { ru: 'Спасибо', es: 'Gracias', fr: 'Merci', de: 'Danke', zh: '谢谢', ja: 'ありがとう', ko: '감사합니다', ar: 'شكرا', pt: 'Obrigado' },
+          'Yes': { ru: 'Да', es: 'Sí', fr: 'Oui', de: 'Ja', zh: '是', ja: 'はい', ko: '네', ar: 'نعم', pt: 'Sim' },
+          'No': { ru: 'Нет', es: 'No', fr: 'Non', de: 'Nein', zh: '不', ja: 'いいえ', ko: '아니요', ar: 'لا', pt: 'Não' }
         };
-        setTranslatedText(`[Перевод на ${langNames[targetLang]}]: ${translatorText}`);
+
+        const fallback = fallbackTranslations[translatorText.trim()]?.[targetLang];
+        if (fallback) {
+          setTranslatedText(fallback);
+          toast.success('Текст переведен! (демо-режим)');
+        } else {
+          const langNames: Record<string, string> = {
+            en: 'английский', es: 'испанский', fr: 'французский', de: 'немецкий',
+            zh: 'китайский', ja: 'японский', ko: 'корейский', ar: 'арабский', pt: 'португальский', ru: 'русский'
+          };
+          setTranslatedText(`[${langNames[sourceLang]} → ${langNames[targetLang]}]: ${translatorText}`);
+          toast.success('Демо-перевод выполнен');
+        }
       }
-      
-      toast.success('Текст переведен!');
     } catch (error) {
       toast.error('Ошибка перевода');
     } finally {
