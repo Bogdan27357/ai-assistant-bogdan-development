@@ -11,6 +11,7 @@ interface WeatherData {
   icon: string;
   city: string;
   wind_speed: number;
+  isRealData?: boolean;
 }
 
 const WeatherWidget = () => {
@@ -21,11 +22,12 @@ const WeatherWidget = () => {
   });
   const [inputCity, setInputCity] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isRealData, setIsRealData] = useState(true);
 
   const fetchWeather = async (cityName: string) => {
     setLoading(true);
     try {
-      const API_KEY = '3cf358a41d1c9cac229f57ff138c2e2d';
+      const API_KEY = 'e5dc0e94fcbedc46163c6ef4c9429d2c';
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&appid=${API_KEY}&units=metric&lang=ru`
       );
@@ -43,11 +45,13 @@ const WeatherWidget = () => {
         description: data.weather[0].description,
         icon: data.weather[0].icon,
         city: data.name,
-        wind_speed: Math.round(data.wind.speed)
+        wind_speed: Math.round(data.wind.speed),
+        isRealData: true
       };
 
       setWeather(weatherData);
       setCity(weatherData.city);
+      setIsRealData(true);
       localStorage.setItem('weatherCity', weatherData.city);
     } catch (error: any) {
       console.error('Ошибка загрузки погоды:', error);
@@ -67,11 +71,13 @@ const WeatherWidget = () => {
         description: 'переменная облачность',
         icon: '03d',
         city: cityName,
-        wind_speed: Math.floor(Math.random() * 5) + 2
+        wind_speed: Math.floor(Math.random() * 5) + 2,
+        isRealData: false
       };
 
       setWeather(weatherData);
       setCity(weatherData.city);
+      setIsRealData(false);
       localStorage.setItem('weatherCity', weatherData.city);
     } finally {
       setLoading(false);
@@ -119,10 +125,17 @@ const WeatherWidget = () => {
       
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-black text-white flex items-center gap-2">
-            <Icon name="CloudSun" size={28} className="text-cyan-400" />
-            Погода
-          </h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-2xl font-black text-white flex items-center gap-2">
+              <Icon name="CloudSun" size={28} className="text-cyan-400" />
+              Погода
+            </h3>
+            {!isRealData && (
+              <span className="text-xs px-2 py-1 bg-orange-500/20 border border-orange-500/40 rounded-full text-orange-300 font-medium">
+                Демо-режим
+              </span>
+            )}
+          </div>
           <div className="flex gap-2">
             <input
               type="text"
