@@ -401,7 +401,7 @@ app.post('/webhook', (req, res) => {
                           >
                             <div className="flex items-center gap-2 mb-1">
                               <Icon
-                                name={msg.isBot ? "Bot" : "User"}
+                                name={msg.isBot ? "BotMessageSquare" : "User"}
                                 size={14}
                                 className={msg.isBot ? 'text-blue-400' : 'text-green-400'}
                               />

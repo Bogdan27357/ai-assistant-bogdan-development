@@ -35,6 +35,25 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
 
 
 
+  const team = [
+    {
+      name: 'Богдан Копаев',
+      role: isRu ? 'Основатель и разработчик' : 'Founder & Developer',
+      telegram: '@Bogdan2733',
+      photo: '👨‍💻',
+      gradient: 'from-indigo-500 to-purple-600',
+      description: isRu ? 'Создатель AI платформы Богдан' : 'Creator of Bogdan AI Platform'
+    },
+    {
+      name: 'Андрей Пашков',
+      role: isRu ? 'Сооснователь' : 'Co-Founder',
+      telegram: '@suvarchikk',
+      photo: '🚀',
+      gradient: 'from-purple-500 to-pink-600',
+      description: isRu ? 'Эксперт по продукту и стратегии' : 'Product & Strategy Expert'
+    }
+  ];
+
   const features = [
     {
       icon: 'Brain',
@@ -141,26 +160,72 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
     ),
 
     features: (
-      <div key="features" className="grid md:grid-cols-2 gap-8 relative">
-        {isAdminMode && (
-          <div className="absolute -top-12 right-0 flex gap-2">
-            <button onClick={() => moveBlockUp(blockOrder.indexOf('features'))} className="px-3 py-1 bg-indigo-600 rounded text-white text-sm hover:bg-indigo-700">↑</button>
-            <button onClick={() => moveBlockDown(blockOrder.indexOf('features'))} className="px-3 py-1 bg-indigo-600 rounded text-white text-sm hover:bg-indigo-700">↓</button>
-          </div>
-        )}
-        {features.map((feature, idx) => (
-          <Card 
-            key={idx}
-            className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 p-8 hover:scale-105 transition-all duration-500 animate-scale-in backdrop-blur-xl shadow-2xl hover:shadow-indigo-500/30 group cursor-pointer"
-            style={{ animationDelay: `${idx * 0.1}s` }}
-          >
-            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 transition-transform`}>
-              <Icon name={feature.icon as any} size={28} className="text-white" />
+      <div key="features" className="space-y-16">
+        <div className="text-center mb-12">
+          <h3 className="text-4xl font-black text-white mb-4">
+            {isRu ? 'Наша команда' : 'Our Team'}
+          </h3>
+          <p className="text-xl text-gray-400">
+            {isRu ? 'Познакомьтесь с создателями проекта' : 'Meet the project creators'}
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+          {team.map((member, idx) => (
+            <Card
+              key={idx}
+              className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 p-8 hover:scale-105 transition-all duration-500 animate-scale-in backdrop-blur-xl shadow-2xl hover:shadow-indigo-500/30 group cursor-pointer"
+              style={{ animationDelay: `${idx * 0.1}s` }}
+            >
+              <div className="text-center">
+                <div className={`w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-6xl shadow-2xl group-hover:scale-110 transition-transform`}>
+                  {member.photo}
+                </div>
+                <h4 className="text-2xl font-black text-white mb-2">{member.name}</h4>
+                <p className="text-indigo-400 font-medium mb-4">{member.role}</p>
+                <p className="text-gray-400 mb-6 text-sm">{member.description}</p>
+                <a
+                  href={`https://t.me/${member.telegram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r ${member.gradient} text-white font-semibold hover:scale-110 transition-transform shadow-lg`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Icon name="Send" size={18} />
+                  {member.telegram}
+                </a>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <div className="text-center mb-12">
+          <h3 className="text-4xl font-black text-white mb-4">
+            {isRu ? 'Наши преимущества' : 'Our Advantages'}
+          </h3>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 relative">
+          {isAdminMode && (
+            <div className="absolute -top-12 right-0 flex gap-2">
+              <button onClick={() => moveBlockUp(blockOrder.indexOf('features'))} className="px-3 py-1 bg-indigo-600 rounded text-white text-sm hover:bg-indigo-700">↑</button>
+              <button onClick={() => moveBlockDown(blockOrder.indexOf('features'))} className="px-3 py-1 bg-indigo-600 rounded text-white text-sm hover:bg-indigo-700">↓</button>
             </div>
-            <h3 className="text-2xl font-black text-white mb-4 group-hover:text-indigo-300 transition-colors">{feature.title}</h3>
-            <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
-          </Card>
-        ))}
+          )}
+          {features.map((feature, idx) => (
+            <Card 
+              key={idx}
+              className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 p-8 hover:scale-105 transition-all duration-500 animate-scale-in backdrop-blur-xl shadow-2xl hover:shadow-indigo-500/30 group cursor-pointer"
+              style={{ animationDelay: `${idx * 0.1}s` }}
+            >
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 transition-transform`}>
+                <Icon name={feature.icon as any} size={28} className="text-white" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-4 group-hover:text-indigo-300 transition-colors">{feature.title}</h3>
+              <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+            </Card>
+          ))}
+        </div>
       </div>
     )
   };

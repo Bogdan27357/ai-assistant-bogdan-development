@@ -312,7 +312,7 @@ const ChatHistory = () => {
               <div className="space-y-2 max-h-[600px] overflow-y-auto scrollbar-thin">
                 {filteredSessions.length === 0 ? (
                   <div className="text-center py-8">
-                    <Icon name="MessageSquareOff" size={48} className="text-slate-600 mx-auto mb-3" />
+                    <Icon name="MessageSquareX" size={48} className="text-slate-600 mx-auto mb-3" />
                     <p className="text-sm text-slate-500">Диалоги не найдены</p>
                   </div>
                 ) : (

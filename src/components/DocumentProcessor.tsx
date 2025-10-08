@@ -29,10 +29,10 @@ const DocumentProcessor = () => {
     { ext: 'PDF', icon: 'FileText', color: 'text-red-400' },
     { ext: 'DOCX', icon: 'FileText', color: 'text-blue-400' },
     { ext: 'DOC', icon: 'FileText', color: 'text-blue-400' },
-    { ext: 'XLSX', icon: 'Sheet', color: 'text-green-400' },
-    { ext: 'XLS', icon: 'Sheet', color: 'text-green-400' },
+    { ext: 'XLSX', icon: 'FileSpreadsheet', color: 'text-green-400' },
+    { ext: 'XLS', icon: 'FileSpreadsheet', color: 'text-green-400' },
     { ext: 'TXT', icon: 'FileText', color: 'text-slate-400' },
-    { ext: 'CSV', icon: 'Table', color: 'text-yellow-400' },
+    { ext: 'CSV', icon: 'Table2', color: 'text-yellow-400' },
   ];
 
   const processingActions = [
