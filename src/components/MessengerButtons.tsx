@@ -15,7 +15,7 @@ const MessengerButtons = () => {
     {
       name: 'WhatsApp',
       icon: 'MessageCircle',
-      href: 'https://wa.me/79999999999',
+      href: 'https://wa.me/79218572049',
       color: 'from-green-500 to-green-600',
       hoverColor: 'hover:from-green-600 hover:to-green-700'
     },
@@ -29,7 +29,7 @@ const MessengerButtons = () => {
     {
       name: 'Позвонить',
       icon: 'Phone',
-      href: 'tel:+79999999999',
+      href: 'tel:+79218572049',
       color: 'from-purple-500 to-purple-600',
       hoverColor: 'hover:from-purple-600 hover:to-purple-700'
     }
