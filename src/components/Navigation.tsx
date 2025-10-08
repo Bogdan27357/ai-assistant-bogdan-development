@@ -5,13 +5,15 @@ import Icon from '@/components/ui/icon';
 import { Language, languages } from '@/lib/i18n';
 
 interface NavigationProps {
-  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools';
-  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools') => void;
+  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile';
+  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile') => void;
   language?: Language;
   onLanguageChange?: (lang: Language) => void;
+  user?: { email: string; name: string } | null;
+  onAuthClick?: () => void;
 }
 
-const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange }: NavigationProps) => {
+const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange, user, onAuthClick }: NavigationProps) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-950/90 via-purple-950/90 to-blue-950/90 backdrop-blur-lg border-b border-indigo-500/20">
       <div className="container mx-auto px-6 py-4">
@@ -93,6 +95,28 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
               <Icon name="Settings" size={16} className="mr-2" />
               Админ
             </Button>
+            
+            {user ? (
+              <Button
+                variant={currentPage === 'profile' ? 'default' : 'ghost'}
+                onClick={() => onNavigate('profile')}
+                className={currentPage === 'profile' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+                size="sm"
+              >
+                <Icon name="User" size={16} className="mr-2" />
+                {user.name}
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                onClick={onAuthClick}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                size="sm"
+              >
+                <Icon name="LogIn" size={16} className="mr-2" />
+                Войти
+              </Button>
+            )}
           </div>
         </div>
       </div>

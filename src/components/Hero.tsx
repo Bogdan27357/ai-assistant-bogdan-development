@@ -67,14 +67,6 @@ const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
               <Icon name="MessageCircle" size={28} className="mr-3" />
               {isRu ? 'Начать общение' : 'Start Conversation'}
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="border-2 border-indigo-400/40 text-white hover:bg-indigo-500/20 px-10 py-7 text-xl font-bold rounded-2xl backdrop-blur-sm shadow-xl hover:scale-105 transition-all"
-            >
-              <Icon name="Play" size={28} className="mr-3" />
-              {isRu ? 'Посмотреть демо' : 'Watch Demo'}
-            </Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">

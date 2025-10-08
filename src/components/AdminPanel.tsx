@@ -63,13 +63,14 @@ const AdminPanel = () => {
           </TabsList>
 
           <TabsContent value="api-keys" className="space-y-6">
-            {models.map((model, index) => (
-              configs[model.id] && (
+            {models.map((model, index) => {
+              const config = configs[model.id] || { enabled: false, apiKey: '' };
+              return (
                 <ApiKeyCard
                   key={model.id}
                   model={model}
                   index={index}
-                  config={configs[model.id]}
+                  config={config}
                   testing={testing[model.id] || false}
                   testResult={testResults[model.id] || null}
                   onToggle={handleToggle}
@@ -77,8 +78,8 @@ const AdminPanel = () => {
                   onUpdateApiKey={handleUpdateApiKey}
                   onTestApi={handleTestApi}
                 />
-              )
-            ))}
+              );
+            })}
           </TabsContent>
 
           <TabsContent value="knowledge" className="space-y-6">

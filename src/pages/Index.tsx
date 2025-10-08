@@ -10,15 +10,23 @@ import AdminPanel from '@/components/AdminPanel';
 import AdvancedFeatures from '@/components/AdvancedFeatures';
 import AITools from '@/components/AITools';
 import Navigation from '@/components/Navigation';
+import Auth from '@/components/Auth';
+import Profile from '@/components/Profile';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features' | 'tools'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'auth'>('home');
   const [language, setLanguage] = useState<Language>('ru');
+  const [user, setUser] = useState<{ email: string; name: string } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('language');
     if (stored) setLanguage(stored as Language);
+    
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const handleLanguageChange = (lang: Language) => {
@@ -26,14 +34,28 @@ const Index = () => {
     localStorage.setItem('language', lang);
   };
 
+  const handleAuth = (newUser: { email: string; name: string }) => {
+    setUser(newUser);
+    setCurrentPage('home');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentPage('home');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
-      <Navigation 
-        currentPage={currentPage} 
-        onNavigate={setCurrentPage}
-        language={language}
-        onLanguageChange={handleLanguageChange}
-      />
+      {currentPage !== 'auth' && (
+        <Navigation 
+          currentPage={currentPage} 
+          onNavigate={setCurrentPage}
+          language={language}
+          onLanguageChange={handleLanguageChange}
+          user={user}
+          onAuthClick={() => setCurrentPage('auth')}
+        />
+      )}
       
       {currentPage === 'home' && (
         <>
@@ -49,6 +71,8 @@ const Index = () => {
       {currentPage === 'features' && <AdvancedFeatures />}
       {currentPage === 'tools' && <AITools />}
       {currentPage === 'admin' && <AdminPanel />}
+      {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
+      {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
       
       <Toaster />
     </div>
