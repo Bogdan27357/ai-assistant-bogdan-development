@@ -9,25 +9,14 @@ interface ApiConfig {
 
 export const models = [
   { 
-    id: 'gemini', 
-    name: 'Google Gemini 2.0 Flash', 
+    id: 'openrouter', 
+    name: 'OpenRouter API', 
     provider: 'OpenRouter',
-    icon: 'Sparkles', 
-    color: 'from-blue-500 to-cyan-500',
-    description: 'Быстрый и точный помощник от Google через OpenRouter',
+    icon: 'Key', 
+    color: 'from-indigo-500 to-purple-500',
+    description: 'Единый ключ для доступа ко всем бесплатным AI моделям',
     status: 'FREE',
-    features: ['Быстрая обработка', 'Длинный контекст', 'Pay-as-you-go'],
-    apiDocsUrl: 'https://openrouter.ai/keys'
-  },
-  { 
-    id: 'llama', 
-    name: 'Meta Llama 3.3 70B', 
-    provider: 'OpenRouter',
-    icon: 'Cpu', 
-    color: 'from-purple-500 to-pink-500',
-    description: 'Мощная модель от Meta для сложных аналитических задач через OpenRouter',
-    status: 'FREE',
-    features: ['Глубокий анализ', 'Reasoning', 'Инструкции', 'Pay-as-you-go'],
+    features: ['Все модели', 'Pay-as-you-go', 'Бесплатные опции'],
     apiDocsUrl: 'https://openrouter.ai/keys'
   },
   { 
@@ -40,27 +29,72 @@ export const models = [
     status: 'PAID',
     features: ['Русский язык', 'Специализация РФ', 'Безопасность'],
     apiDocsUrl: 'https://developers.sber.ru/docs/ru/gigachat/api/reference/rest/get-token'
+  }
+];
+
+export const freeModels = [
+  {
+    id: 'gemini',
+    name: 'Google Gemini 2.0 Flash',
+    model: 'google/gemini-2.0-flash-exp:free',
+    icon: 'Sparkles',
+    color: 'from-blue-500 to-cyan-500',
+    description: 'Быстрый и точный помощник от Google',
+    features: ['Быстрая обработка', 'Длинный контекст', 'Мультимодальность']
   },
-  { 
-    id: 'deepseek', 
-    name: 'DeepSeek V3.1', 
-    provider: 'OpenRouter',
-    icon: 'Brain', 
+  {
+    id: 'llama',
+    name: 'Meta Llama 3.3 70B',
+    model: 'meta-llama/llama-3.3-70b-instruct',
+    icon: 'Cpu',
+    color: 'from-purple-500 to-pink-500',
+    description: 'Мощная модель от Meta для аналитики',
+    features: ['Глубокий анализ', 'Reasoning', 'Инструкции']
+  },
+  {
+    id: 'deepseek',
+    name: 'DeepSeek V3',
+    model: 'deepseek/deepseek-chat',
+    icon: 'Brain',
     color: 'from-violet-500 to-purple-500',
-    description: 'Продвинутая модель DeepSeek для сложных задач через OpenRouter',
-    status: 'FREE',
-    features: ['Reasoning', 'Математика', 'Кодинг', 'Бесплатно'],
-    apiDocsUrl: 'https://openrouter.ai/keys'
+    description: 'Продвинутая модель для сложных задач',
+    features: ['Reasoning', 'Математика', 'Кодинг']
+  },
+  {
+    id: 'qwen',
+    name: 'Qwen 2.5 72B',
+    model: 'qwen/qwen-2.5-72b-instruct',
+    icon: 'Code',
+    color: 'from-orange-500 to-red-500',
+    description: 'Мощная модель с поддержкой кода',
+    features: ['Кодинг', 'Многоязычность', 'Длинный контекст']
+  },
+  {
+    id: 'mistral',
+    name: 'Mistral Large',
+    model: 'mistralai/mistral-large',
+    icon: 'Wind',
+    color: 'from-cyan-500 to-blue-500',
+    description: 'Европейская модель с балансом качества',
+    features: ['Баланс', 'Reasoning', 'Мультиязычность']
+  },
+  {
+    id: 'claude',
+    name: 'Claude 3.5 Sonnet',
+    model: 'anthropic/claude-3.5-sonnet',
+    icon: 'BookOpen',
+    color: 'from-amber-500 to-orange-500',
+    description: 'Качественный анализ и рассуждения',
+    features: ['Творчество', 'Анализ', 'Длинный контекст']
   }
 ];
 
 export const useApiKeyManagement = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
-    gemini: { enabled: true, apiKey: '' },
-    llama: { enabled: true, apiKey: '' },
-    gigachat: { enabled: false, apiKey: '' },
-    deepseek: { enabled: true, apiKey: '' }
+    openrouter: { enabled: false, apiKey: '' },
+    gigachat: { enabled: false, apiKey: '' }
   });
+  const [selectedModel, setSelectedModel] = useState('gemini');
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string } | null>>({});
 
@@ -68,10 +102,8 @@ export const useApiKeyManagement = () => {
     try {
       const keys = await getApiKeys();
       const newConfigs: Record<string, ApiConfig> = {
-        gemini: { enabled: true, apiKey: '' },
-        llama: { enabled: true, apiKey: '' },
-        gigachat: { enabled: false, apiKey: '' },
-        deepseek: { enabled: true, apiKey: '' }
+        openrouter: { enabled: false, apiKey: '' },
+        gigachat: { enabled: false, apiKey: '' }
       };
       
       keys.forEach(key => {
@@ -134,11 +166,11 @@ export const useApiKeyManagement = () => {
         return;
       }
 
-      const modelName = modelId === 'gemini' 
+      const modelName = modelId === 'openrouter'
         ? 'google/gemini-2.0-flash-exp:free'
-        : modelId === 'llama'
-        ? 'meta-llama/llama-3.3-70b-instruct'
-        : 'deepseek/deepseek-chat';
+        : modelId === 'gigachat'
+        ? 'gigachat'
+        : 'google/gemini-2.0-flash-exp:free';
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -196,6 +228,8 @@ export const useApiKeyManagement = () => {
     configs,
     testing,
     testResults,
+    selectedModel,
+    setSelectedModel,
     loadApiKeys,
     handleToggle,
     handleSaveKey,
