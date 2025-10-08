@@ -23,7 +23,7 @@ const Footer = () => {
                   />
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Богдан Копаев</h4>
-                <p className="text-purple-400 font-semibold mb-3">Создатель</p>
+                <p className="text-purple-400 font-semibold mb-2">Создатель и идейный вдохновитель</p>
                 <p className="text-gray-400 text-sm mb-4">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
                 <a
                   href="https://t.me/Bogdan2733"
@@ -48,7 +48,7 @@ const Footer = () => {
                   />
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Андрей Пашков</h4>
-                <p className="text-pink-400 font-semibold mb-3">Заместитель создателя</p>
+                <p className="text-pink-400 font-semibold mb-2">Стратегия и развитие</p>
                 <p className="text-gray-400 text-sm mb-4">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
                 <a
                   href="https://t.me/suvarchikk"
