@@ -139,7 +139,7 @@ export const useChatLogic = (
       }));
       
       const result = await sendMessageToAI(
-        activeModel as 'gemini' | 'llama' | 'gigachat' | 'deepseek', 
+        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude', 
         userInput, 
         sessionId,
         uploadedFiles.length > 0 ? uploadedFiles : undefined,
@@ -159,9 +159,12 @@ export const useChatLogic = (
 
       if (result.usedModel !== activeModel) {
         const modelNames: Record<string, string> = {
-          gemini: 'ИИ Скорость',
-          llama: 'ИИ Логика',
-          deepseek: 'ИИ Код'
+          gemini: 'Gemini 2.0',
+          llama: 'Llama 3.3 70B',
+          deepseek: 'DeepSeek V3',
+          qwen: 'Qwen 2.5 72B',
+          mistral: 'Mistral Large',
+          claude: 'Claude 3.5'
         };
         toast.info(`Переключено на ${modelNames[result.usedModel]} (основная модель недоступна)`);
       }

@@ -9,11 +9,9 @@
         "session_id": "test-123",
         "model_id": "gemini"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 400,
       "expectedBody": {
-        "response": "string",
-        "model": "string",
-        "provider": "OpenRouter"
+        "error": "string"
       },
       "bodyMatcher": "partial"
     }

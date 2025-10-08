@@ -15,15 +15,16 @@ export interface ChatMessage {
 }
 
 export const sendMessageToAI = async (
-  model: 'gemini' | 'llama' | 'gigachat' | 'deepseek',
+  model: 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude',
   message: string,
   sessionId: string,
   files?: { name: string; type: string; size: number; content: string }[],
   conversationHistory?: ChatMessage[],
   onChunk?: (chunk: string) => void
 ): Promise<{ response: string; usedModel: string }> => {
-  // Приоритет моделей для фолбека: выбранная модель -> gemini -> llama -> deepseek
-  const allModels: Array<'gemini' | 'llama' | 'deepseek'> = ['gemini', 'llama', 'deepseek'];
+  const allModels: Array<'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude'> = [
+    'gemini', 'llama', 'deepseek', 'qwen', 'mistral', 'claude'
+  ];
   const startIndex = allModels.indexOf(model as any);
   const attempts = startIndex >= 0 
     ? [...allModels.slice(startIndex), ...allModels.slice(0, startIndex)]

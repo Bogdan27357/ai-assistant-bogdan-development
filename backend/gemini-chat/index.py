@@ -49,24 +49,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
-    cur.execute(f"SELECT api_key, enabled FROM api_keys WHERE model_id = '{model_id}'")
+    
+    # Для всех моделей кроме GigaChat используем OpenRouter ключ
+    if model_id == 'gigachat':
+        cur.execute(f"SELECT api_key, enabled FROM api_keys WHERE model_id = 'gigachat'")
+    else:
+        cur.execute(f"SELECT api_key, enabled FROM api_keys WHERE model_id = 'openrouter'")
+    
     row = cur.fetchone()
     cur.close()
     conn.close()
     
     if not row or not row[0]:
+        provider = 'GigaChat' if model_id == 'gigachat' else 'OpenRouter'
         return {
             'statusCode': 400,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': f'{model_id} API key not configured in admin panel'}),
+            'body': json.dumps({'error': f'{provider} API key not configured in admin panel'}),
             'isBase64Encoded': False
         }
     
     if not row[1]:
+        provider = 'GigaChat' if model_id == 'gigachat' else 'OpenRouter'
         return {
             'statusCode': 400,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': f'{model_id} model is disabled'}),
+            'body': json.dumps({'error': f'{provider} is disabled in admin panel'}),
             'isBase64Encoded': False
         }
     
@@ -144,7 +152,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         model_mapping = {
             'gemini': 'google/gemini-2.0-flash-exp:free',
             'llama': 'meta-llama/llama-3.3-70b-instruct',
-            'deepseek': 'deepseek/deepseek-chat'
+            'deepseek': 'deepseek/deepseek-chat',
+            'qwen': 'qwen/qwen-2.5-72b-instruct',
+            'mistral': 'mistralai/mistral-large',
+            'claude': 'anthropic/claude-3.5-sonnet'
         }
         model_name = model_mapping.get(model_id, 'google/gemini-2.0-flash-exp:free')
         
