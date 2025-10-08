@@ -45,28 +45,39 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
 
 
   useEffect(() => {
-    const savedContent = localStorage.getItem('site_content');
-    if (savedContent) {
-      const content = JSON.parse(savedContent);
-      setTeamData(content.team);
-    } else {
-      setTeamData([
-        {
-          name: 'Богдан Копаев',
-          role: 'Создатель',
-          telegram: '@Bogdan2733',
-          photo: 'https://cdn.poehali.dev/files/7bf062e6-83f5-4f27-bfde-bf075558730b.png',
-          description: 'Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково'
-        },
-        {
-          name: 'Андрей Пашков',
-          role: 'Заместитель создателя',
-          telegram: '@suvarchikk',
-          photo: 'https://cdn.poehali.dev/files/7bf062e6-83f5-4f27-bfde-bf075558730b.png',
-          description: 'Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково'
-        }
-      ]);
-    }
+    const loadContent = () => {
+      const savedContent = localStorage.getItem('site_content');
+      if (savedContent) {
+        const content = JSON.parse(savedContent);
+        setTeamData(content.team);
+      } else {
+        setTeamData([
+          {
+            name: 'Богдан Копаев',
+            role: 'Создатель',
+            telegram: '@Bogdan2733',
+            photo: 'https://cdn.poehali.dev/files/7bf062e6-83f5-4f27-bfde-bf075558730b.png',
+            description: 'Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково'
+          },
+          {
+            name: 'Андрей Пашков',
+            role: 'Заместитель создателя',
+            telegram: '@suvarchikk',
+            photo: 'https://cdn.poehali.dev/files/7bf062e6-83f5-4f27-bfde-bf075558730b.png',
+            description: 'Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково'
+          }
+        ]);
+      }
+    };
+
+    loadContent();
+
+    const handleContentUpdate = () => {
+      loadContent();
+    };
+
+    window.addEventListener('content-updated', handleContentUpdate);
+    return () => window.removeEventListener('content-updated', handleContentUpdate);
   }, []);
 
   const team = teamData.map((member, idx) => ({
