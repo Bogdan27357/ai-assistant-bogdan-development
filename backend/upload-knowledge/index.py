@@ -71,6 +71,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'GET':
+            params = event.get('queryStringParameters', {})
+            file_id = params.get('id')
+            
+            if file_id:
+                cur.execute(f"SELECT content FROM knowledge_base WHERE id = {file_id}")
+                row = cur.fetchone()
+                
+                if not row:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'File not found'})
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'content': row[0]})
+                }
+            
             cur.execute(
                 "SELECT id, file_name, file_type, file_size, created_at FROM knowledge_base ORDER BY created_at DESC"
             )

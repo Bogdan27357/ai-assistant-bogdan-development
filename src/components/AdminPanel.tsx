@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import ApiKeyCard from '@/components/admin/ApiKeyCard';
 import KnowledgeBase from '@/components/admin/KnowledgeBase';
+import KnowledgeBaseGuide from '@/components/admin/KnowledgeBaseGuide';
 import SettingsTab from '@/components/admin/SettingsTab';
 import AnalyticsTab from '@/components/admin/AnalyticsTab';
 import { useApiKeyManagement, models } from '@/components/admin/useApiKeyManagement';
@@ -189,6 +190,7 @@ const AdminPanel = () => {
           </TabsContent>
 
           <TabsContent value="knowledge" className="space-y-6">
+            <KnowledgeBaseGuide />
             <KnowledgeBase
               knowledgeFiles={knowledgeFiles}
               uploading={uploading}
