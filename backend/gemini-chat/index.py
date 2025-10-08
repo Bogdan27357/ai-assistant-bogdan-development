@@ -156,7 +156,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         payload = {
             'model': model_name,
-            'messages': messages
+            'messages': messages,
+            'stream': True
         }
         
         headers = {
@@ -166,7 +167,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'X-Title': 'AI Platform'
         }
         
-        response = requests.post(url, json=payload, headers=headers)
+        response = requests.post(url, json=payload, headers=headers, stream=True)
         
         if response.status_code != 200:
             return {
@@ -176,8 +177,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        result = response.json()
-        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', 'No response')
+        # Собираем streaming ответ
+        ai_response = ''
+        for line in response.iter_lines():
+            if line:
+                line_str = line.decode('utf-8')
+                if line_str.startswith('data: '):
+                    data_str = line_str[6:]
+                    if data_str.strip() == '[DONE]':
+                        break
+                    try:
+                        chunk = json.loads(data_str)
+                        content = chunk.get('choices', [{}])[0].get('delta', {}).get('content', '')
+                        ai_response += content
+                    except:
+                        continue
     
     return {
         'statusCode': 200,

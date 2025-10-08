@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { sendMessageToAI, saveMessageToDB, generateSessionId } from '@/lib/api';
+import { sendMessageToAI, saveMessageToDB, generateSessionId, uploadToKnowledgeBase } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -65,7 +65,9 @@ export const useChatLogic = (
           content: content
         });
         
-        toast.success(`Файл ${file.name} добавлен`);
+        await uploadToKnowledgeBase(file.name, content, file.type);
+        
+        toast.success(`Файл ${file.name} добавлен в базу знаний`);
       } catch (error) {
         toast.error(`Ошибка загрузки ${file.name}`);
       }
@@ -101,6 +103,12 @@ export const useChatLogic = (
     setUploadedFiles([]);
     setIsLoading(true);
 
+    const emptyAiMessage: Message = {
+      role: 'assistant',
+      content: ''
+    };
+    setMessages(prev => [...prev, emptyAiMessage]);
+
     try {
       await saveMessageToDB(sessionId, activeModel, 'user', messageContent);
       
@@ -114,7 +122,18 @@ export const useChatLogic = (
         userInput, 
         sessionId,
         uploadedFiles.length > 0 ? uploadedFiles : undefined,
-        conversationHistory
+        conversationHistory,
+        (chunk: string) => {
+          setMessages(prev => {
+            const updated = [...prev];
+            const lastIndex = updated.length - 1;
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              content: updated[lastIndex].content + chunk
+            };
+            return updated;
+          });
+        }
       );
 
       if (result.usedModel !== activeModel) {
@@ -126,13 +145,7 @@ export const useChatLogic = (
         toast.info(`Переключено на ${modelNames[result.usedModel]} (основная модель недоступна)`);
       }
 
-      const aiMessage: Message = {
-        role: 'assistant',
-        content: result.response
-      };
-
       await saveMessageToDB(sessionId, result.usedModel, 'assistant', result.response);
-      setMessages(prev => [...prev, aiMessage]);
       
       if (voiceEnabled) {
         await speak(result.response);

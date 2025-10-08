@@ -19,7 +19,8 @@ export const sendMessageToAI = async (
   message: string,
   sessionId: string,
   files?: { name: string; type: string; size: number; content: string }[],
-  conversationHistory?: ChatMessage[]
+  conversationHistory?: ChatMessage[],
+  onChunk?: (chunk: string) => void
 ): Promise<{ response: string; usedModel: string }> => {
   // Приоритет моделей для фолбека: выбранная модель -> gemini -> llama -> deepseek
   const allModels: Array<'gemini' | 'llama' | 'deepseek'> = ['gemini', 'llama', 'deepseek'];
@@ -60,7 +61,8 @@ export const sendMessageToAI = async (
           message: enhancedMessage,
           session_id: sessionId,
           model_id: currentModel,
-          conversation_history: conversationHistory || []
+          conversation_history: conversationHistory || [],
+          stream: !!onChunk
         })
       });
 
@@ -69,6 +71,41 @@ export const sendMessageToAI = async (
         throw new Error(error.error || `HTTP ${response.status}`);
       }
 
+      // Если есть callback для streaming, обрабатываем поток
+      if (onChunk && response.body) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = '';
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6);
+              if (dataStr.trim() === '[DONE]') break;
+              
+              try {
+                const parsed = JSON.parse(dataStr);
+                const content = parsed.choices?.[0]?.delta?.content || '';
+                if (content) {
+                  fullResponse += content;
+                  onChunk(content);
+                }
+              } catch (e) {
+                // Пропускаем невалидный JSON
+              }
+            }
+          }
+        }
+        
+        return { response: fullResponse, usedModel: currentModel };
+      }
+      
       const data = await response.json();
       
       // Уведомляем если модель переключилась
@@ -170,4 +207,53 @@ export const perform_sql_query = async (query: string): Promise<any[]> => {
 
   const data = await response.json();
   return data.results || [];
+};
+
+export const uploadToKnowledgeBase = async (
+  fileName: string,
+  fileContent: string,
+  fileType: string
+): Promise<void> => {
+  const response = await fetch('https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      file_name: fileName,
+      file_content: fileContent,
+      file_type: fileType
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to upload to knowledge base');
+  }
+};
+
+export const getKnowledgeBaseFiles = async (): Promise<Array<{
+  id: number;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  created_at: string;
+}>> => {
+  const response = await fetch('https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8');
+  
+  if (!response.ok) {
+    throw new Error('Failed to get knowledge base files');
+  }
+
+  const data = await response.json();
+  return data.files || [];
+};
+
+export const deleteFromKnowledgeBase = async (fileId: number): Promise<void> => {
+  const response = await fetch(`https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8?id=${fileId}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete from knowledge base');
+  }
 };
