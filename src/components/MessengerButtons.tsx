@@ -5,6 +5,7 @@ const MessengerButtons = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [hasMoved, setHasMoved] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -16,17 +17,25 @@ const MessengerButtons = () => {
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).tagName === 'A') return;
-    e.preventDefault();
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'A' || target.closest('a')) return;
+    
     setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
+    setHasMoved(false);
+    
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (rect) {
+      setDragStart({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging) return;
+    
+    setHasMoved(true);
     const newX = e.clientX - dragStart.x;
     const newY = e.clientY - dragStart.y;
     
@@ -42,17 +51,29 @@ const MessengerButtons = () => {
   const handleMouseUp = () => {
     if (isDragging) {
       setIsDragging(false);
-      localStorage.setItem('messengerButtonPosition', JSON.stringify(position));
+      if (hasMoved) {
+        localStorage.setItem('messengerButtonPosition', JSON.stringify(position));
+      }
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (!hasMoved) {
+      setIsExpanded(!isExpanded);
     }
   };
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      const moveHandler = (e: MouseEvent) => handleMouseMove(e);
+      const upHandler = () => handleMouseUp();
+      
+      document.addEventListener('mousemove', moveHandler);
+      document.addEventListener('mouseup', upHandler);
+      
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('mouseup', upHandler);
       };
     }
   }, [isDragging, dragStart, position]);
@@ -95,9 +116,8 @@ const MessengerButtons = () => {
   return (
     <div 
       ref={buttonRef}
-      className={`fixed z-50 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      className="fixed z-50"
       style={style}
-      onMouseDown={handleMouseDown}
     >
       {/* Кнопки мессенджеров */}
       <div className={`flex flex-col gap-3 mb-3 transition-all duration-300 ${isExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
@@ -118,11 +138,9 @@ const MessengerButtons = () => {
 
       {/* Главная кнопка */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsExpanded(!isExpanded);
-        }}
-        className={`w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center hover:shadow-indigo-500/50 ${isExpanded ? 'rotate-45' : ''} cursor-pointer`}
+        onClick={handleClick}
+        onMouseDown={handleMouseDown}
+        className={`w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center hover:shadow-indigo-500/50 ${isExpanded ? 'rotate-45' : ''} ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
         <Icon name={isExpanded ? 'X' : 'MessageSquare'} size={28} />
       </button>

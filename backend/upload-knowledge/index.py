@@ -45,9 +45,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             content = base64.b64decode(file_content).decode('utf-8', errors='ignore')
             
+            # Escape single quotes for SQL
+            safe_name = file_name.replace("'", "''")
+            safe_type = file_type.replace("'", "''")
+            safe_content = content.replace("'", "''")
+            
             cur.execute(
-                "INSERT INTO knowledge_base (file_name, file_type, file_size, content) VALUES (%s, %s, %s, %s) RETURNING id",
-                (file_name, file_type, file_size, content)
+                f"INSERT INTO knowledge_base (file_name, file_type, file_size, content) VALUES ('{safe_name}', '{safe_type}', {file_size}, '{safe_content}') RETURNING id"
             )
             file_id = cur.fetchone()[0]
             conn.commit()
@@ -101,7 +105,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'File ID required'})
                 }
             
-            cur.execute("DELETE FROM knowledge_base WHERE id = %s", (file_id,))
+            cur.execute(f"DELETE FROM knowledge_base WHERE id = {file_id}")
             conn.commit()
             
             return {

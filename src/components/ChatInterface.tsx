@@ -20,6 +20,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: Date;
+  files?: { name: string; type: string; size: number; content?: string }[];
 }
 
 interface ChatInterfaceProps {
@@ -33,7 +34,9 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   const [activeModel, setActiveModel] = useState('gemini');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<{ name: string; type: string; size: number; content: string }[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { voiceEnabled, selectedVoice, speak, toggleVoice, changeVoice } = useVoice();
 
   const t = getTranslations(language).chat;
@@ -46,17 +49,65 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const newFiles: { name: string; type: string; size: number; content: string }[] = [];
+
+    for (const file of Array.from(files)) {
+      try {
+        const reader = new FileReader();
+        const content = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        newFiles.push({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          content: content
+        });
+        
+        toast.success(`Файл ${file.name} добавлен`);
+      } catch (error) {
+        toast.error(`Ошибка загрузки ${file.name}`);
+      }
+    }
+
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+    toast.success('Файл удален');
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || !sessionId) return;
+    if ((!input.trim() && uploadedFiles.length === 0) || !sessionId) return;
+
+    let messageContent = input;
+    if (uploadedFiles.length > 0) {
+      const filesInfo = uploadedFiles.map(f => `📎 ${f.name} (${(f.size / 1024).toFixed(1)}KB)`).join('\n');
+      messageContent = `${input}\n\n${filesInfo}`;
+    }
 
     const userMessage: Message = { 
       role: 'user', 
-      content: input,
-      timestamp: new Date()
+      content: messageContent,
+      timestamp: new Date(),
+      files: uploadedFiles.length > 0 ? uploadedFiles : undefined
     };
     const userInput = input;
     setMessages(prev => [...prev, userMessage]);
     setInput('');
+    setUploadedFiles([]);
     setIsLoading(true);
 
     try {
@@ -264,7 +315,37 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
           </div>
 
           <div className="p-6 border-t border-slate-700/50 bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-sm">
+            {uploadedFiles.length > 0 && (
+              <div className="mb-4 flex flex-wrap gap-2">
+                {uploadedFiles.map((file, idx) => (
+                  <div key={idx} className="flex items-center gap-2 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-gray-300">
+                    <Icon name="FileText" size={16} />
+                    <span>{file.name}</span>
+                    <span className="text-gray-500">({(file.size / 1024).toFixed(1)}KB)</span>
+                    <button onClick={() => removeFile(idx)} className="ml-2 text-red-400 hover:text-red-300">
+                      <Icon name="X" size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="flex gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileUpload}
+                className="hidden"
+                accept=".txt,.pdf,.doc,.docx,.json,.csv"
+              />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                variant="outline"
+                disabled={isLoading}
+                className="border-slate-600 text-gray-300 hover:bg-slate-700 shrink-0 h-[60px]"
+              >
+                <Icon name="Paperclip" size={20} />
+              </Button>
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -281,7 +362,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
               />
               <Button
                 onClick={handleSend}
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || (!input.trim() && uploadedFiles.length === 0)}
                 className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shrink-0 h-[60px] shadow-lg hover:shadow-xl transition-all"
               >
                 <Icon name="Send" size={20} />
