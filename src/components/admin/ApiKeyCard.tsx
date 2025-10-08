@@ -156,7 +156,7 @@ const ApiKeyCard = ({
             </Button>
             <Button
               onClick={() => onTestApi(model.id)}
-              disabled={!config.enabled || !config.apiKey || testing}
+              disabled={!config.apiKey || testing}
               variant="outline"
               className="border-slate-600 text-gray-300 hover:bg-slate-800"
             >
