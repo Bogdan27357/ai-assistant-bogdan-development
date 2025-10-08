@@ -113,7 +113,6 @@ const Index = () => {
       
       <ScrollToTop />
       <MessengerButtons />
-      <SimpleConsultant />
       <Toaster />
     </div>
   );

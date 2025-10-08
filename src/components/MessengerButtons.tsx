@@ -17,6 +17,7 @@ const MessengerButtons = () => {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).tagName === 'A') return;
+    e.preventDefault();
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -117,8 +118,11 @@ const MessengerButtons = () => {
 
       {/* Главная кнопка */}
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className={`w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center hover:shadow-indigo-500/50 ${isExpanded ? 'rotate-45' : ''}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsExpanded(!isExpanded);
+        }}
+        className={`w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center hover:shadow-indigo-500/50 ${isExpanded ? 'rotate-45' : ''} cursor-pointer`}
       >
         <Icon name={isExpanded ? 'X' : 'MessageSquare'} size={28} />
       </button>
