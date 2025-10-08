@@ -159,12 +159,12 @@ export const useChatLogic = (
 
       if (result.usedModel !== activeModel) {
         const modelNames: Record<string, string> = {
-          gemini: 'Gemini 2.0',
-          llama: 'Llama 3.3 70B',
-          deepseek: 'DeepSeek V3',
-          qwen: 'Qwen 2.5 72B',
-          mistral: 'Mistral Large',
-          claude: 'Claude 3.5'
+          gemini: 'Скорость',
+          llama: 'Логика',
+          deepseek: 'Размышление',
+          qwen: 'Код',
+          mistral: 'Баланс',
+          claude: 'Творчество'
         };
         toast.info(`Переключено на ${modelNames[result.usedModel]} (основная модель недоступна)`);
       }

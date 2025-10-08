@@ -18,12 +18,12 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   const t = getTranslations(language).chat;
 
   const availableModels = [
-    { id: 'gemini', name: 'Gemini 2.0', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500' },
-    { id: 'llama', name: 'Llama 3.3 70B', icon: 'Cpu', color: 'from-purple-500 to-pink-500' },
-    { id: 'deepseek', name: 'DeepSeek V3', icon: 'Brain', color: 'from-violet-500 to-purple-500' },
-    { id: 'qwen', name: 'Qwen 2.5 72B', icon: 'Code', color: 'from-orange-500 to-red-500' },
-    { id: 'mistral', name: 'Mistral Large', icon: 'Wind', color: 'from-cyan-500 to-blue-500' },
-    { id: 'claude', name: 'Claude 3.5', icon: 'BookOpen', color: 'from-amber-500 to-orange-500' },
+    { id: 'gemini', name: 'Скорость', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500' },
+    { id: 'llama', name: 'Логика', icon: 'Cpu', color: 'from-purple-500 to-pink-500' },
+    { id: 'deepseek', name: 'Размышление', icon: 'Brain', color: 'from-violet-500 to-purple-500' },
+    { id: 'qwen', name: 'Код', icon: 'Code', color: 'from-orange-500 to-red-500' },
+    { id: 'mistral', name: 'Баланс', icon: 'Wind', color: 'from-cyan-500 to-blue-500' },
+    { id: 'claude', name: 'Творчество', icon: 'BookOpen', color: 'from-amber-500 to-orange-500' },
   ];
 
   const {

@@ -6,9 +6,9 @@ import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Multi-model API integration (Gemini, Llama, DeepSeek, GigaChat)
+    Business: OpenRouter multi-model chat integration (6 free AI models)
     Args: event with httpMethod, body (message, session_id, model_id)
-    Returns: AI response from selected model
+    Returns: AI response from selected model via OpenRouter
     '''
     method: str = event.get('httpMethod', 'GET')
     
