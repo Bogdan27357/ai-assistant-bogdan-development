@@ -25,46 +25,25 @@ const WeatherWidget = () => {
   const fetchWeather = async (cityName: string) => {
     setLoading(true);
     try {
-      const mockData: Record<string, WeatherData> = {
-        'Санкт-Петербург': {
-          temp: 12,
-          feels_like: 10,
-          humidity: 75,
-          description: 'облачно с прояснениями',
-          icon: '02d',
-          city: 'Санкт-Петербург',
-          wind_speed: 5
-        },
-        'Москва': {
-          temp: 15,
-          feels_like: 13,
-          humidity: 65,
-          description: 'ясно',
-          icon: '01d',
-          city: 'Москва',
-          wind_speed: 3
-        },
-        'Пулково': {
-          temp: 11,
-          feels_like: 9,
-          humidity: 80,
-          description: 'небольшая облачность',
-          icon: '02d',
-          city: 'Пулково',
-          wind_speed: 6
-        }
-      };
+      const API_KEY = '3cf358a41d1c9cac229f57ff138c2e2d';
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&appid=${API_KEY}&units=metric&lang=ru`
+      );
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!response.ok) {
+        throw new Error('Город не найден');
+      }
 
-      const weatherData = mockData[cityName] || {
-        temp: Math.floor(Math.random() * 15) + 10,
-        feels_like: Math.floor(Math.random() * 15) + 8,
-        humidity: Math.floor(Math.random() * 30) + 60,
-        description: 'переменная облачность',
-        icon: '03d',
-        city: cityName,
-        wind_speed: Math.floor(Math.random() * 5) + 2
+      const data = await response.json();
+
+      const weatherData: WeatherData = {
+        temp: Math.round(data.main.temp),
+        feels_like: Math.round(data.main.feels_like),
+        humidity: data.main.humidity,
+        description: data.weather[0].description,
+        icon: data.weather[0].icon,
+        city: data.name,
+        wind_speed: Math.round(data.wind.speed)
       };
 
       setWeather(weatherData);
@@ -72,6 +51,7 @@ const WeatherWidget = () => {
       localStorage.setItem('weatherCity', weatherData.city);
     } catch (error) {
       console.error('Ошибка загрузки погоды:', error);
+      alert('Не удалось найти город. Попробуйте другой.');
     } finally {
       setLoading(false);
     }
