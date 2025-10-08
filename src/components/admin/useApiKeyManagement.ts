@@ -128,7 +128,7 @@ export const useApiKeyManagement = () => {
       if (!apiKey || apiKey.trim().length < 10) {
         setTestResults(prev => ({
           ...prev,
-          [modelId]: { success: false, message: 'Введите корректный API ключ' }
+          [modelId]: { success: false, message: 'Введите API ключ (минимум 10 символов)' }
         }));
         setTesting(prev => ({ ...prev, [modelId]: false }));
         return;
@@ -136,7 +136,9 @@ export const useApiKeyManagement = () => {
 
       const modelName = modelId === 'gemini' 
         ? 'google/gemini-2.0-flash-exp:free'
-        : 'meta-llama/llama-3.3-70b-instruct';
+        : modelId === 'llama'
+        ? 'meta-llama/llama-3.3-70b-instruct'
+        : 'deepseek/deepseek-chat';
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -148,8 +150,8 @@ export const useApiKeyManagement = () => {
         },
         body: JSON.stringify({
           model: modelName,
-          messages: [{ role: 'user', content: 'Привет! Ответь одним словом: работает?' }],
-          max_tokens: 10
+          messages: [{ role: 'user', content: 'test' }],
+          max_tokens: 5
         })
       });
 
@@ -159,30 +161,32 @@ export const useApiKeyManagement = () => {
           ...prev,
           [modelId]: { 
             success: true, 
-            message: '✅ API ключ работает! Модель ответила успешно.' 
+            message: '✅ API ключ работает! Тест пройден.' 
           }
         }));
         toast.success(`${models.find(m => m.id === modelId)?.name} - тест пройден!`);
       } else {
         const errorData = await response?.json().catch(() => ({}));
+        const errorMsg = errorData?.error?.message || `HTTP ${response?.status}`;
         setTestResults(prev => ({
           ...prev,
           [modelId]: { 
             success: false, 
-            message: `❌ Ошибка: ${errorData?.error?.message || 'Неверный API ключ'}` 
+            message: `❌ ${errorMsg}. Ключ можно сохранить, но он может не работать.` 
           }
         }));
-        toast.error('Тест не пройден. Проверьте API ключ.');
+        toast.error(`Тест не пройден: ${errorMsg}`);
       }
     } catch (error: any) {
+      const errorMessage = error.message || 'Неизвестная ошибка';
       setTestResults(prev => ({
         ...prev,
         [modelId]: { 
           success: false, 
-          message: `❌ Ошибка подключения: ${error.message}` 
+          message: `⚠️ ${errorMessage}. Возможно CORS блокировка браузера. Ключ можно сохранить - проверка будет на сервере.` 
         }
       }));
-      toast.error('Ошибка тестирования API');
+      toast.warning('Не удалось протестировать. Сохраните ключ - он будет проверен при использовании.');
     } finally {
       setTesting(prev => ({ ...prev, [modelId]: false }));
     }
