@@ -12,6 +12,7 @@ import AITools from '@/components/AITools';
 import Navigation from '@/components/Navigation';
 import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
+import ScrollToTop from '@/components/ScrollToTop';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
@@ -74,6 +75,7 @@ const Index = () => {
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
       
+      <ScrollToTop />
       <Toaster />
     </div>
   );

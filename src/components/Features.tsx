@@ -69,8 +69,9 @@ const Features = ({ language = 'ru' }: FeaturesProps) => {
   return (
     <section className="py-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-950/10 to-transparent" />
-      <div className="absolute top-1/2 left-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s' }} />
+      <div className="absolute top-1/2 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
+      <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
       
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="text-center mb-20 animate-fade-in">
@@ -89,14 +90,15 @@ const Features = ({ language = 'ru' }: FeaturesProps) => {
           {features.map((feature, index) => (
             <Card 
               key={index}
-              className="p-8 bg-gradient-to-br from-slate-900/80 to-slate-800/80 border-slate-700/50 backdrop-blur-sm hover:scale-105 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/20 animate-scale-in group cursor-pointer"
+              className="p-8 bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 backdrop-blur-sm hover:scale-105 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 animate-scale-in group cursor-pointer relative overflow-hidden"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl`}>
+              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl relative z-10`}>
                 <Icon name={feature.icon as any} size={30} className="text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors relative z-10">{feature.title}</h3>
+              <p className="text-gray-400 leading-relaxed relative z-10">{feature.description}</p>
             </Card>
           ))}
         </div>

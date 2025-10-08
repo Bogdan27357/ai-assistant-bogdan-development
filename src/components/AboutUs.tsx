@@ -119,9 +119,14 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
         </div>
 
         <div className="mb-24">
-          <h3 className="text-4xl font-black text-center text-white mb-12">
-            {isRu ? 'Наша команда' : 'Our Team'}
+          <h3 className="text-4xl font-black text-center text-white mb-4">
+            {isRu ? 'Люди, которые создали Богдана' : 'People Who Created Bogdan'}
           </h3>
+          <p className="text-xl text-gray-400 text-center mb-12 max-w-3xl mx-auto">
+            {isRu 
+              ? 'Профессионалы аэропорта Пулково, каждый день помогающие тысячам путешественников'
+              : 'Pulkovo Airport professionals helping thousands of travelers every day'}
+          </p>
           <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
             {team.map((member, idx) => (
               <Card 
@@ -134,7 +139,7 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
                   <div className="flex flex-col items-center text-center">
                     <div className="relative mb-6">
                       <div className={`absolute inset-0 bg-gradient-to-br ${member.gradient} rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity`} />
-                      <div className={`relative w-40 h-40 rounded-full overflow-hidden border-4 border-transparent bg-gradient-to-br ${member.gradient} p-1`}>
+                      <div className={`relative w-48 h-48 rounded-full overflow-hidden border-4 border-transparent bg-gradient-to-br ${member.gradient} p-1`}>
                         <div className="w-full h-full rounded-full overflow-hidden">
                           <img 
                             src={member.image} 
@@ -158,27 +163,6 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
               </Card>
             ))}
           </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-24">
-          {features.map((feature, idx) => (
-            <Card 
-              key={idx}
-              className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 p-10 hover:border-indigo-500/50 transition-all duration-500 animate-fade-in backdrop-blur-xl shadow-2xl hover:shadow-2xl group cursor-pointer overflow-hidden"
-              style={{ animationDelay: `${idx * 0.15}s` }}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative flex items-start gap-6">
-                <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shrink-0`}>
-                  <Icon name={feature.icon as any} size={36} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-indigo-300 transition-colors">{feature.title}</h3>
-                  <p className="text-gray-300 leading-relaxed text-lg">{feature.desc}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
         </div>
 
         <Card className="bg-gradient-to-br from-indigo-900/60 via-purple-900/50 to-pink-900/40 border-2 border-indigo-500/40 p-16 text-center backdrop-blur-xl shadow-2xl animate-fade-in relative overflow-hidden">
