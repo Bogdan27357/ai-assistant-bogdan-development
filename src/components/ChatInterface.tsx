@@ -54,6 +54,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
   const models = [
     { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'text-blue-400', fullName: 'Google Gemini' },
     { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'text-purple-400', fullName: 'Meta Llama' },
+    { id: 'deepseek', name: 'DeepSeek', icon: 'Brain', color: 'text-violet-400', fullName: 'DeepSeek V3.1' },
     { id: 'gigachat', name: 'GigaChat', icon: 'Zap', color: 'text-green-400', fullName: 'Sber GigaChat' }
   ];
 

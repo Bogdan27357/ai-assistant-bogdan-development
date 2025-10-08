@@ -6,7 +6,7 @@ import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Multi-model API integration (Gemini, Llama, GigaChat)
+    Business: Multi-model API integration (Gemini, Llama, DeepSeek, GigaChat)
     Args: event with httpMethod, body (message, session_id, model_id)
     Returns: AI response from selected model
     '''
@@ -134,7 +134,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     else:
         url = 'https://openrouter.ai/api/v1/chat/completions'
         
-        model_name = 'google/gemini-2.0-flash-exp:free' if model_id == 'gemini' else 'meta-llama/llama-3.3-70b-instruct'
+        model_mapping = {
+            'gemini': 'google/gemini-2.0-flash-exp:free',
+            'llama': 'meta-llama/llama-3.3-70b-instruct',
+            'deepseek': 'deepseek/deepseek-chat'
+        }
+        model_name = model_mapping.get(model_id, 'google/gemini-2.0-flash-exp:free')
         
         payload = {
             'model': model_name,

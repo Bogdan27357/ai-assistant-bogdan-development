@@ -1,12 +1,17 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Icon from '@/components/ui/icon';
+import { Language, languages } from '@/lib/i18n';
 
 interface NavigationProps {
   currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools';
   onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools') => void;
+  language?: Language;
+  onLanguageChange?: (lang: Language) => void;
 }
 
-const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
+const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange }: NavigationProps) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-950/90 via-purple-950/90 to-blue-950/90 backdrop-blur-lg border-b border-indigo-500/20">
       <div className="container mx-auto px-6 py-4">
@@ -21,6 +26,28 @@ const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
           </div>
 
           <div className="flex items-center gap-3">
+            {onLanguageChange && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <Icon name="Globe" size={16} />
+                    <span className="text-xl">{languages[language].flag}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-slate-900 border-slate-700">
+                  {Object.entries(languages).map(([code, lang]) => (
+                    <DropdownMenuItem
+                      key={code}
+                      onClick={() => onLanguageChange(code as Language)}
+                      className="text-white hover:bg-slate-800 cursor-pointer"
+                    >
+                      <span className="mr-2 text-xl">{lang.flag}</span>
+                      {lang.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <Button
               variant={currentPage === 'home' ? 'default' : 'ghost'}
               onClick={() => onNavigate('home')}

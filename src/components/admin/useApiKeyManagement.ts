@@ -40,6 +40,17 @@ export const models = [
     status: 'PAID',
     features: ['Русский язык', 'Специализация РФ', 'Безопасность'],
     apiDocsUrl: 'https://developers.sber.ru/docs/ru/gigachat/api/reference/rest/get-token'
+  },
+  { 
+    id: 'deepseek', 
+    name: 'DeepSeek V3.1', 
+    provider: 'OpenRouter',
+    icon: 'Brain', 
+    color: 'from-violet-500 to-purple-500',
+    description: 'Продвинутая модель DeepSeek для сложных задач через OpenRouter',
+    status: 'FREE',
+    features: ['Reasoning', 'Математика', 'Кодинг', 'Бесплатно'],
+    apiDocsUrl: 'https://openrouter.ai/keys'
   }
 ];
 
@@ -47,7 +58,8 @@ export const useApiKeyManagement = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
     gemini: { enabled: true, apiKey: '' },
     llama: { enabled: true, apiKey: '' },
-    gigachat: { enabled: false, apiKey: '' }
+    gigachat: { enabled: false, apiKey: '' },
+    deepseek: { enabled: true, apiKey: '' }
   });
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string } | null>>({});
