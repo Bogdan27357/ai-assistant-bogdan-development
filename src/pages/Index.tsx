@@ -13,6 +13,11 @@ import ImageGenerator from '@/components/ImageGenerator';
 import PromptLibrary from '@/components/PromptLibrary';
 import CodePlayground from '@/components/CodePlayground';
 import AIAssistants from '@/components/AIAssistants';
+import VoiceInterface from '@/components/VoiceInterface';
+import DocumentProcessor from '@/components/DocumentProcessor';
+import TelegramBot from '@/components/TelegramBot';
+import ChatHistory from '@/components/ChatHistory';
+import DeveloperAPI from '@/components/DeveloperAPI';
 import Navigation from '@/components/Navigation';
 import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
@@ -20,7 +25,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'auth' | 'images' | 'prompts' | 'code' | 'assistants'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'auth' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api'>('home');
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
 
@@ -79,6 +84,11 @@ const Index = () => {
       {currentPage === 'prompts' && <PromptLibrary />}
       {currentPage === 'code' && <CodePlayground />}
       {currentPage === 'assistants' && <AIAssistants />}
+      {currentPage === 'voice' && <VoiceInterface />}
+      {currentPage === 'documents' && <DocumentProcessor />}
+      {currentPage === 'telegram' && <TelegramBot />}
+      {currentPage === 'history' && <ChatHistory />}
+      {currentPage === 'api' && <DeveloperAPI />}
       {currentPage === 'admin' && <AdminPanel />}
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}

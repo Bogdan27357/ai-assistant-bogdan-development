@@ -5,8 +5,8 @@ import Icon from '@/components/ui/icon';
 import { Language, languages, getTranslations } from '@/lib/i18n';
 
 interface NavigationProps {
-  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants';
-  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants') => void;
+  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api';
+  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api') => void;
   language?: Language;
   onLanguageChange?: (lang: Language) => void;
   user?: { email: string; name: string } | null;
@@ -91,8 +91,8 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant={['images', 'prompts', 'code', 'assistants'].includes(currentPage) ? 'default' : 'ghost'}
-                  className={['images', 'prompts', 'code', 'assistants'].includes(currentPage) ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+                  variant={['images', 'prompts', 'code', 'assistants', 'voice', 'documents', 'telegram', 'history', 'api'].includes(currentPage) ? 'default' : 'ghost'}
+                  className={['images', 'prompts', 'code', 'assistants', 'voice', 'documents', 'telegram', 'history', 'api'].includes(currentPage) ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
                   size="sm"
                 >
                   <Icon name="Grid3x3" size={16} className="mr-2" />
@@ -100,7 +100,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
                   <Icon name="ChevronDown" size={14} className="ml-1" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-slate-900 border-slate-700">
+              <DropdownMenuContent className="bg-slate-900 border-slate-700 max-h-96 overflow-y-auto">
                 <DropdownMenuItem
                   onClick={() => onNavigate('images')}
                   className="text-white hover:bg-slate-800 cursor-pointer"
@@ -128,6 +128,41 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
                 >
                   <Icon name="Users" size={16} className="mr-2" />
                   AI Ассистенты
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onNavigate('voice')}
+                  className="text-white hover:bg-slate-800 cursor-pointer"
+                >
+                  <Icon name="Mic" size={16} className="mr-2" />
+                  Голосовой интерфейс
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onNavigate('documents')}
+                  className="text-white hover:bg-slate-800 cursor-pointer"
+                >
+                  <Icon name="FileStack" size={16} className="mr-2" />
+                  Обработка документов
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onNavigate('telegram')}
+                  className="text-white hover:bg-slate-800 cursor-pointer"
+                >
+                  <Icon name="Send" size={16} className="mr-2" />
+                  Telegram бот
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onNavigate('history')}
+                  className="text-white hover:bg-slate-800 cursor-pointer"
+                >
+                  <Icon name="History" size={16} className="mr-2" />
+                  История диалогов
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onNavigate('api')}
+                  className="text-white hover:bg-slate-800 cursor-pointer"
+                >
+                  <Icon name="Code2" size={16} className="mr-2" />
+                  API для разработчиков
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
