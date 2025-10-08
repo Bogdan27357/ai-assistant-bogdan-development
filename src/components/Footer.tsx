@@ -24,14 +24,23 @@ const Footer = () => {
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Богдан Копаев</h4>
                 <p className="text-purple-400 font-semibold mb-3">Создатель</p>
-                <p className="text-gray-400 text-sm">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
+                <p className="text-gray-400 text-sm mb-4">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
+                <a
+                  href="https://t.me/Bogdan2733"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold hover:scale-105 transition-transform shadow-lg"
+                >
+                  <Icon name="Send" size={18} />
+                  @Bogdan2733
+                </a>
               </div>
             </Card>
 
             {/* Андрей Пашков */}
-            <Card className="p-6 bg-gradient-to-br from-indigo-900/50 to-slate-800 border-indigo-500/30">
+            <Card className="p-6 bg-gradient-to-br from-pink-900/50 to-slate-800 border-pink-500/30">
               <div className="flex flex-col items-center text-center">
-                <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-indigo-500/50">
+                <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-pink-500/50">
                   <img 
                     src="https://cdn.poehali.dev/files/b273b4f3-9e5a-4903-9a20-079f3956ace6.png" 
                     alt="Андрей Пашков"
@@ -39,8 +48,17 @@ const Footer = () => {
                   />
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Андрей Пашков</h4>
-                <p className="text-indigo-400 font-semibold mb-3">Заместитель создателя</p>
-                <p className="text-gray-400 text-sm">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
+                <p className="text-pink-400 font-semibold mb-3">Заместитель создателя</p>
+                <p className="text-gray-400 text-sm mb-4">Агент отдела дополнительного обслуживания пассажиров, Аэропорт Пулково</p>
+                <a
+                  href="https://t.me/suvarchikk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-pink-600 to-pink-700 text-white font-semibold hover:scale-105 transition-transform shadow-lg"
+                >
+                  <Icon name="Send" size={18} />
+                  @suvarchikk
+                </a>
               </div>
             </Card>
           </div>
