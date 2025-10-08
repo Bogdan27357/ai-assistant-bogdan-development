@@ -59,7 +59,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     cur.execute(
-        "INSERT INTO chat_messages (session_id, model, role, content) VALUES (%s, %s, %s, %s)",
+        "INSERT INTO chat_messages (session_id, model_id, role, content) VALUES (%s, %s, %s, %s)",
         (session_id, model, role, content)
     )
     

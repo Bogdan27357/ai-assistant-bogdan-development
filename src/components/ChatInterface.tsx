@@ -291,11 +291,12 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             </div>
           </div>
 
-          <div className="h-[500px] overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-transparent to-slate-900/20">
+          <div className="h-[600px] overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-transparent to-slate-900/20 scroll-smooth">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-2xl animate-scale-in">
-                  <Icon name="Sparkles" size={48} className="text-white" />
+                <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-2xl animate-scale-in">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 animate-pulse opacity-50"></div>
+                  <Icon name="Sparkles" size={48} className="text-white relative z-10" />
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-3">{t.startConversation}</h3>
                 <p className="text-gray-400 max-w-md text-lg">
@@ -322,10 +323,10 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-2xl p-4 shadow-lg ${
+                    className={`max-w-[80%] rounded-2xl p-4 shadow-lg transition-all duration-300 hover:shadow-2xl ${
                       message.role === 'user'
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                        : 'bg-slate-800/80 text-gray-100 backdrop-blur-sm border border-slate-700/50'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500'
+                        : 'glass-effect text-gray-100'
                     }`}
                   >
                     <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>

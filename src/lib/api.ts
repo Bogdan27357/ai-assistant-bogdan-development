@@ -152,3 +152,20 @@ export const getApiKeys = async (): Promise<Array<{model_id: string, enabled: bo
   const data = await response.json();
   return data.keys;
 };
+
+export const perform_sql_query = async (query: string): Promise<any[]> => {
+  const response = await fetch('https://functions.poehali.dev/perform-sql-query', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to execute query');
+  }
+
+  const data = await response.json();
+  return data.results || [];
+};
