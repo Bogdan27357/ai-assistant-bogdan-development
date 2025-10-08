@@ -9,8 +9,8 @@ interface AboutUsProps {
 
 const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
   const isRu = language === 'ru';
-  const [isAdminMode, setIsAdminMode] = useState(false);
   const [blockOrder, setBlockOrder] = useState(['stats', 'mission', 'team', 'features']);
+  const isAdminMode = false;
 
   const moveBlockUp = (index: number) => {
     if (index === 0) return;
@@ -242,14 +242,6 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
       
       <div className="container mx-auto max-w-7xl relative z-10">
-        <button 
-          onClick={() => setIsAdminMode(!isAdminMode)}
-          className="fixed top-24 right-6 z-50 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-xl hover:scale-105 transition-transform flex items-center gap-2"
-        >
-          <Icon name={isAdminMode ? 'Lock' : 'Settings'} size={20} />
-          {isAdminMode ? 'Выйти' : 'Админ'}
-        </button>
-
         <div className="text-center mb-20 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 mb-6 backdrop-blur-sm shadow-lg">
             <Icon name="Heart" size={20} className="text-indigo-400" />

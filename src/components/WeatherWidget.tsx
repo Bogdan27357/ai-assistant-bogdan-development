@@ -15,7 +15,10 @@ interface WeatherData {
 
 const WeatherWidget = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [city, setCity] = useState('Санкт-Петербург');
+  const [city, setCity] = useState(() => {
+    const saved = localStorage.getItem('weatherCity');
+    return saved || 'Санкт-Петербург';
+  });
   const [inputCity, setInputCity] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -66,6 +69,7 @@ const WeatherWidget = () => {
 
       setWeather(weatherData);
       setCity(weatherData.city);
+      localStorage.setItem('weatherCity', weatherData.city);
     } catch (error) {
       console.error('Ошибка загрузки погоды:', error);
     } finally {
