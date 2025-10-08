@@ -39,6 +39,7 @@ interface ChatHeaderProps {
   onExport: () => void;
   onClear: () => void;
   onPromptSelect: (prompt: string) => void;
+  onNewChat?: () => void;
 }
 
 const ChatHeader = ({
@@ -54,6 +55,7 @@ const ChatHeader = ({
   onExport,
   onClear,
   onPromptSelect,
+  onNewChat,
 }: ChatHeaderProps) => {
   const currentModel = availableModels.find(m => m.id === activeModel) || availableModels[0];
   const t = translations;
@@ -176,6 +178,18 @@ const ChatHeader = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          
+          {onNewChat && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNewChat}
+              className="border-indigo-600 bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30 hover:text-white"
+            >
+              <Icon name="Plus" size={16} className="mr-2" />
+              Новый чат
+            </Button>
+          )}
           
           <Button
             variant="outline"

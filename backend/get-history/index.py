@@ -56,9 +56,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
+    safe_session_id = session_id.replace("'", "''")
     cur.execute(
-        "SELECT model, role, content, created_at FROM chat_messages WHERE session_id = %s ORDER BY created_at ASC",
-        (session_id,)
+        f"SELECT model_id, role, content, created_at FROM t_p68921797_ai_assistant_bogdan_.chat_messages WHERE session_id = '{safe_session_id}' ORDER BY created_at ASC"
     )
     
     rows = cur.fetchall()

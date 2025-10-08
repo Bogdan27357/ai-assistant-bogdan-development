@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { sendMessageToAI, saveMessageToDB, generateSessionId, uploadToKnowledgeBase } from '@/lib/api';
+import { sendMessageToAI, saveMessageToDB, generateSessionId, uploadToKnowledgeBase, getChatHistory } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -33,7 +33,28 @@ export const useChatLogic = (
   const t = translations;
 
   useEffect(() => {
-    setSessionId(generateSessionId());
+    const initSession = async () => {
+      const savedSessionId = localStorage.getItem('currentSessionId');
+      let currentSessionId = savedSessionId;
+      
+      if (!currentSessionId) {
+        currentSessionId = generateSessionId();
+        localStorage.setItem('currentSessionId', currentSessionId);
+      }
+      
+      setSessionId(currentSessionId);
+      
+      const history = await getChatHistory(currentSessionId);
+      if (history.length > 0) {
+        setMessages(history.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date()
+        })));
+      }
+    };
+    
+    initSession();
   }, []);
 
   useEffect(() => {
@@ -195,6 +216,14 @@ export const useChatLogic = (
   const clearMessages = () => {
     setMessages([]);
   };
+  
+  const startNewChat = () => {
+    const newSessionId = generateSessionId();
+    localStorage.setItem('currentSessionId', newSessionId);
+    setSessionId(newSessionId);
+    setMessages([]);
+    toast.success('Начат новый диалог');
+  };
 
   return {
     messages,
@@ -210,5 +239,6 @@ export const useChatLogic = (
     exportChat,
     copyMessage,
     clearMessages,
+    startNewChat,
   };
 };

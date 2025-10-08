@@ -257,3 +257,19 @@ export const deleteFromKnowledgeBase = async (fileId: number): Promise<void> => 
     throw new Error('Failed to delete from knowledge base');
   }
 };
+
+export const getChatHistory = async (sessionId: string): Promise<ChatMessage[]> => {
+  const response = await fetch(`${API_URLS.getHistory}?session_id=${sessionId}`);
+  
+  if (!response.ok) {
+    console.error('Failed to load chat history');
+    return [];
+  }
+
+  const data = await response.json();
+  return (data.messages || []).map((msg: any) => ({
+    role: msg.role,
+    content: msg.content,
+    model: msg.model
+  }));
+};

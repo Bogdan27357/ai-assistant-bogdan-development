@@ -37,6 +37,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     exportChat,
     copyMessage,
     clearMessages,
+    startNewChat,
   } = useChatLogic(activeModel, voiceEnabled, speak, t);
 
   return (
@@ -56,6 +57,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             onExport={exportChat}
             onClear={clearMessages}
             onPromptSelect={setInput}
+            onNewChat={startNewChat}
           />
 
           <ChatMessages
