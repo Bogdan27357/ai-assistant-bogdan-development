@@ -23,6 +23,7 @@ import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
 import ContentEditor from '@/components/ContentEditor';
+import MessengerButtons from '@/components/MessengerButtons';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
@@ -96,6 +97,7 @@ const Index = () => {
       {currentPage === 'content-editor' && <ContentEditor />}
       
       <ScrollToTop />
+      <MessengerButtons />
       <Toaster />
     </div>
   );
