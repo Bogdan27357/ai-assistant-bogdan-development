@@ -15,20 +15,23 @@ export interface ChatMessage {
 }
 
 export const sendMessageToAI = async (
-  model: 'gemini' | 'llama' | 'gigachat',
+  model: 'gemini' | 'llama' | 'gigachat' | 'deepseek',
   message: string,
   sessionId: string,
   files?: { name: string; type: string; size: number; content: string }[]
-): Promise<string> => {
-  const models: Array<'gemini' | 'llama'> = ['gemini', 'llama'];
-  const startIndex = models.indexOf(model as 'gemini' | 'llama');
-  const attempts = startIndex >= 0 ? [...models.slice(startIndex), ...models.slice(0, startIndex)] : models;
+): Promise<{ response: string; usedModel: string }> => {
+  // Приоритет моделей для фолбека: выбранная модель -> gemini -> llama -> deepseek
+  const allModels: Array<'gemini' | 'llama' | 'deepseek'> = ['gemini', 'llama', 'deepseek'];
+  const startIndex = allModels.indexOf(model as any);
+  const attempts = startIndex >= 0 
+    ? [...allModels.slice(startIndex), ...allModels.slice(0, startIndex)]
+    : allModels;
   
   let lastError: Error | null = null;
   
   for (const currentModel of attempts) {
     try {
-      const url = API_URLS.gemini;
+      const url = API_URLS.gemini; // Единая точка входа для всех моделей
       
       // Если есть файлы, добавляем их содержимое к сообщению
       let enhancedMessage = message;
@@ -45,6 +48,8 @@ export const sendMessageToAI = async (
         enhancedMessage = `${message}\n\n📎 Загруженные файлы для анализа:${filesContent}`;
       }
       
+      console.log(`Попытка отправить запрос через модель: ${currentModel}`);
+      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -58,20 +63,26 @@ export const sendMessageToAI = async (
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to get AI response');
+        const error = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(error.error || `HTTP ${response.status}`);
       }
 
       const data = await response.json();
-      return data.response;
+      
+      // Уведомляем если модель переключилась
+      if (currentModel !== model) {
+        console.warn(`✅ Переключено на модель ${currentModel} (основная ${model} недоступна)`);
+      }
+      
+      return { response: data.response, usedModel: currentModel };
     } catch (error) {
       lastError = error as Error;
-      console.warn(`Модель ${currentModel} недоступна, переключаюсь на следующую...`);
+      console.warn(`❌ Модель ${currentModel} недоступна: ${lastError.message}`);
       continue;
     }
   }
   
-  throw lastError || new Error('Все модели недоступны');
+  throw lastError || new Error('Все модели недоступны. Проверьте API ключи в админ-панели.');
 };
 
 export const saveMessageToDB = async (

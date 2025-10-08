@@ -41,6 +41,14 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
 
   const t = getTranslations(language).chat;
 
+  const availableModels = [
+    { id: 'gemini', name: 'Gemini 2.0', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500' },
+    { id: 'llama', name: 'Llama 3.3', icon: 'Cpu', color: 'from-purple-500 to-pink-500' },
+    { id: 'deepseek', name: 'DeepSeek V3', icon: 'Brain', color: 'from-violet-500 to-purple-500' },
+  ];
+
+  const currentModel = availableModels.find(m => m.id === activeModel) || availableModels[0];
+
   useEffect(() => {
     setSessionId(generateSessionId());
   }, []);
@@ -112,19 +120,29 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
 
     try {
       await saveMessageToDB(sessionId, activeModel, 'user', messageContent);
-      const aiResponse = await sendMessageToAI(
+      const result = await sendMessageToAI(
         activeModel as 'gemini' | 'llama' | 'gigachat' | 'deepseek', 
         userInput, 
         sessionId,
         uploadedFiles.length > 0 ? uploadedFiles : undefined
       );
 
+      // Уведомляем если модель переключилась автоматически
+      if (result.usedModel !== activeModel) {
+        const modelNames: Record<string, string> = {
+          gemini: 'Gemini 2.0',
+          llama: 'Llama 3.3',
+          deepseek: 'DeepSeek V3'
+        };
+        toast.info(`Переключено на ${modelNames[result.usedModel]} (основная модель недоступна)`);
+      }
+
       const aiMessage: Message = {
         role: 'assistant',
-        content: aiResponse
+        content: result.response
       };
 
-      await saveMessageToDB(sessionId, activeModel, 'assistant', aiResponse);
+      await saveMessageToDB(sessionId, result.usedModel, 'assistant', result.response);
       setMessages(prev => [...prev, aiMessage]);
       
       if (voiceEnabled) {
@@ -195,6 +213,39 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 </div>
               </div>
               <div className="flex gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-slate-600 text-gray-300 hover:text-white hover:bg-slate-700"
+                    >
+                      <Icon name={currentModel.icon as any} size={16} className="mr-2" />
+                      {currentModel.name}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-slate-900 border-slate-700">
+                    <DropdownMenuLabel className="text-gray-400">Выбрать модель ИИ</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-slate-700" />
+                    {availableModels.map((model) => (
+                      <DropdownMenuItem
+                        key={model.id}
+                        onClick={() => {
+                          setActiveModel(model.id);
+                          toast.success(`Переключено на ${model.name}`);
+                        }}
+                        className="text-white hover:bg-slate-800 cursor-pointer"
+                      >
+                        <Icon name={model.icon as any} size={16} className="mr-2" />
+                        <span className={activeModel === model.id ? 'font-bold' : ''}>
+                          {model.name}
+                          {activeModel === model.id && ' ✓'}
+                        </span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
