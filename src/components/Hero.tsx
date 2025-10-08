@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Language, getTranslations } from '@/lib/i18n';
+import WeatherWidget from './WeatherWidget';
 
 interface HeroProps {
   onStartChat: () => void;
@@ -71,21 +72,24 @@ const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {[
-              { icon: 'Zap', title: t.fast, desc: t.fastDesc, gradient: 'from-indigo-500 to-purple-600' },
-              { icon: 'Brain', title: t.smart, desc: t.smartDesc, gradient: 'from-purple-500 to-blue-600' },
-              { icon: 'Shield', title: t.secure, desc: t.secureDesc, gradient: 'from-blue-500 to-cyan-600' },
-              { icon: 'Infinity', title: t.limitless, desc: t.limitlessDesc, gradient: 'from-cyan-500 to-indigo-600' },
-            ].map((item, idx) => (
-              <div key={idx} className="text-center animate-scale-in" style={{ animationDelay: `${idx * 0.1}s` }}>
-                <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-2xl hover:scale-110 transition-transform`}>
-                  <Icon name={item.icon as any} size={32} className="text-white" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto mb-12">
+            <div className="grid grid-cols-2 gap-6">
+              {[
+                { icon: 'Zap', title: t.fast, desc: t.fastDesc, gradient: 'from-indigo-500 to-purple-600' },
+                { icon: 'Brain', title: t.smart, desc: t.smartDesc, gradient: 'from-purple-500 to-blue-600' },
+                { icon: 'Shield', title: t.secure, desc: t.secureDesc, gradient: 'from-blue-500 to-cyan-600' },
+                { icon: 'Infinity', title: t.limitless, desc: t.limitlessDesc, gradient: 'from-cyan-500 to-indigo-600' },
+              ].map((item, idx) => (
+                <div key={idx} className="text-center animate-scale-in" style={{ animationDelay: `${idx * 0.1}s` }}>
+                  <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-2xl hover:scale-110 transition-transform`}>
+                    <Icon name={item.icon as any} size={32} className="text-white" />
+                  </div>
+                  <div className="text-xl font-bold text-white mb-2">{item.title}</div>
+                  <div className="text-sm text-gray-400">{item.desc}</div>
                 </div>
-                <div className="text-xl font-bold text-white mb-2">{item.title}</div>
-                <div className="text-sm text-gray-400">{item.desc}</div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <WeatherWidget />
           </div>
         </div>
       </div>
