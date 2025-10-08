@@ -11,24 +11,24 @@ export const models = [
   { 
     id: 'gemini', 
     name: 'Google Gemini 2.0 Flash', 
-    provider: 'Google AI',
+    provider: 'OpenRouter',
     icon: 'Sparkles', 
     color: 'from-blue-500 to-cyan-500',
-    description: 'Быстрый и точный помощник от Google для большинства задач',
+    description: 'Быстрый и точный помощник от Google через OpenRouter',
     status: 'FREE',
-    features: ['Быстрая обработка', 'Длинный контекст', 'Бесплатно'],
-    apiDocsUrl: 'https://ai.google.dev/gemini-api/docs/api-key'
+    features: ['Быстрая обработка', 'Длинный контекст', 'Pay-as-you-go'],
+    apiDocsUrl: 'https://openrouter.ai/keys'
   },
   { 
     id: 'llama', 
-    name: 'Meta Llama 3.2 Turbo', 
-    provider: 'Together AI',
+    name: 'Meta Llama 3.3 70B', 
+    provider: 'OpenRouter',
     icon: 'Cpu', 
     color: 'from-purple-500 to-pink-500',
-    description: 'Мощная модель от Meta для сложных аналитических задач',
+    description: 'Мощная модель от Meta для сложных аналитических задач через OpenRouter',
     status: 'FREE',
-    features: ['Глубокий анализ', 'Reasoning', 'Инструкции', 'Бесплатно'],
-    apiDocsUrl: 'https://www.together.ai/products'
+    features: ['Глубокий анализ', 'Reasoning', 'Инструкции', 'Pay-as-you-go'],
+    apiDocsUrl: 'https://openrouter.ai/keys'
   }
 ];
 
@@ -103,29 +103,24 @@ export const useApiKeyManagement = () => {
         return;
       }
 
-      let response;
-      if (modelId === 'gemini') {
-        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Привет! Ответь одним словом: работает?' }] }]
-          })
-        });
-      } else if (modelId === 'llama') {
-        response = await fetch('https://api.together.xyz/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'meta-llama/Llama-3.2-3B-Instruct-Turbo',
-            messages: [{ role: 'user', content: 'Привет! Ответь одним словом: работает?' }],
-            max_tokens: 10
-          })
-        });
-      }
+      const modelName = modelId === 'gemini' 
+        ? 'google/gemini-2.0-flash-exp:free'
+        : 'meta-llama/llama-3.3-70b-instruct';
+
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'AI Platform Test'
+        },
+        body: JSON.stringify({
+          model: modelName,
+          messages: [{ role: 'user', content: 'Привет! Ответь одним словом: работает?' }],
+          max_tokens: 10
+        })
+      });
 
       if (response && response.ok) {
         const data = await response.json();

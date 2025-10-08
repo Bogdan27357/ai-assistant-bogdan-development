@@ -27,7 +27,7 @@ export const sendMessageToAI = async (
   
   for (const currentModel of attempts) {
     try {
-      const url = API_URLS[currentModel];
+      const url = API_URLS.gemini;
       
       const response = await fetch(url, {
         method: 'POST',
@@ -36,7 +36,8 @@ export const sendMessageToAI = async (
         },
         body: JSON.stringify({
           message,
-          session_id: sessionId
+          session_id: sessionId,
+          model_id: currentModel
         })
       });
 

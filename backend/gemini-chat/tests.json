@@ -6,12 +6,14 @@
       "path": "/",
       "body": {
         "message": "Hello, what is AI?",
-        "session_id": "test-123"
+        "session_id": "test-123",
+        "model_id": "gemini"
       },
       "expectedStatus": 200,
       "expectedBody": {
         "response": "string",
-        "model": "gemini-2.0-flash-exp"
+        "model": "string",
+        "provider": "OpenRouter"
       },
       "bodyMatcher": "partial"
     }

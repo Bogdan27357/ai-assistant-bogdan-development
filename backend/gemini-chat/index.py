@@ -6,9 +6,9 @@ import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Google Gemini 2.0 Flash API integration for chat
-    Args: event with httpMethod, body (message, session_id)
-    Returns: AI response from Gemini
+    Business: OpenRouter API integration for chat (Gemini & Llama)
+    Args: event with httpMethod, body (message, session_id, model_id)
+    Returns: AI response from selected model via OpenRouter
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -42,9 +42,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    body_data = json.loads(event.get('body', '{}'))
+    message = body_data.get('message', '')
+    model_id = body_data.get('model_id', 'gemini')
+    
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
-    cur.execute("SELECT api_key, enabled FROM api_keys WHERE model_id = 'gemini'")
+    cur.execute(f"SELECT api_key, enabled FROM api_keys WHERE model_id = '{model_id}'")
     row = cur.fetchone()
     cur.close()
     conn.close()
@@ -53,7 +57,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 400,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Gemini API key not configured in admin panel'}),
+            'body': json.dumps({'error': f'{model_id} API key not configured in admin panel'}),
             'isBase64Encoded': False
         }
     
@@ -61,14 +65,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 400,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Gemini model is disabled'}),
+            'body': json.dumps({'error': f'{model_id} model is disabled'}),
             'isBase64Encoded': False
         }
     
     api_key = row[0]
-    
-    body_data = json.loads(event.get('body', '{}'))
-    message = body_data.get('message', '')
     
     if not message:
         return {
@@ -94,33 +95,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     enhanced_message = f"{context}Пользователь спрашивает: {message}"
     
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}'
+    url = 'https://openrouter.ai/api/v1/chat/completions'
+    
+    model_name = 'google/gemini-2.0-flash-exp:free' if model_id == 'gemini' else 'meta-llama/llama-3.3-70b-instruct'
     
     payload = {
-        'contents': [{
-            'parts': [{'text': enhanced_message}]
-        }]
+        'model': model_name,
+        'messages': [{'role': 'user', 'content': enhanced_message}]
     }
     
-    response = requests.post(url, json=payload, headers={'Content-Type': 'application/json'})
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}',
+        'HTTP-Referer': 'https://ai-platform.example.com',
+        'X-Title': 'AI Platform'
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
     
     if response.status_code != 200:
         return {
             'statusCode': response.status_code,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': f'Gemini API error: {response.text}'}),
+            'body': json.dumps({'error': f'OpenRouter API error: {response.text}'}),
             'isBase64Encoded': False
         }
     
     result = response.json()
-    ai_response = result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', 'No response')
+    ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', 'No response')
     
     return {
         'statusCode': 200,
         'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
         'body': json.dumps({
             'response': ai_response,
-            'model': 'gemini-2.0-flash-exp'
+            'model': model_name,
+            'provider': 'OpenRouter'
         }),
         'isBase64Encoded': False
     }
