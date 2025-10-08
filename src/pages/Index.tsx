@@ -60,9 +60,9 @@ const Index = () => {
       {currentPage === 'home' && (
         <>
           <Hero onStartChat={() => setCurrentPage('chat')} language={language} />
-          <Features />
+          <Features language={language} />
           <AboutUs language={language} />
-          <UseCases onStartChat={() => setCurrentPage('chat')} />
+          <UseCases onStartChat={() => setCurrentPage('chat')} language={language} />
           <Footer />
         </>
       )}

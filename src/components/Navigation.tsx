@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Icon from '@/components/ui/icon';
-import { Language, languages } from '@/lib/i18n';
+import { Language, languages, getTranslations } from '@/lib/i18n';
 
 interface NavigationProps {
   currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile';
@@ -14,6 +14,8 @@ interface NavigationProps {
 }
 
 const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange, user, onAuthClick }: NavigationProps) => {
+  const t = getTranslations(language);
+  
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-950/90 via-purple-950/90 to-blue-950/90 backdrop-blur-lg border-b border-indigo-500/20">
       <div className="container mx-auto px-6 py-4">
@@ -57,7 +59,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
               size="sm"
             >
               <Icon name="Home" size={16} className="mr-2" />
-              Главная
+              {t.navigation.home}
             </Button>
             <Button
               variant={currentPage === 'chat' ? 'default' : 'ghost'}
@@ -66,7 +68,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
               size="sm"
             >
               <Icon name="MessageSquare" size={16} className="mr-2" />
-              Чат
+              {t.navigation.chat}
             </Button>
             <Button
               variant={currentPage === 'features' ? 'default' : 'ghost'}
@@ -75,7 +77,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
               size="sm"
             >
               <Icon name="Sparkles" size={16} className="mr-2" />
-              Функции
+              {t.navigation.features}
             </Button>
             <Button
               variant={currentPage === 'tools' ? 'default' : 'ghost'}
@@ -84,7 +86,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
               size="sm"
             >
               <Icon name="Wrench" size={16} className="mr-2" />
-              ИИ Инструменты
+              {t.navigation.tools}
             </Button>
             <Button
               variant={currentPage === 'admin' ? 'default' : 'ghost'}
@@ -93,7 +95,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
               size="sm"
             >
               <Icon name="Settings" size={16} className="mr-2" />
-              Админ
+              {t.navigation.admin}
             </Button>
             
             {user ? (
@@ -114,7 +116,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
                 size="sm"
               >
                 <Icon name="LogIn" size={16} className="mr-2" />
-                Войти
+                {t.navigation.login}
               </Button>
             )}
           </div>

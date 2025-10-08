@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { Language, getTranslations } from '@/lib/i18n';
 
 const useCases = [
   {
@@ -47,9 +48,39 @@ const useCases = [
 
 interface UseCasesProps {
   onStartChat: () => void;
+  language?: Language;
 }
 
-const UseCases = ({ onStartChat }: UseCasesProps) => {
+const UseCases = ({ onStartChat, language = 'ru' }: UseCasesProps) => {
+  const t = getTranslations(language).useCases;
+  
+  const useCasesData = [
+    {
+      category: t.students,
+      description: t.studentsDesc,
+      icon: 'GraduationCap',
+      gradient: 'from-indigo-500 to-purple-600'
+    },
+    {
+      category: t.developers,
+      description: t.developersDesc,
+      icon: 'Code',
+      gradient: 'from-purple-500 to-pink-600'
+    },
+    {
+      category: t.business,
+      description: t.businessDesc,
+      icon: 'Briefcase',
+      gradient: 'from-blue-500 to-cyan-600'
+    },
+    {
+      category: t.creative,
+      description: t.creativeDesc,
+      icon: 'Palette',
+      gradient: 'from-emerald-500 to-teal-600'
+    }
+  ];
+  
   return (
     <section className="py-24 px-6 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(99,102,241,0.1),transparent)]" />
@@ -60,19 +91,16 @@ const UseCases = ({ onStartChat }: UseCasesProps) => {
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 mb-6 backdrop-blur-sm">
             <Icon name="Target" size={18} className="text-indigo-400" />
             <span className="text-sm font-medium bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
-              Примеры использования
+              {t.title}
             </span>
           </div>
           <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-            Решает любые задачи
+            {t.title}
           </h2>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Реальные примеры того, как Богдан помогает людям каждый день
-          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {useCases.map((useCase, index) => (
+          {useCasesData.map((useCase, index) => (
             <Card 
               key={index}
               className="p-8 bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 hover:border-indigo-500/50 transition-all duration-300 animate-scale-in backdrop-blur-sm shadow-xl hover:shadow-2xl group"
@@ -84,23 +112,7 @@ const UseCases = ({ onStartChat }: UseCasesProps) => {
                 </div>
                 <h3 className="text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors">{useCase.category}</h3>
               </div>
-
-              <div className="space-y-4">
-                {useCase.examples.map((example, i) => (
-                  <div 
-                    key={i}
-                    className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-indigo-500/30 transition-all"
-                  >
-                    <div className="flex items-start gap-3 mb-2">
-                      <Icon name="ArrowRight" size={18} className="text-indigo-400 mt-0.5 shrink-0" />
-                      <div>
-                        <p className="text-white font-medium mb-1">{example.task}</p>
-                        <p className="text-sm text-gray-400">→ {example.result}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <p className="text-gray-400 text-lg leading-relaxed">{useCase.description}</p>
             </Card>
           ))}
         </div>
@@ -111,19 +123,13 @@ const UseCases = ({ onStartChat }: UseCasesProps) => {
               <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl">
                 <Icon name="Rocket" size={40} className="text-white" />
               </div>
-              <h3 className="text-3xl font-black text-white mb-4">
-                Готовы начать?
-              </h3>
-              <p className="text-xl text-gray-300 mb-8">
-                Присоединяйтесь к тысячам пользователей, которые уже используют Богдана
-              </p>
               <Button 
                 size="lg"
                 onClick={onStartChat}
                 className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-110"
               >
                 <Icon name="MessageCircle" size={28} className="mr-3" />
-                Начать общение
+                {t.startNow}
               </Button>
             </div>
           </Card>

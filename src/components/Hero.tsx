@@ -8,7 +8,7 @@ interface HeroProps {
 }
 
 const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
-  const isRu = language === 'ru';
+  const t = getTranslations(language).hero;
   
   return (
     <section className="pt-32 pb-20 px-6 relative overflow-hidden">
@@ -20,33 +20,31 @@ const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 mb-8 backdrop-blur-sm shadow-lg">
             <Icon name="Sparkles" size={18} className="text-indigo-400" />
             <span className="text-sm font-medium bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
-              {isRu ? 'Интеллектуальный помощник нового поколения' : 'Next Generation Intelligent Assistant'}
+              {t.badge}
             </span>
           </div>
 
           <h1 className="text-7xl md:text-8xl font-black mb-8 leading-tight">
             <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-2xl">
-              {isRu ? 'Богдан' : 'Bogdan'}
+              {t.title}
             </span>
             <br />
             <span className="text-white text-5xl md:text-6xl">
-              {isRu ? 'Ваш личный помощник' : 'Your Personal Assistant'}
+              {t.subtitle}
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
-            {isRu 
-              ? 'Создан с любовью сотрудниками аэропорта Пулково для помощи путешественникам и всем, кто ищет умного собеседника. Объединяет опыт работы с людьми и современные технологии.'
-              : 'Created with love by Pulkovo Airport employees to help travelers and anyone seeking an intelligent companion. Combines human experience with modern technology.'}
+            {t.description}
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mb-16 max-w-5xl mx-auto">
             {[
-              { icon: 'Code', text: isRu ? 'Генерация кода' : 'Code Generation', color: 'indigo' },
-              { icon: 'FileText', text: isRu ? 'Анализ документов' : 'Document Analysis', color: 'purple' },
-              { icon: 'Languages', text: isRu ? 'Переводы' : 'Translations', color: 'blue' },
-              { icon: 'Lightbulb', text: isRu ? 'Креативные идеи' : 'Creative Ideas', color: 'yellow' },
-              { icon: 'Search', text: isRu ? 'Поиск информации' : 'Information Search', color: 'green' },
+              { icon: 'Code', text: t.codeGen, color: 'indigo' },
+              { icon: 'FileText', text: t.docAnalysis, color: 'purple' },
+              { icon: 'Languages', text: t.translations, color: 'blue' },
+              { icon: 'Lightbulb', text: t.ideas, color: 'yellow' },
+              { icon: 'Search', text: t.search, color: 'green' },
             ].map((item, idx) => (
               <div 
                 key={idx}
@@ -65,16 +63,16 @@ const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
               className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-10 py-7 text-xl font-bold rounded-2xl shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-110 border border-indigo-400/30"
             >
               <Icon name="MessageCircle" size={28} className="mr-3" />
-              {isRu ? 'Начать общение' : 'Start Conversation'}
+              {t.startChat}
             </Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             {[
-              { icon: 'Zap', title: isRu ? 'Молниеносный' : 'Lightning Fast', desc: isRu ? 'Мгновенные ответы' : 'Instant Responses', gradient: 'from-indigo-500 to-purple-600' },
-              { icon: 'Brain', title: isRu ? 'Умный' : 'Intelligent', desc: isRu ? 'Современный ИИ' : 'Modern AI', gradient: 'from-purple-500 to-blue-600' },
-              { icon: 'Shield', title: isRu ? 'Безопасный' : 'Secure', desc: isRu ? 'Защита данных' : 'Data Protection', gradient: 'from-blue-500 to-cyan-600' },
-              { icon: 'Infinity', title: isRu ? 'Безграничный' : 'Limitless', desc: isRu ? 'Любые задачи' : 'Any Tasks', gradient: 'from-cyan-500 to-indigo-600' },
+              { icon: 'Zap', title: t.fast, desc: t.fastDesc, gradient: 'from-indigo-500 to-purple-600' },
+              { icon: 'Brain', title: t.smart, desc: t.smartDesc, gradient: 'from-purple-500 to-blue-600' },
+              { icon: 'Shield', title: t.secure, desc: t.secureDesc, gradient: 'from-blue-500 to-cyan-600' },
+              { icon: 'Infinity', title: t.limitless, desc: t.limitlessDesc, gradient: 'from-cyan-500 to-indigo-600' },
             ].map((item, idx) => (
               <div key={idx} className="text-center animate-scale-in" style={{ animationDelay: `${idx * 0.1}s` }}>
                 <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-2xl hover:scale-110 transition-transform`}>
