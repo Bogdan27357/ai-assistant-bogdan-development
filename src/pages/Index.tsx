@@ -9,6 +9,7 @@ import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
 import AdvancedFeatures from '@/components/AdvancedFeatures';
 import AITools from '@/components/AITools';
+import ImageGenerator from '@/components/ImageGenerator';
 import Navigation from '@/components/Navigation';
 import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
@@ -16,7 +17,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'auth'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'auth' | 'images'>('home');
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
 
@@ -71,6 +72,7 @@ const Index = () => {
       {currentPage === 'chat' && <ChatInterface onNavigateToAdmin={() => setCurrentPage('admin')} language={language} />}
       {currentPage === 'features' && <AdvancedFeatures />}
       {currentPage === 'tools' && <AITools />}
+      {currentPage === 'images' && <ImageGenerator />}
       {currentPage === 'admin' && <AdminPanel />}
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}

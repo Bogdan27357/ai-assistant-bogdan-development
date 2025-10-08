@@ -5,8 +5,8 @@ import Icon from '@/components/ui/icon';
 import { Language, languages, getTranslations } from '@/lib/i18n';
 
 interface NavigationProps {
-  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile';
-  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile') => void;
+  currentPage: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images';
+  onNavigate: (page: 'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'images') => void;
   language?: Language;
   onLanguageChange?: (lang: Language) => void;
   user?: { email: string; name: string } | null;
@@ -87,6 +87,15 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
             >
               <Icon name="Wrench" size={16} className="mr-2" />
               {t.navigation.tools}
+            </Button>
+            <Button
+              variant={currentPage === 'images' ? 'default' : 'ghost'}
+              onClick={() => onNavigate('images')}
+              className={currentPage === 'images' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+              size="sm"
+            >
+              <Icon name="Image" size={16} className="mr-2" />
+              Изображения
             </Button>
             <Button
               variant={currentPage === 'admin' ? 'default' : 'ghost'}
