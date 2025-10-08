@@ -103,9 +103,9 @@ export const useApiKeyManagement = () => {
 
   const handleSaveKey = async (modelId: string) => {
     try {
-      await saveApiKey(modelId, configs[modelId].apiKey, configs[modelId].enabled);
+      const currentKey = configs[modelId].apiKey;
+      await saveApiKey(modelId, currentKey, configs[modelId].enabled);
       toast.success(`API ключ для ${models.find(m => m.id === modelId)?.name} сохранён`);
-      await loadApiKeys();
     } catch (error) {
       toast.error('Ошибка сохранения ключа');
     }

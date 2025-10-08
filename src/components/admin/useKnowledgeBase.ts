@@ -16,7 +16,7 @@ export const useKnowledgeBase = () => {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string = 'Без категории') => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -37,7 +37,8 @@ export const useKnowledgeBase = () => {
                 body: JSON.stringify({
                   file_name: file.name,
                   file_content: base64,
-                  file_type: file.type || 'text/plain'
+                  file_type: file.type || 'text/plain',
+                  category: category
                 })
               });
               

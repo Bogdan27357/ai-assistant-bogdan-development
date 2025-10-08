@@ -14,12 +14,13 @@ interface KnowledgeFile {
   file_size: number;
   file_type: string;
   created_at: string;
+  category?: string;
 }
 
 interface KnowledgeBaseProps {
   knowledgeFiles: KnowledgeFile[];
   uploading: boolean;
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>, category?: string) => void;
   onDeleteFile: (fileId: number) => void;
 }
 
@@ -36,10 +37,25 @@ const KnowledgeBase = ({
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [newFileCategory, setNewFileCategory] = useState<string>('Без категории');
 
-  const filteredFiles = knowledgeFiles.filter(file => 
-    file.file_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const categories = ['Все', 'Без категории', 'Документация', 'FAQ', 'Инструкции', 'Артиклы'];
+  const categoryColors: Record<string, string> = {
+    'Без категории': 'bg-gray-500/20 text-gray-300',
+    'Документация': 'bg-blue-500/20 text-blue-300',
+    'FAQ': 'bg-green-500/20 text-green-300',
+    'Инструкции': 'bg-yellow-500/20 text-yellow-300',
+    'Артиклы': 'bg-purple-500/20 text-purple-300'
+  };
+
+  const filteredFiles = knowledgeFiles.filter(file => {
+    const matchesSearch = file.file_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || 
+                           selectedCategory === 'Все' || 
+                           (file.category || 'Без категории') === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const totalSize = knowledgeFiles.reduce((sum, file) => sum + file.file_size, 0);
 
@@ -72,7 +88,7 @@ const KnowledgeBase = ({
       const fakeEvent = {
         target: { files: e.dataTransfer.files }
       } as React.ChangeEvent<HTMLInputElement>;
-      onFileUpload(fakeEvent);
+      onFileUpload(fakeEvent, newFileCategory);
     }
   };
 
@@ -246,6 +262,21 @@ const KnowledgeBase = ({
       </div>
 
       <div className="space-y-6">
+        <div className="bg-slate-800/30 border border-slate-700 rounded-xl p-4">
+          <div className="flex items-center gap-4">
+            <label className="text-white font-semibold whitespace-nowrap">Категория для новых файлов:</label>
+            <select
+              value={newFileCategory}
+              onChange={(e) => setNewFileCategory(e.target.value)}
+              className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              {categories.filter(c => c !== 'Все').map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
         <div 
           className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
             isDragging 
@@ -259,7 +290,7 @@ const KnowledgeBase = ({
           <input 
             type="file" 
             ref={fileInputRef}
-            onChange={onFileUpload}
+            onChange={(e) => onFileUpload(e, newFileCategory)}
             className="hidden" 
             multiple 
             accept=".txt,.pdf,.doc,.docx" 
@@ -300,6 +331,15 @@ const KnowledgeBase = ({
               )}
             </div>
             <div className="flex gap-2">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {categories.map(cat => (
+                  <option key={cat} value={cat === 'Все' ? 'all' : cat}>{cat}</option>
+                ))}
+              </select>
               <Input
                 type="text"
                 placeholder="Поиск файлов..."
@@ -346,7 +386,12 @@ const KnowledgeBase = ({
                       />
                     <Icon name="FileText" size={20} className="text-indigo-400" />
                     <div>
-                      <p className="text-white font-medium">{file.file_name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-white font-medium">{file.file_name}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-md ${categoryColors[file.category || 'Без категории']}`}>
+                          {file.category || 'Без категории'}
+                        </span>
+                      </div>
                       <p className="text-xs text-gray-500">
                         {(file.file_size / 1024).toFixed(2)} KB • {new Date(file.created_at).toLocaleDateString('ru-RU')}
                       </p>

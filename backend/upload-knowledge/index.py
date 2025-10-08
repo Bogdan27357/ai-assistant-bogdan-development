@@ -33,6 +33,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     conn = psycopg2.connect(dsn)
+    conn.set_session(autocommit=False)
     cur = conn.cursor()
     
     try:
@@ -41,6 +42,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             file_name = body_data.get('file_name', '')
             file_content = body_data.get('file_content', '')
             file_type = body_data.get('file_type', '')
+            category = body_data.get('category', 'Без категории')
             file_size = len(file_content)
             
             content = base64.b64decode(file_content).decode('utf-8', errors='ignore')
@@ -48,10 +50,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Escape single quotes for SQL
             safe_name = file_name.replace("'", "''")
             safe_type = file_type.replace("'", "''")
+            safe_category = category.replace("'", "''")
             safe_content = content.replace("'", "''")
             
             cur.execute(
-                f"INSERT INTO knowledge_base (file_name, file_type, file_size, content) VALUES ('{safe_name}', '{safe_type}', {file_size}, '{safe_content}') RETURNING id"
+                f"INSERT INTO t_p68921797_ai_assistant_bogdan_.knowledge_base (file_name, file_type, file_size, content, category) VALUES ('{safe_name}', '{safe_type}', {file_size}, '{safe_content}', '{safe_category}') RETURNING id"
             )
             file_id = cur.fetchone()[0]
             conn.commit()
@@ -75,7 +78,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             file_id = params.get('id')
             
             if file_id:
-                cur.execute(f"SELECT content FROM knowledge_base WHERE id = {file_id}")
+                cur.execute(f"SELECT content FROM t_p68921797_ai_assistant_bogdan_.knowledge_base WHERE id = {file_id}")
                 row = cur.fetchone()
                 
                 if not row:
@@ -96,7 +99,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "SELECT id, file_name, file_type, file_size, created_at FROM knowledge_base ORDER BY created_at DESC"
+                "SELECT id, file_name, file_type, file_size, created_at, category FROM t_p68921797_ai_assistant_bogdan_.knowledge_base ORDER BY created_at DESC"
             )
             files = []
             for row in cur.fetchall():
@@ -105,7 +108,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'file_name': row[1],
                     'file_type': row[2],
                     'file_size': row[3],
-                    'created_at': row[4].isoformat() if row[4] else None
+                    'created_at': row[4].isoformat() if row[4] else None,
+                    'category': row[5] if len(row) > 5 else 'Без категории'
                 })
             
             return {
@@ -129,7 +133,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'File ID required'})
                 }
             
-            cur.execute(f"DELETE FROM knowledge_base WHERE id = {file_id}")
+            cur.execute(f"DELETE FROM t_p68921797_ai_assistant_bogdan_.knowledge_base WHERE id = {file_id}")
             conn.commit()
             
             return {
