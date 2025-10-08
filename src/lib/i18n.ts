@@ -15,7 +15,7 @@ export const translations = {
     chat: {
       title: 'Чат с Богданом',
       startConversation: 'Начните беседу',
-      selectModel: 'Выберите ИИ модель и задайте любой вопрос. Богдан готов помочь!',
+      selectModel: 'Задайте любой вопрос. Богдан готов помочь!',
       inputPlaceholder: 'Введите сообщение...',
       send: 'Отправить',
       export: 'Экспорт',
@@ -44,7 +44,7 @@ export const translations = {
     chat: {
       title: 'Chat with Bogdan',
       startConversation: 'Start a conversation',
-      selectModel: 'Select an AI model and ask any question. Bogdan is ready to help!',
+      selectModel: 'Ask any question. Bogdan is ready to help!',
       inputPlaceholder: 'Type a message...',
       send: 'Send',
       export: 'Export',
@@ -73,7 +73,7 @@ export const translations = {
     chat: {
       title: 'Chat con Bogdan',
       startConversation: 'Iniciar conversación',
-      selectModel: 'Selecciona un modelo de IA y haz cualquier pregunta. ¡Bogdan está listo para ayudar!',
+      selectModel: 'Haz cualquier pregunta. ¡Bogdan está listo para ayudar!',
       inputPlaceholder: 'Escribe un mensaje...',
       send: 'Enviar',
       export: 'Exportar',
@@ -102,7 +102,7 @@ export const translations = {
     chat: {
       title: 'Chat avec Bogdan',
       startConversation: 'Commencer une conversation',
-      selectModel: 'Sélectionnez un modèle IA et posez votre question. Bogdan est prêt à aider!',
+      selectModel: 'Posez votre question. Bogdan est prêt à aider!',
       inputPlaceholder: 'Tapez un message...',
       send: 'Envoyer',
       export: 'Exporter',
@@ -131,7 +131,7 @@ export const translations = {
     chat: {
       title: 'Chat mit Bogdan',
       startConversation: 'Gespräch beginnen',
-      selectModel: 'Wählen Sie ein KI-Modell und stellen Sie eine Frage. Bogdan ist bereit zu helfen!',
+      selectModel: 'Stellen Sie eine Frage. Bogdan ist bereit zu helfen!',
       inputPlaceholder: 'Nachricht eingeben...',
       send: 'Senden',
       export: 'Exportieren',
@@ -160,7 +160,7 @@ export const translations = {
     chat: {
       title: '与Bogdan聊天',
       startConversation: '开始对话',
-      selectModel: '选择AI模型并提出任何问题。Bogdan随时准备帮助您！',
+      selectModel: '提出任何问题。Bogdan随时准备帮助您！',
       inputPlaceholder: '输入消息...',
       send: '发送',
       export: '导出',
@@ -189,7 +189,7 @@ export const translations = {
     chat: {
       title: 'الدردشة مع بوغدان',
       startConversation: 'بدء محادثة',
-      selectModel: 'اختر نموذج الذكاء الاصطناعي واطرح أي سؤال. بوغدان جاهز للمساعدة!',
+      selectModel: 'اطرح أي سؤال. بوغدان جاهز للمساعدة!',
       inputPlaceholder: 'اكتب رسالة...',
       send: 'إرسال',
       export: 'تصدير',

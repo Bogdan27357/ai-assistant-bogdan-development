@@ -51,43 +51,52 @@ interface UseCasesProps {
 
 const UseCases = ({ onStartChat }: UseCasesProps) => {
   return (
-    <section className="py-20 px-6 bg-gradient-to-b from-slate-950 to-slate-900">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-black mb-4 text-white">
-            Как использовать Богдана
+    <section className="py-24 px-6 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(99,102,241,0.1),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(168,85,247,0.1),transparent)]" />
+      
+      <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="text-center mb-20 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 mb-6 backdrop-blur-sm">
+            <Icon name="Target" size={18} className="text-indigo-400" />
+            <span className="text-sm font-medium bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
+              Примеры использования
+            </span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Решает любые задачи
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Реальные примеры задач, которые решает наш ИИ-помощник каждый день
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+            Реальные примеры того, как Богдан помогает людям каждый день
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 mb-16">
           {useCases.map((useCase, index) => (
             <Card 
               key={index}
-              className="p-8 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 hover:border-indigo-500/50 transition-all duration-300"
+              className="p-8 bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 hover:border-indigo-500/50 transition-all duration-300 animate-scale-in backdrop-blur-sm shadow-xl hover:shadow-2xl group"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${useCase.gradient} flex items-center justify-center`}>
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${useCase.gradient} flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform`}>
                   <Icon name={useCase.icon as any} size={32} className="text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">{useCase.category}</h3>
+                <h3 className="text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors">{useCase.category}</h3>
               </div>
 
               <div className="space-y-4">
                 {useCase.examples.map((example, i) => (
                   <div 
                     key={i}
-                    className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-indigo-500/30 transition-colors"
+                    className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-indigo-500/30 transition-all"
                   >
                     <div className="flex items-start gap-3 mb-2">
-                      <Icon name="MessageSquare" size={16} className="text-indigo-400 mt-1" />
-                      <p className="text-gray-300 font-medium">{example.task}</p>
-                    </div>
-                    <div className="flex items-start gap-3 ml-7">
-                      <Icon name="Sparkles" size={16} className="text-purple-400 mt-1" />
-                      <p className="text-gray-400 text-sm">{example.result}</p>
+                      <Icon name="ArrowRight" size={18} className="text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-white font-medium mb-1">{example.task}</p>
+                        <p className="text-sm text-gray-400">→ {example.result}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -96,15 +105,28 @@ const UseCases = ({ onStartChat }: UseCasesProps) => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <Button
-            size="lg"
-            onClick={onStartChat}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold rounded-2xl shadow-lg"
-          >
-            <Icon name="Rocket" size={24} className="mr-2" />
-            Попробовать сейчас
-          </Button>
+        <div className="text-center">
+          <Card className="p-12 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border-indigo-500/30 backdrop-blur-sm shadow-2xl inline-block">
+            <div className="max-w-2xl">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl">
+                <Icon name="Rocket" size={40} className="text-white" />
+              </div>
+              <h3 className="text-3xl font-black text-white mb-4">
+                Готовы начать?
+              </h3>
+              <p className="text-xl text-gray-300 mb-8">
+                Присоединяйтесь к тысячам пользователей, которые уже используют Богдана
+              </p>
+              <Button 
+                size="lg"
+                onClick={onStartChat}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-110"
+              >
+                <Icon name="MessageCircle" size={28} className="mr-3" />
+                Начать общение
+              </Button>
+            </div>
+          </Card>
         </div>
       </div>
     </section>

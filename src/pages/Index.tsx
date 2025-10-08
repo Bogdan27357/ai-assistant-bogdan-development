@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/sonner";
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
-import Features2 from '@/components/Features2';
+import AboutUs from '@/components/AboutUs';
 import UseCases from '@/components/UseCases';
 import Footer from '@/components/Footer';
 import ChatInterface from '@/components/ChatInterface';
@@ -37,14 +37,15 @@ const Index = () => {
       
       {currentPage === 'home' && (
         <>
-          <Hero onStartChat={() => setCurrentPage('chat')} />
+          <Hero onStartChat={() => setCurrentPage('chat')} language={language} />
           <Features />
+          <AboutUs language={language} />
           <UseCases onStartChat={() => setCurrentPage('chat')} />
           <Footer />
         </>
       )}
       
-      {currentPage === 'chat' && <ChatInterface onNavigateToAdmin={() => setCurrentPage('admin')} />}
+      {currentPage === 'chat' && <ChatInterface onNavigateToAdmin={() => setCurrentPage('admin')} language={language} />}
       {currentPage === 'features' && <AdvancedFeatures />}
       {currentPage === 'tools' && <AITools />}
       {currentPage === 'admin' && <AdminPanel />}

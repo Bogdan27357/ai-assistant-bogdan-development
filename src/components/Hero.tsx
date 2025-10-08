@@ -1,106 +1,97 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { Language, getTranslations } from '@/lib/i18n';
 
 interface HeroProps {
   onStartChat: () => void;
+  language?: Language;
 }
 
-const Hero = ({ onStartChat }: HeroProps) => {
+const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
+  const isRu = language === 'ru';
+  
   return (
     <section className="pt-32 pb-20 px-6 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-transparent animate-gradient-shift bg-[length:200%_200%]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
       
-      <div className="container mx-auto max-w-6xl relative z-10">
+      <div className="container mx-auto max-w-7xl relative z-10">
         <div className="text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8">
-            <Icon name="Sparkles" size={16} className="text-indigo-400" />
-            <span className="text-sm text-indigo-300">Интеллектуальный помощник нового поколения</span>
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 mb-8 backdrop-blur-sm shadow-lg">
+            <Icon name="Sparkles" size={18} className="text-indigo-400" />
+            <span className="text-sm font-medium bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
+              {isRu ? 'Интеллектуальный помощник нового поколения' : 'Next Generation Intelligent Assistant'}
+            </span>
           </div>
 
-          <h1 className="text-6xl md:text-7xl font-black mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Богдан
+          <h1 className="text-7xl md:text-8xl font-black mb-8 leading-tight">
+            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-2xl">
+              {isRu ? 'Богдан' : 'Bogdan'}
             </span>
             <br />
-            <span className="text-white">Ваш личный ИИ-помощник</span>
+            <span className="text-white text-5xl md:text-6xl">
+              {isRu ? 'Ваш личный помощник' : 'Your Personal Assistant'}
+            </span>
           </h1>
 
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Создан сотрудниками аэропорта Пулково для помощи путешественникам.
-            Интеллектуальный помощник, который объединяет опыт работы с людьми и мощь ИИ.
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
+            {isRu 
+              ? 'Создан с любовью сотрудниками аэропорта Пулково для помощи путешественникам и всем, кто ищет умного собеседника. Объединяет опыт работы с людьми и современные технологии.'
+              : 'Created with love by Pulkovo Airport employees to help travelers and anyone seeking an intelligent companion. Combines human experience with modern technology.'}
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 mb-12 max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
-              <Icon name="Code" size={16} className="text-indigo-400" />
-              <span className="text-sm text-gray-300">Генерация кода</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
-              <Icon name="FileText" size={16} className="text-purple-400" />
-              <span className="text-sm text-gray-300">Анализ документов</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
-              <Icon name="Languages" size={16} className="text-blue-400" />
-              <span className="text-sm text-gray-300">Переводы</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
-              <Icon name="Lightbulb" size={16} className="text-yellow-400" />
-              <span className="text-sm text-gray-300">Креативные идеи</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700">
-              <Icon name="Search" size={16} className="text-green-400" />
-              <span className="text-sm text-gray-300">Поиск информации</span>
-            </div>
+          <div className="flex flex-wrap justify-center gap-4 mb-16 max-w-5xl mx-auto">
+            {[
+              { icon: 'Code', text: isRu ? 'Генерация кода' : 'Code Generation', color: 'indigo' },
+              { icon: 'FileText', text: isRu ? 'Анализ документов' : 'Document Analysis', color: 'purple' },
+              { icon: 'Languages', text: isRu ? 'Переводы' : 'Translations', color: 'blue' },
+              { icon: 'Lightbulb', text: isRu ? 'Креативные идеи' : 'Creative Ideas', color: 'yellow' },
+              { icon: 'Search', text: isRu ? 'Поиск информации' : 'Information Search', color: 'green' },
+            ].map((item, idx) => (
+              <div 
+                key={idx}
+                className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-800/60 border border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/80 transition-all hover:scale-105 hover:border-slate-600 shadow-lg"
+              >
+                <Icon name={item.icon as any} size={20} className={`text-${item.color}-400`} />
+                <span className="text-sm font-medium text-gray-200">{item.text}</span>
+              </div>
+            ))}
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-6 mb-20">
             <Button 
               size="lg" 
               onClick={onStartChat}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold rounded-2xl shadow-lg shadow-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/60 transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-10 py-7 text-xl font-bold rounded-2xl shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-110 border border-indigo-400/30"
             >
-              <Icon name="MessageCircle" size={24} className="mr-2" />
-              Начать общение
+              <Icon name="MessageCircle" size={28} className="mr-3" />
+              {isRu ? 'Начать общение' : 'Start Conversation'}
             </Button>
             <Button 
               size="lg" 
               variant="outline"
-              className="border-2 border-indigo-400/30 text-white hover:bg-indigo-500/10 px-8 py-6 text-lg font-semibold rounded-2xl"
+              className="border-2 border-indigo-400/40 text-white hover:bg-indigo-500/20 px-10 py-7 text-xl font-bold rounded-2xl backdrop-blur-sm shadow-xl hover:scale-105 transition-all"
             >
-              <Icon name="Play" size={24} className="mr-2" />
-              Посмотреть демо
+              <Icon name="Play" size={28} className="mr-3" />
+              {isRu ? 'Посмотреть демо' : 'Watch Demo'}
             </Button>
           </div>
 
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            <div className="text-center animate-scale-in">
-              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Icon name="Zap" size={28} className="text-white" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {[
+              { icon: 'Zap', title: isRu ? 'Молниеносный' : 'Lightning Fast', desc: isRu ? 'Мгновенные ответы' : 'Instant Responses', gradient: 'from-indigo-500 to-purple-600' },
+              { icon: 'Brain', title: isRu ? 'Умный' : 'Intelligent', desc: isRu ? 'Современный ИИ' : 'Modern AI', gradient: 'from-purple-500 to-blue-600' },
+              { icon: 'Shield', title: isRu ? 'Безопасный' : 'Secure', desc: isRu ? 'Защита данных' : 'Data Protection', gradient: 'from-blue-500 to-cyan-600' },
+              { icon: 'Infinity', title: isRu ? 'Безграничный' : 'Limitless', desc: isRu ? 'Любые задачи' : 'Any Tasks', gradient: 'from-cyan-500 to-indigo-600' },
+            ].map((item, idx) => (
+              <div key={idx} className="text-center animate-scale-in" style={{ animationDelay: `${idx * 0.1}s` }}>
+                <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-2xl hover:scale-110 transition-transform`}>
+                  <Icon name={item.icon as any} size={32} className="text-white" />
+                </div>
+                <div className="text-xl font-bold text-white mb-2">{item.title}</div>
+                <div className="text-sm text-gray-400">{item.desc}</div>
               </div>
-              <div className="text-lg font-bold text-white mb-1">Быстрый</div>
-              <div className="text-sm text-gray-400">Мгновенные ответы</div>
-            </div>
-            <div className="text-center animate-scale-in" style={{ animationDelay: '0.1s' }}>
-              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
-                <Icon name="Brain" size={28} className="text-white" />
-              </div>
-              <div className="text-lg font-bold text-white mb-1">Умный</div>
-              <div className="text-sm text-gray-400">Современный ИИ</div>
-            </div>
-            <div className="text-center animate-scale-in" style={{ animationDelay: '0.2s' }}>
-              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
-                <Icon name="Shield" size={28} className="text-white" />
-              </div>
-              <div className="text-lg font-bold text-white mb-1">Безопасный</div>
-              <div className="text-sm text-gray-400">Защита данных</div>
-            </div>
-            <div className="text-center animate-scale-in" style={{ animationDelay: '0.3s' }}>
-              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center">
-                <Icon name="Infinity" size={28} className="text-white" />
-              </div>
-              <div className="text-lg font-bold text-white mb-1">Безграничный</div>
-              <div className="text-sm text-gray-400">Любые задачи</div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
