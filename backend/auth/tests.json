@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Test verify endpoint",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "verify",
+        "token": "test-token-123"
+      },
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

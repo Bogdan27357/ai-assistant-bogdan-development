@@ -29,13 +29,25 @@ export const models = [
     status: 'FREE',
     features: ['Глубокий анализ', 'Reasoning', 'Инструкции', 'Pay-as-you-go'],
     apiDocsUrl: 'https://openrouter.ai/keys'
+  },
+  { 
+    id: 'gigachat', 
+    name: 'GigaChat Pro', 
+    provider: 'Sber',
+    icon: 'Zap', 
+    color: 'from-green-500 to-emerald-500',
+    description: 'Российская нейросеть от Сбера для бизнеса и разработки',
+    status: 'PAID',
+    features: ['Русский язык', 'Специализация РФ', 'Безопасность'],
+    apiDocsUrl: 'https://developers.sber.ru/docs/ru/gigachat/api/reference/rest/get-token'
   }
 ];
 
 export const useApiKeyManagement = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
     gemini: { enabled: true, apiKey: '' },
-    llama: { enabled: true, apiKey: '' }
+    llama: { enabled: true, apiKey: '' },
+    gigachat: { enabled: false, apiKey: '' }
   });
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string } | null>>({});

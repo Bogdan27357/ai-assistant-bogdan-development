@@ -6,9 +6,9 @@ import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: OpenRouter API integration for chat (Gemini & Llama)
+    Business: Multi-model API integration (Gemini, Llama, GigaChat)
     Args: event with httpMethod, body (message, session_id, model_id)
-    Returns: AI response from selected model via OpenRouter
+    Returns: AI response from selected model
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -95,34 +95,71 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     enhanced_message = f"{context}Пользователь спрашивает: {message}"
     
-    url = 'https://openrouter.ai/api/v1/chat/completions'
-    
-    model_name = 'google/gemini-2.0-flash-exp:free' if model_id == 'gemini' else 'meta-llama/llama-3.3-70b-instruct'
-    
-    payload = {
-        'model': model_name,
-        'messages': [{'role': 'user', 'content': enhanced_message}]
-    }
-    
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {api_key}',
-        'HTTP-Referer': 'https://ai-platform.example.com',
-        'X-Title': 'AI Platform'
-    }
-    
-    response = requests.post(url, json=payload, headers=headers)
-    
-    if response.status_code != 200:
-        return {
-            'statusCode': response.status_code,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': f'OpenRouter API error: {response.text}'}),
-            'isBase64Encoded': False
+    if model_id == 'gigachat':
+        token_response = requests.post(
+            'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',
+            headers={'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json', 'RqUID': 'AI-Platform'},
+            data={'scope': 'GIGACHAT_API_PERS'},
+            auth=(api_key, ''),
+            verify=False
+        )
+        
+        if token_response.status_code != 200:
+            return {
+                'statusCode': token_response.status_code,
+                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': f'GigaChat auth error: {token_response.text}'}),
+                'isBase64Encoded': False
+            }
+        
+        access_token = token_response.json().get('access_token')
+        
+        response = requests.post(
+            'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
+            headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'},
+            json={'model': 'GigaChat-Pro', 'messages': [{'role': 'user', 'content': enhanced_message}]},
+            verify=False
+        )
+        
+        if response.status_code != 200:
+            return {
+                'statusCode': response.status_code,
+                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': f'GigaChat API error: {response.text}'}),
+                'isBase64Encoded': False
+            }
+        
+        result = response.json()
+        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', 'No response')
+    else:
+        url = 'https://openrouter.ai/api/v1/chat/completions'
+        
+        model_name = 'google/gemini-2.0-flash-exp:free' if model_id == 'gemini' else 'meta-llama/llama-3.3-70b-instruct'
+        
+        payload = {
+            'model': model_name,
+            'messages': [{'role': 'user', 'content': enhanced_message}]
         }
-    
-    result = response.json()
-    ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', 'No response')
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}',
+            'HTTP-Referer': 'https://ai-platform.example.com',
+            'X-Title': 'AI Platform'
+        }
+        
+        response = requests.post(url, json=payload, headers=headers)
+        
+        if response.status_code != 200:
+            return {
+                'statusCode': response.status_code,
+                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': f'OpenRouter API error: {response.text}'}),
+                'isBase64Encoded': False
+            }
+        
+        result = response.json()
+        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', 'No response')
     
     return {
         'statusCode': 200,

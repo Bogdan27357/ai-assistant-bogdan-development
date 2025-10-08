@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { sendMessageToAI, saveMessageToDB, generateSessionId } from '@/lib/api';
 import ChatMenu from '@/components/chat/ChatMenu';
 import { Language, getTranslations } from '@/lib/i18n';
+import { useVoice } from '@/hooks/useVoice';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -38,6 +39,7 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
   const [language, setLanguage] = useState<Language>('ru');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { voiceEnabled, selectedVoice, speak, toggleVoice, changeVoice } = useVoice();
 
   const t = getTranslations(language).chat;
 
@@ -50,8 +52,9 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
   }, [messages]);
 
   const models = [
-    { id: 'gemini', name: t.primaryModel, icon: 'Sparkles', color: 'text-blue-400', fullName: t.primaryModel },
-    { id: 'llama', name: t.backupModel, icon: 'Cpu', color: 'text-purple-400', fullName: t.backupModel }
+    { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'text-blue-400', fullName: 'Google Gemini' },
+    { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'text-purple-400', fullName: 'Meta Llama' },
+    { id: 'gigachat', name: 'GigaChat', icon: 'Zap', color: 'text-green-400', fullName: 'Sber GigaChat' }
   ];
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +94,10 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
 
       setMessages(prev => [...prev, aiMessage]);
       toast.success(t.responseReceived);
+      
+      if (voiceEnabled) {
+        await speak(aiResponse);
+      }
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка';
       
@@ -184,7 +191,10 @@ const ChatInterface = ({ onNavigateToAdmin }: ChatInterfaceProps) => {
                 <ChatMenu 
                   language={language}
                   onLanguageChange={setLanguage}
-                  onTranslate={handleTranslate}
+                  voiceEnabled={voiceEnabled}
+                  onVoiceToggle={toggleVoice}
+                  selectedVoice={selectedVoice}
+                  onVoiceChange={changeVoice}
                 />
                 <Button
                   variant="outline"
