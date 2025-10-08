@@ -118,6 +118,38 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
           ))}
         </div>
 
+        <Card className="bg-gradient-to-br from-indigo-900/60 via-purple-900/50 to-pink-900/40 border-2 border-indigo-500/40 p-16 text-center backdrop-blur-xl shadow-2xl animate-fade-in relative overflow-hidden mb-24">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-shift bg-[length:200%_200%]" />
+          <div className="relative max-w-4xl mx-auto">
+            <div className="relative inline-block mb-8">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl blur-2xl opacity-50" />
+              <div className="relative w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl">
+                <Icon name="Heart" size={48} className="text-white" />
+              </div>
+            </div>
+            <h3 className="text-5xl font-black text-white mb-6">
+              {isRu ? 'Наша миссия' : 'Our Mission'}
+            </h3>
+            <p className="text-2xl text-gray-200 leading-relaxed mb-8 font-light">
+              {isRu 
+                ? 'Мы создали Богдана, чтобы сделать общение с технологиями максимально простым и эффективным. Наш опыт работы в одном из крупнейших аэропортов России помог нам понять, что нужно людям в современном мире.'
+                : 'We created Bogdan to make communication with technology as simple and efficient as possible. Our experience working at one of Russia\'s largest airports helped us understand what people need in the modern world.'}
+            </p>
+            <div className="flex flex-wrap justify-center gap-6">
+              {[
+                { icon: 'Users', text: isRu ? 'Для людей' : 'For People', gradient: 'from-indigo-500 to-blue-600' },
+                { icon: 'Sparkles', text: isRu ? 'С технологиями' : 'With Technology', gradient: 'from-purple-500 to-pink-600' },
+                { icon: 'Heart', text: isRu ? 'От сердца' : 'From Heart', gradient: 'from-pink-500 to-red-600' }
+              ].map((item, idx) => (
+                <div key={idx} className={`flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r ${item.gradient} shadow-xl hover:scale-110 transition-transform cursor-pointer`}>
+                  <Icon name={item.icon as any} size={24} className="text-white" />
+                  <span className="text-white font-bold text-lg">{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+
         <div className="mb-24">
           <h3 className="text-4xl font-black text-center text-white mb-4">
             {isRu ? 'Люди, которые создали Богдана' : 'People Who Created Bogdan'}
@@ -165,37 +197,21 @@ const AboutUs = ({ language = 'ru' }: AboutUsProps) => {
           </div>
         </div>
 
-        <Card className="bg-gradient-to-br from-indigo-900/60 via-purple-900/50 to-pink-900/40 border-2 border-indigo-500/40 p-16 text-center backdrop-blur-xl shadow-2xl animate-fade-in relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-shift bg-[length:200%_200%]" />
-          <div className="relative max-w-4xl mx-auto">
-            <div className="relative inline-block mb-8">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl blur-2xl opacity-50" />
-              <div className="relative w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl">
-                <Icon name="Heart" size={48} className="text-white" />
+        <div className="grid md:grid-cols-2 gap-8">
+          {features.map((feature, idx) => (
+            <Card 
+              key={idx}
+              className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 p-8 hover:scale-105 transition-all duration-500 animate-scale-in backdrop-blur-xl shadow-2xl hover:shadow-indigo-500/30 group cursor-pointer"
+              style={{ animationDelay: `${idx * 0.1}s` }}
+            >
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 transition-transform`}>
+                <Icon name={feature.icon as any} size={28} className="text-white" />
               </div>
-            </div>
-            <h3 className="text-5xl font-black text-white mb-6">
-              {isRu ? 'Наша миссия' : 'Our Mission'}
-            </h3>
-            <p className="text-2xl text-gray-200 leading-relaxed mb-8 font-light">
-              {isRu 
-                ? 'Мы создали Богдана, чтобы сделать общение с технологиями максимально простым и эффективным. Наш опыт работы в одном из крупнейших аэропортов России помог нам понять, что нужно людям в современном мире.'
-                : 'We created Bogdan to make communication with technology as simple and efficient as possible. Our experience working at one of Russia\'s largest airports helped us understand what people need in the modern world.'}
-            </p>
-            <div className="flex flex-wrap justify-center gap-6">
-              {[
-                { icon: 'Users', text: isRu ? 'Для людей' : 'For People', gradient: 'from-indigo-500 to-blue-600' },
-                { icon: 'Sparkles', text: isRu ? 'С технологиями' : 'With Technology', gradient: 'from-purple-500 to-pink-600' },
-                { icon: 'Heart', text: isRu ? 'От сердца' : 'From Heart', gradient: 'from-pink-500 to-red-600' }
-              ].map((item, idx) => (
-                <div key={idx} className={`flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r ${item.gradient} shadow-xl hover:scale-110 transition-transform cursor-pointer`}>
-                  <Icon name={item.icon as any} size={24} className="text-white" />
-                  <span className="text-white font-bold text-lg">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
+              <h3 className="text-2xl font-black text-white mb-4 group-hover:text-indigo-300 transition-colors">{feature.title}</h3>
+              <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );
