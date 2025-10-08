@@ -1,9 +1,11 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
+import { toast } from 'sonner';
 
 interface KnowledgeFile {
   id: number;
@@ -31,6 +33,8 @@ const KnowledgeBase = ({
   const [viewingFile, setViewingFile] = useState<KnowledgeFile | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const filteredFiles = knowledgeFiles.filter(file => 
     file.file_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -71,16 +75,86 @@ const KnowledgeBase = ({
     }
   };
 
+  const toggleFileSelection = (fileId: number) => {
+    setSelectedFiles(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(fileId)) {
+        newSet.delete(fileId);
+      } else {
+        newSet.add(fileId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedFiles.size === filteredFiles.length) {
+      setSelectedFiles(new Set());
+    } else {
+      setSelectedFiles(new Set(filteredFiles.map(f => f.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedFiles.size === 0) return;
+    
+    const fileWord = selectedFiles.size === 1 ? 'файл' : selectedFiles.size < 5 ? 'файла' : 'файлов';
+    const confirmed = window.confirm(`Удалить ${selectedFiles.size} ${fileWord}? Это действие нельзя отменить.`);
+    if (!confirmed) return;
+    
+    setIsDeleting(true);
+    const count = selectedFiles.size;
+    try {
+      const deletePromises = Array.from(selectedFiles).map(id => onDeleteFile(id));
+      await Promise.all(deletePromises);
+      setSelectedFiles(new Set());
+      toast.success(`✅ Успешно удалено ${count} ${fileWord}`);
+    } catch (error) {
+      toast.error('❌ Ошибка при удалении файлов');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && filteredFiles.length > 0) {
+        e.preventDefault();
+        toggleSelectAll();
+      }
+      
+      if (e.key === 'Escape' && selectedFiles.size > 0) {
+        setSelectedFiles(new Set());
+      }
+      
+      if (e.key === 'Delete' && selectedFiles.size > 0) {
+        handleBulkDelete();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedFiles, filteredFiles]);
+
   return (
     <Card className="p-8 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-          <Icon name="FileUp" size={24} className="text-white" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <Icon name="FileUp" size={24} className="text-white" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-white">База знаний</h3>
+            <p className="text-gray-400 text-sm">Загружайте файлы для обучения помощника</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-2xl font-bold text-white">База знаний</h3>
-          <p className="text-gray-400 text-sm">Загружайте файлы для обучения помощника</p>
-        </div>
+        {selectedFiles.size > 0 && (
+          <div className="text-xs text-gray-500 bg-slate-800/50 px-3 py-2 rounded-lg border border-slate-700">
+            <p className="mb-1">⌨️ Горячие клавиши:</p>
+            <p><kbd className="bg-slate-700 px-1.5 py-0.5 rounded text-gray-300">Delete</kbd> — удалить</p>
+            <p><kbd className="bg-slate-700 px-1.5 py-0.5 rounded text-gray-300">Esc</kbd> — снять выделение</p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
@@ -106,14 +180,28 @@ const KnowledgeBase = ({
             </div>
           </div>
         </Card>
-        <Card className="p-4 bg-slate-800/50 border-slate-700">
+        <Card className={`p-4 border-slate-700 transition-all ${
+          selectedFiles.size > 0 
+            ? 'bg-indigo-900/30 border-indigo-600' 
+            : 'bg-slate-800/50'
+        }`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-              <Icon name="Zap" size={20} className="text-green-400" />
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+              selectedFiles.size > 0
+                ? 'bg-indigo-500/20'
+                : 'bg-green-500/20'
+            }`}>
+              <Icon name={selectedFiles.size > 0 ? "CheckSquare" : "Zap"} size={20} className={
+                selectedFiles.size > 0 ? "text-indigo-400" : "text-green-400"
+              } />
             </div>
             <div>
-              <p className="text-gray-400 text-sm">Активно</p>
-              <p className="text-2xl font-bold text-white">{knowledgeFiles.length}</p>
+              <p className="text-gray-400 text-sm">
+                {selectedFiles.size > 0 ? 'Выбрано' : 'Активно'}
+              </p>
+              <p className="text-2xl font-bold text-white">
+                {selectedFiles.size > 0 ? selectedFiles.size : knowledgeFiles.length}
+              </p>
             </div>
           </div>
         </Card>
@@ -148,7 +236,21 @@ const KnowledgeBase = ({
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-white font-semibold">Загруженные файлы ({knowledgeFiles.length})</h4>
+            <div className="flex items-center gap-3">
+              <h4 className="text-white font-semibold">Загруженные файлы ({knowledgeFiles.length})</h4>
+              {selectedFiles.size > 0 && (
+                <Button
+                  onClick={handleBulkDelete}
+                  disabled={isDeleting}
+                  size="sm"
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Icon name="Trash2" size={16} className="mr-2" />
+                  Удалить ({selectedFiles.size})
+                </Button>
+              )}
+            </div>
             <div className="flex gap-2">
               <Input
                 type="text"
@@ -165,10 +267,35 @@ const KnowledgeBase = ({
               <p>{searchQuery ? 'Файлы не найдены' : 'Файлы еще не загружены'}</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {filteredFiles.map((file) => (
-                <div key={file.id} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
-                  <div className="flex items-center gap-3">
+            <>
+              {filteredFiles.length > 0 && (
+                <div className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                  <Checkbox
+                    checked={selectedFiles.size === filteredFiles.length && filteredFiles.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                    className="border-slate-600"
+                  />
+                  <span className="text-sm text-gray-400">
+                    Выбрать все ({filteredFiles.length})
+                  </span>
+                </div>
+              )}
+              <div className="space-y-2">
+                {filteredFiles.map((file) => (
+                  <div 
+                    key={file.id} 
+                    className={`flex items-center justify-between p-4 rounded-lg transition-all ${
+                      selectedFiles.has(file.id)
+                        ? 'bg-indigo-900/30 border border-indigo-600 shadow-lg shadow-indigo-500/20'
+                        : 'bg-slate-800/50 border border-transparent hover:bg-slate-800/70'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={selectedFiles.has(file.id)}
+                        onCheckedChange={() => toggleFileSelection(file.id)}
+                        className="border-slate-600"
+                      />
                     <Icon name="FileText" size={20} className="text-indigo-400" />
                     <div>
                       <p className="text-white font-medium">{file.file_name}</p>
@@ -195,9 +322,10 @@ const KnowledgeBase = ({
                       <Icon name="Trash2" size={18} />
                     </Button>
                   </div>
-                </div>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>

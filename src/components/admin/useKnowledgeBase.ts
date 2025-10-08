@@ -62,16 +62,16 @@ export const useKnowledgeBase = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleDeleteFile = async (fileId: number) => {
-    try {
-      await fetch(`https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8?id=${fileId}`, {
-        method: 'DELETE'
-      });
-      toast.success('Файл удален');
-      loadKnowledgeFiles();
-    } catch (error) {
-      toast.error('Ошибка удаления');
+  const handleDeleteFile = async (fileId: number): Promise<void> => {
+    const response = await fetch(`https://functions.poehali.dev/e8e81e65-be99-4706-a45d-ed27249c7bc8?id=${fileId}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete file');
     }
+    
+    await loadKnowledgeFiles();
   };
 
   return {
