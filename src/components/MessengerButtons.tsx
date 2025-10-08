@@ -1,8 +1,60 @@
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const MessengerButtons = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const buttonRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const savedPosition = localStorage.getItem('messengerButtonPosition');
+    if (savedPosition) {
+      setPosition(JSON.parse(savedPosition));
+    }
+  }, []);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).tagName === 'A') return;
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
+    const maxX = window.innerWidth - 80;
+    const maxY = window.innerHeight - 80;
+    
+    const boundedX = Math.max(0, Math.min(newX, maxX));
+    const boundedY = Math.max(0, Math.min(newY, maxY));
+    
+    setPosition({ x: boundedX, y: boundedY });
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      localStorage.setItem('messengerButtonPosition', JSON.stringify(position));
+    }
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart, position]);
 
   const messengers = [
     {
@@ -35,8 +87,17 @@ const MessengerButtons = () => {
     }
   ];
 
+  const style = position.x === 0 && position.y === 0
+    ? { bottom: '2rem', right: '2rem' }
+    : { left: `${position.x}px`, top: `${position.y}px` };
+
   return (
-    <div className="fixed bottom-8 right-8 z-50">
+    <div 
+      ref={buttonRef}
+      className={`fixed z-50 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      style={style}
+      onMouseDown={handleMouseDown}
+    >
       {/* Кнопки мессенджеров */}
       <div className={`flex flex-col gap-3 mb-3 transition-all duration-300 ${isExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         {messengers.map((messenger, idx) => (
@@ -45,7 +106,7 @@ const MessengerButtons = () => {
             href={messenger.href}
             target={messenger.name === 'Позвонить' ? '_self' : '_blank'}
             rel="noopener noreferrer"
-            className={`group flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r ${messenger.color} ${messenger.hoverColor} text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl`}
+            className={`group flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r ${messenger.color} ${messenger.hoverColor} text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl cursor-pointer`}
             style={{ animationDelay: `${idx * 0.1}s` }}
           >
             <Icon name={messenger.icon as any} size={20} />

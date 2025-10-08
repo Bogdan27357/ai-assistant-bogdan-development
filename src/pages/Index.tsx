@@ -24,6 +24,14 @@ import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
 import ContentEditor from '@/components/ContentEditor';
 import MessengerButtons from '@/components/MessengerButtons';
+import SimpleConsultant from '@/components/SimpleConsultant';
+import PriceCalculator from '@/components/PriceCalculator';
+import BookingForm from '@/components/BookingForm';
+import ReviewsCarousel from '@/components/ReviewsCarousel';
+import FAQSection from '@/components/FAQSection';
+import YandexMap from '@/components/YandexMap';
+import PortfolioGallery from '@/components/PortfolioGallery';
+import VisitorCounter from '@/components/VisitorCounter';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
@@ -72,9 +80,16 @@ const Index = () => {
       {currentPage === 'home' && (
         <>
           <Hero onStartChat={() => setCurrentPage('chat')} language={language} />
+          <VisitorCounter />
           <Features language={language} />
+          <PriceCalculator />
           <AboutUs language={language} />
+          <PortfolioGallery />
+          <ReviewsCarousel />
+          <BookingForm />
           <UseCases onStartChat={() => setCurrentPage('chat')} language={language} />
+          <FAQSection />
+          <YandexMap />
           <Footer />
         </>
       )}
@@ -98,6 +113,7 @@ const Index = () => {
       
       <ScrollToTop />
       <MessengerButtons />
+      <SimpleConsultant />
       <Toaster />
     </div>
   );
