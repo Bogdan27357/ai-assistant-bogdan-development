@@ -4,6 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import Icon from '@/components/ui/icon';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ApiConfig {
   enabled: boolean;
@@ -52,9 +58,26 @@ const ApiKeyCard = ({
     >
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
-          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${model.color} flex items-center justify-center`}>
-            <Icon name={model.icon as any} size={28} className="text-white" />
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${model.color} flex items-center justify-center cursor-help`}>
+                  <Icon name={model.icon as any} size={28} className="text-white" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="bg-slate-800 border-slate-700 max-w-xs">
+                <p className="text-sm font-semibold text-white mb-1">{model.name}</p>
+                <p className="text-xs text-gray-400 mb-2">{model.description}</p>
+                <div className="flex flex-wrap gap-1">
+                  {model.features.map((feature, idx) => (
+                    <span key={idx} className="text-xs px-2 py-0.5 rounded bg-slate-700/50 text-gray-300">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <div>
             <p className="text-xs text-gray-500 mb-1">{model.provider}</p>
             <h3 className="text-xl font-bold text-white mb-1">{model.name}</h3>
