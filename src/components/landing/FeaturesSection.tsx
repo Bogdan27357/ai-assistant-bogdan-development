@@ -87,7 +87,7 @@ const FeaturesSection = ({ language }: FeaturesSectionProps) => {
         </div>
       </div>
     </section>
-  );}
+  );
 };
 
 export default FeaturesSection;
