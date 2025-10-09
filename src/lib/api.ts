@@ -1,7 +1,5 @@
 const API_URLS = {
-  gemini: 'https://functions.poehali.dev/115c6576-1517-4c2e-a0a3-7f3b5958db06',
-  llama: 'https://functions.poehali.dev/c158551d-e67d-4da9-a077-86c7aac3884f',
-  gigachat: 'https://functions.poehali.dev/24b1e4ee-8de7-46f0-8c12-cc937d4e9a8e',
+  chat: 'https://functions.poehali.dev/d6af8e44-8748-4611-a1ff-2f819acf245c',
   saveMessage: 'https://functions.poehali.dev/6ff4ff7a-3331-40ce-ba16-7fd13be4e583',
   getHistory: 'https://functions.poehali.dev/aa1d79d8-9887-428e-87c1-cda250564de1',
   saveApiKey: 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437',
@@ -55,111 +53,91 @@ export const sendMessageToAI = async (
     }
   }
 
-  const allModels: Array<'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle'> = [
-    'auto', 'gemini', 'llama', 'deepseek', 'qwen', 'mistral', 'claude', 'gemini-vision', 'llama-vision', 'qwen-vision', 'flux', 'dalle'
-  ];
-  const startIndex = allModels.indexOf(model as any);
-  const attempts = startIndex >= 0 
-    ? [...allModels.slice(startIndex), ...allModels.slice(0, startIndex)]
-    : allModels;
+  // Используем новую универсальную функцию chat
+  const url = API_URLS.chat;
   
-  let lastError: Error | null = null;
+  // Если есть файлы, добавляем их содержимое к сообщению
+  let enhancedMessage = message;
+  if (files && files.length > 0) {
+    const filesContent = files.map(f => {
+      try {
+        const decoded = atob(f.content);
+        return `\n\n--- Файл: ${f.name} ---\n${decoded}\n--- Конец файла ---`;
+      } catch (e) {
+        return `\n\n--- Файл: ${f.name} (не удалось прочитать) ---`;
+      }
+    }).join('\n');
+    
+    enhancedMessage = `${message}\n\n📎 Загруженные файлы для анализа:${filesContent}`;
+  }
   
-  for (const currentModel of attempts) {
-    try {
-      const url = API_URLS.gemini; // Единая точка входа для всех моделей
-      
-      // Если есть файлы, добавляем их содержимое к сообщению
-      let enhancedMessage = message;
-      if (files && files.length > 0) {
-        const filesContent = files.map(f => {
-          try {
-            const decoded = atob(f.content);
-            return `\n\n--- Файл: ${f.name} ---\n${decoded}\n--- Конец файла ---`;
-          } catch (e) {
-            return `\n\n--- Файл: ${f.name} (не удалось прочитать) ---`;
-          }
-        }).join('\n');
-        
-        enhancedMessage = `${message}\n\n📎 Загруженные файлы для анализа:${filesContent}`;
-      }
-      
-      console.log(`Попытка отправить запрос через модель: ${currentModel}`);
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: enhancedMessage,
-          session_id: sessionId,
-          model_id: currentModel,
-          conversation_history: conversationHistory || [],
-          stream: !!onChunk
-        })
-      });
+  console.log(`Отправка запроса через модель: ${model}`);
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: enhancedMessage,
+        session_id: sessionId,
+        model_id: model,
+        conversation_history: conversationHistory || [],
+        stream: !!onChunk
+      })
+    });
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(error.error || `HTTP ${response.status}`);
-      }
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
 
-      // Если есть callback для streaming, обрабатываем поток
-      if (onChunk && response.body) {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullResponse = '';
+    // Если есть callback для streaming, обрабатываем поток
+    if (onChunk && response.body) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullResponse = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
         
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const dataStr = line.slice(6);
-              if (dataStr.trim() === '[DONE]') break;
-              
-              try {
-                const parsed = JSON.parse(dataStr);
-                const content = parsed.choices?.[0]?.delta?.content || '';
-                if (content) {
-                  fullResponse += content;
-                  onChunk(content);
-                }
-              } catch (e) {
-                // Пропускаем невалидный JSON
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            if (dataStr.trim() === '[DONE]') break;
+            
+            try {
+              const parsed = JSON.parse(dataStr);
+              const content = parsed.choices?.[0]?.delta?.content || '';
+              if (content) {
+                fullResponse += content;
+                onChunk(content);
               }
+            } catch (e) {
+              // Пропускаем невалидный JSON
             }
           }
         }
-        
-        return { response: fullResponse, usedModel: currentModel };
       }
       
-      const data = await response.json();
-      
-      // Уведомляем если модель переключилась
-      if (currentModel !== model) {
-        console.warn(`✅ Переключено на модель ${currentModel} (основная ${model} недоступна)`);
-      }
-      
-      return { 
-        response: data.response, 
-        usedModel: currentModel,
-        taskType: data.task_type
-      };
-    } catch (error) {
-      lastError = error as Error;
-      console.warn(`❌ Модель ${currentModel} недоступна: ${lastError.message}`);
-      continue;
+      return { response: fullResponse, usedModel: model };
     }
+    
+    const data = await response.json();
+    
+    return { 
+      response: data.response, 
+      usedModel: model,
+      taskType: data.task_type
+    };
+  } catch (error) {
+    throw error;
   }
-  
-  throw lastError || new Error('Все модели недоступны. Проверьте API ключи в админ-панели.');
 };
 
 export const saveMessageToDB = async (

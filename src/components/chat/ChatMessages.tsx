@@ -79,7 +79,7 @@ const ChatMessages = ({
               ) : (
                 <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
               )}
-              {message.role === 'assistant' && (
+              {message.role === 'assistant' && message.content && (
                 <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700/50">
                   {message.content.includes('API ключи') && onNavigateToAdmin && (
                     <Button
