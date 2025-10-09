@@ -70,7 +70,7 @@ const HeroSection = ({ onStartChat, language }: HeroSectionProps) => {
         </div>
       </div>
     </section>
-  );}
+  );
 };
 
 export default HeroSection;
