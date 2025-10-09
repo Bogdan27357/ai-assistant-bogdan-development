@@ -58,38 +58,38 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   } = useChatLogic(activeModel, voiceEnabled, speak, t);
 
   return (
-    <div className="pt-24 pb-12 px-6 min-h-screen">
+    <div className="pt-24 pb-12 px-6 min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950/30 to-slate-950">
       <div className="container mx-auto max-w-5xl space-y-4">
         {/* Информация о платформе */}
-        <Card className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border-indigo-500/30 backdrop-blur-xl p-6">
+        <Card className="glass-effect border-indigo-500/30 backdrop-blur-xl p-6 hover:border-indigo-500/50 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-              <Icon name="Info" size={24} className="text-white" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/50">
+              <Icon name="Sparkles" size={24} className="text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-white mb-2">🤖 15 AI моделей в одной платформе</h3>
+              <h3 className="text-xl font-bold text-white mb-2">15 специализированных моделей</h3>
               <p className="text-sm text-gray-300 mb-3">
-                Универсальная AI-платформа для любых задач: диалоги, код, анализ фото, генерация изображений и видео, переводы и многое другое
+                Универсальная платформа для любых задач: диалоги, код, анализ фото, генерация изображений и видео
               </p>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
                 <div className="flex items-center gap-2 text-gray-300">
-                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
                   <span>Умный автовыбор</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
-                  <Icon name="CheckCircle" size={14} className="text-green-400" />
-                  <span>6 текстовых моделей</span>
+                  <div className="w-2 h-2 rounded-full bg-blue-400" />
+                  <span>6 текстовых</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
-                  <Icon name="CheckCircle" size={14} className="text-green-400" />
-                  <span>3 визор-модели</span>
+                  <div className="w-2 h-2 rounded-full bg-purple-400" />
+                  <span>3 визуальных</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
-                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
                   <span>2 художника</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
-                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <div className="w-2 h-2 rounded-full bg-orange-400" />
                   <span>3 режиссёра</span>
                 </div>
               </div>

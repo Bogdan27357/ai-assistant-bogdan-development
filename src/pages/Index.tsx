@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/sonner";
-import Hero from '@/components/Hero';
-import Features from '@/components/Features';
-import AboutUs from '@/components/AboutUs';
-import UseCases from '@/components/UseCases';
+import HeroSection from '@/components/landing/HeroSection';
+import FeaturesSection from '@/components/landing/FeaturesSection';
+import ModelsShowcase from '@/components/landing/ModelsShowcase';
+import InteractiveDemo from '@/components/landing/InteractiveDemo';
+import StatsSection from '@/components/landing/StatsSection';
+import CTASection from '@/components/landing/CTASection';
+import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
-import AdvancedFeatures from '@/components/AdvancedFeatures';
 import AITools from '@/components/AITools';
 import ImageGenerator from '@/components/ImageGenerator';
 import PromptLibrary from '@/components/PromptLibrary';
@@ -18,24 +20,13 @@ import DocumentProcessor from '@/components/DocumentProcessor';
 import TelegramBot from '@/components/TelegramBot';
 import ChatHistory from '@/components/ChatHistory';
 import DeveloperAPI from '@/components/DeveloperAPI';
-import Navigation from '@/components/Navigation';
 import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
-import ContentEditor from '@/components/ContentEditor';
-import MessengerButtons from '@/components/MessengerButtons';
-import SimpleConsultant from '@/components/SimpleConsultant';
-import PriceCalculator from '@/components/PriceCalculator';
-import BookingForm from '@/components/BookingForm';
-import ReviewsCarousel from '@/components/ReviewsCarousel';
-import FAQSection from '@/components/FAQSection';
-import YandexMap from '@/components/YandexMap';
-import PortfolioGallery from '@/components/PortfolioGallery';
-import VisitorCounter from '@/components/VisitorCounter';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'features' | 'tools' | 'profile' | 'auth' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api' | 'content-editor'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'tools' | 'profile' | 'auth' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api'>('home');
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
 
@@ -65,7 +56,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 transition-all duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
       {currentPage !== 'auth' && (
         <Navigation 
           currentPage={currentPage} 
@@ -79,23 +70,17 @@ const Index = () => {
       
       {currentPage === 'home' && (
         <>
-          <Hero onStartChat={() => setCurrentPage('chat')} language={language} />
-          <VisitorCounter />
-          <Features language={language} />
-          <PriceCalculator />
-          <AboutUs language={language} />
-          <PortfolioGallery />
-          <ReviewsCarousel />
-          <BookingForm />
-          <UseCases onStartChat={() => setCurrentPage('chat')} language={language} />
-          <FAQSection />
-          <YandexMap />
+          <HeroSection onStartChat={() => setCurrentPage('chat')} language={language} />
+          <StatsSection language={language} />
+          <FeaturesSection language={language} />
+          <ModelsShowcase language={language} />
+          <InteractiveDemo onStartChat={() => setCurrentPage('chat')} language={language} />
+          <CTASection onStartChat={() => setCurrentPage('chat')} language={language} />
           <Footer />
         </>
       )}
       
       {currentPage === 'chat' && <ChatInterface onNavigateToAdmin={() => setCurrentPage('admin')} language={language} />}
-      {currentPage === 'features' && <AdvancedFeatures />}
       {currentPage === 'tools' && <AITools />}
       {currentPage === 'images' && <ImageGenerator />}
       {currentPage === 'prompts' && <PromptLibrary />}
@@ -109,10 +94,8 @@ const Index = () => {
       {currentPage === 'admin' && <AdminPanel />}
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
-      {currentPage === 'content-editor' && <ContentEditor />}
       
       <ScrollToTop />
-      <MessengerButtons />
       <Toaster />
     </div>
   );
