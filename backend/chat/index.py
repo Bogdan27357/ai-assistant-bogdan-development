@@ -58,23 +58,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    # Map model_id to OpenRouter model
-    model_mapping = {
-        'auto': 'google/gemini-2.0-flash-thinking-exp:free',
-        'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
-        'llama': 'meta-llama/llama-3.3-70b-instruct:free',
-        'deepseek': 'deepseek/deepseek-chat:free',
-        'qwen': 'qwen/qwen-2.5-72b-instruct:free',
-        'mistral': 'mistralai/mistral-large:free',
-        'claude': 'anthropic/claude-3.5-sonnet:free',
-        'gemini-vision': 'google/gemini-2.0-flash-thinking-exp:free',
-        'llama-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
-        'qwen-vision': 'qwen/qwen-2-vl-72b-instruct:free',
-        'flux': 'black-forest-labs/flux-1.1-pro',
-        'dalle': 'openai/dall-e-3'
-    }
-    
-    openrouter_model = model_mapping.get(model_id, 'google/gemini-2.0-flash-thinking-exp:free')
+    # Use OpenRouter's auto-routing to pick best available model
+    # OpenRouter will automatically select the best working free model
+    openrouter_model = 'openrouter/auto'
     
     # Build messages array
     messages = []
@@ -140,8 +126,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 },
                 'body': json.dumps({
                     'response': ai_response,
-                    'usedModel': model_id,
-                    'openrouterModel': openrouter_model
+                    'model': result.get('model', 'auto')
                 }),
                 'isBase64Encoded': False
             }
@@ -153,4 +138,3 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False
         }
-
