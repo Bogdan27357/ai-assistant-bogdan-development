@@ -23,12 +23,14 @@ import DeveloperAPI from '@/components/DeveloperAPI';
 import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
+import ParticlesBackground from '@/components/ParticlesBackground';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'tools' | 'profile' | 'auth' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api'>('home');
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
+  const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem('language');
@@ -38,11 +40,22 @@ const Index = () => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    const storedTheme = localStorage.getItem('darkMode');
+    if (storedTheme !== null) {
+      setDarkMode(storedTheme === 'true');
+    }
   }, []);
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem('language', lang);
+  };
+
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('darkMode', String(newMode));
   };
 
   const handleAuth = (newUser: { email: string; name: string }) => {
@@ -56,7 +69,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
+    <div className={`min-h-screen transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900' 
+        : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50'
+    }`}>
+      {darkMode && currentPage === 'home' && <ParticlesBackground />}
+      
       {currentPage !== 'auth' && (
         <Navigation 
           currentPage={currentPage} 
@@ -65,6 +84,8 @@ const Index = () => {
           onLanguageChange={handleLanguageChange}
           user={user}
           onAuthClick={() => setCurrentPage('auth')}
+          darkMode={darkMode}
+          onToggleDarkMode={toggleDarkMode}
         />
       )}
       

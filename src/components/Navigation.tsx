@@ -12,16 +12,18 @@ interface NavigationProps {
   onLanguageChange?: (lang: Language) => void;
   user?: { email: string; name: string } | null;
   onAuthClick?: () => void;
+  darkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
-const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange, user, onAuthClick }: NavigationProps) => {
+const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange, user, onAuthClick, darkMode = true, onToggleDarkMode }: NavigationProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = getTranslations(language);
 
   const menuItems = [
     { id: 'home', icon: 'Home', label: t.navigation.home },
     { id: 'chat', icon: 'MessageSquare', label: t.navigation.chat },
-    { id: 'tools', icon: 'Wrench', label: t.navigation.tools || 'Инструменты' },
+    { id: 'admin', icon: 'Settings', label: 'Админка' },
   ];
 
   const handleNavigate = (page: string) => {
@@ -64,6 +66,17 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
           </div>
 
           <div className="flex items-center gap-2">
+            {onToggleDarkMode && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleDarkMode}
+                className="text-gray-300 hover:text-white"
+              >
+                <Icon name={darkMode ? 'Sun' : 'Moon'} size={18} />
+              </Button>
+            )}
+            
             {onLanguageChange && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
