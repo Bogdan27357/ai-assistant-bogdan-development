@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup API Keys</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #10b981;
+        }
+        .error {
+            background: #ef4444;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔑 Настройка API ключей</h1>
+    <button onclick="setupKeys()">Сохранить оба ключа</button>
+    <div id="status"></div>
+
+    <script>
+        async function setupKeys() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<div class="status">⏳ Сохраняю ключи...</div>';
+
+            try {
+                // Сохраняем OpenRouter API
+                const openrouterResponse = await fetch('https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model_id: 'openrouter',
+                        api_key: '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',
+                        enabled: true
+                    })
+                });
+
+                if (!openrouterResponse.ok) {
+                    throw new Error('Ошибка сохранения OpenRouter API');
+                }
+
+                // Сохраняем ImageRouter API
+                const imagerouterResponse = await fetch('https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model_id: 'imagerouter',
+                        api_key: '52dbe3505198912889c4fa1f057a0aa3881a44b99ab37eee0d2d54156a2a4490',
+                        enabled: true
+                    })
+                });
+
+                if (!imagerouterResponse.ok) {
+                    throw new Error('Ошибка сохранения ImageRouter API');
+                }
+
+                statusDiv.innerHTML = `
+                    <div class="status success">✅ OpenRouter API сохранён</div>
+                    <div class="status success">✅ ImageRouter API сохранён</div>
+                    <div class="status success">🎉 Все ключи успешно настроены!</div>
+                `;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Ошибка: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
