@@ -125,38 +125,7 @@ const ChatHeader = ({
             </DialogContent>
           </Dialog>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-slate-600 text-gray-300 hover:text-white hover:bg-slate-700"
-              >
-                <Icon name={currentModel.icon as any} size={16} className="mr-2" />
-                {currentModel.name}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-slate-900 border-slate-700">
-              <DropdownMenuLabel className="text-gray-400">Выбрать модель ИИ</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-slate-700" />
-              {availableModels.map((model) => (
-                <DropdownMenuItem
-                  key={model.id}
-                  onClick={() => {
-                    onModelChange(model.id);
-                    toast.success(`Переключено на ${model.name}`);
-                  }}
-                  className="text-white hover:bg-slate-800 cursor-pointer"
-                >
-                  <Icon name={model.icon as any} size={16} className="mr-2" />
-                  <span className={activeModel === model.id ? 'font-bold' : ''}>
-                    {model.name}
-                    {activeModel === model.id && ' ✓'}
-                  </span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

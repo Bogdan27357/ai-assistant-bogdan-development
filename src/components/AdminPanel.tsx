@@ -9,7 +9,7 @@ import KnowledgeBase from '@/components/admin/KnowledgeBase';
 import KnowledgeBaseGuide from '@/components/admin/KnowledgeBaseGuide';
 import SettingsTab from '@/components/admin/SettingsTab';
 import AnalyticsTab from '@/components/admin/AnalyticsTab';
-import { useApiKeyManagement, models, freeModels } from '@/components/admin/useApiKeyManagement';
+import { useApiKeyManagement, models } from '@/components/admin/useApiKeyManagement';
 import { useKnowledgeBase } from '@/components/admin/useKnowledgeBase';
 import { toast } from 'sonner';
 
@@ -186,9 +186,6 @@ const AdminPanel = () => {
                   onSaveKey={handleSaveKey}
                   onUpdateApiKey={handleUpdateApiKey}
                   onTestApi={handleTestApi}
-                  freeModels={model.id === 'openrouter' ? freeModels : undefined}
-                  selectedModel={selectedModel}
-                  onModelSelect={setSelectedModel}
                 />
               );
             })}

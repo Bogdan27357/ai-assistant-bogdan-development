@@ -12,23 +12,12 @@ export const models = [
     id: 'openrouter', 
     name: 'OpenRouter API', 
     provider: 'OpenRouter',
-    icon: 'Key', 
+    icon: 'Sparkles', 
     color: 'from-indigo-500 to-purple-500',
-    description: 'Единый ключ для доступа ко всем бесплатным AI моделям',
-    status: 'FREE',
-    features: ['Все модели', 'Pay-as-you-go', 'Бесплатные опции'],
-    apiDocsUrl: 'https://openrouter.ai/keys'
-  },
-  { 
-    id: 'gigachat', 
-    name: 'GigaChat Pro', 
-    provider: 'Sber',
-    icon: 'Zap', 
-    color: 'from-green-500 to-emerald-500',
-    description: 'Российская нейросеть от Сбера для бизнеса и разработки',
+    description: 'Единый ключ для доступа ко всем платным AI моделям',
     status: 'PAID',
-    features: ['Русский язык', 'Специализация РФ', 'Безопасность'],
-    apiDocsUrl: 'https://developers.sber.ru/docs/ru/gigachat/api/reference/rest/get-token'
+    features: ['Все модели', 'Pay-as-you-go', 'Без лимитов'],
+    apiDocsUrl: 'https://openrouter.ai/keys'
   }
 ];
 
@@ -36,7 +25,7 @@ export const freeModels = [
   {
     id: 'gemini',
     name: 'Google Gemini 2.0 Flash',
-    model: 'google/gemini-2.0-flash-exp:free',
+    model: 'google/gemini-2.0-flash-thinking-exp:free',
     icon: 'Sparkles',
     color: 'from-blue-500 to-cyan-500',
     description: 'Быстрый и точный помощник от Google',
@@ -45,7 +34,7 @@ export const freeModels = [
   {
     id: 'llama',
     name: 'Meta Llama 3.3 70B',
-    model: 'meta-llama/llama-3.3-70b-instruct',
+    model: 'meta-llama/llama-3.3-70b-instruct:free',
     icon: 'Cpu',
     color: 'from-purple-500 to-pink-500',
     description: 'Мощная модель от Meta для аналитики',
@@ -54,7 +43,7 @@ export const freeModels = [
   {
     id: 'deepseek',
     name: 'DeepSeek V3',
-    model: 'deepseek/deepseek-chat',
+    model: 'deepseek/deepseek-chat:free',
     icon: 'Brain',
     color: 'from-violet-500 to-purple-500',
     description: 'Продвинутая модель для сложных задач',
@@ -63,7 +52,7 @@ export const freeModels = [
   {
     id: 'qwen',
     name: 'Qwen 2.5 72B',
-    model: 'qwen/qwen-2.5-72b-instruct',
+    model: 'qwen/qwen-2.5-72b-instruct:free',
     icon: 'Code',
     color: 'from-orange-500 to-red-500',
     description: 'Мощная модель с поддержкой кода',
@@ -72,7 +61,7 @@ export const freeModels = [
   {
     id: 'mistral',
     name: 'Mistral Large',
-    model: 'mistralai/mistral-large',
+    model: 'mistralai/mistral-large:free',
     icon: 'Wind',
     color: 'from-cyan-500 to-blue-500',
     description: 'Европейская модель с балансом качества',
@@ -81,7 +70,7 @@ export const freeModels = [
   {
     id: 'claude',
     name: 'Claude 3.5 Sonnet',
-    model: 'anthropic/claude-3.5-sonnet',
+    model: 'anthropic/claude-3.5-sonnet:free',
     icon: 'BookOpen',
     color: 'from-amber-500 to-orange-500',
     description: 'Качественный анализ и рассуждения',
@@ -91,8 +80,7 @@ export const freeModels = [
 
 export const useApiKeyManagement = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
-    openrouter: { enabled: false, apiKey: '' },
-    gigachat: { enabled: false, apiKey: '' }
+    openrouter: { enabled: false, apiKey: '' }
   });
   const [selectedModel, setSelectedModel] = useState('gemini');
   const [testing, setTesting] = useState<Record<string, boolean>>({});
@@ -102,8 +90,7 @@ export const useApiKeyManagement = () => {
     try {
       const keys = await getApiKeys();
       const newConfigs: Record<string, ApiConfig> = {
-        openrouter: { enabled: false, apiKey: '' },
-        gigachat: { enabled: false, apiKey: '' }
+        openrouter: { enabled: false, apiKey: '' }
       };
       
       keys.forEach(key => {
@@ -166,11 +153,7 @@ export const useApiKeyManagement = () => {
         return;
       }
 
-      const modelName = modelId === 'openrouter'
-        ? 'google/gemini-2.0-flash-exp:free'
-        : modelId === 'gigachat'
-        ? 'gigachat'
-        : 'google/gemini-2.0-flash-exp:free';
+      const modelName = 'google/gemini-2.0-flash-thinking-exp:free';
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',

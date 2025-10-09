@@ -38,9 +38,6 @@ interface ApiKeyCardProps {
   onSaveKey: (modelId: string) => void;
   onUpdateApiKey: (modelId: string, value: string) => void;
   onTestApi: (modelId: string) => void;
-  freeModels?: any[];
-  selectedModel?: string;
-  onModelSelect?: (modelId: string) => void;
 }
 
 const ApiKeyCard = ({
@@ -52,12 +49,8 @@ const ApiKeyCard = ({
   onToggle,
   onSaveKey,
   onUpdateApiKey,
-  onTestApi,
-  freeModels,
-  selectedModel,
-  onModelSelect
+  onTestApi
 }: ApiKeyCardProps) => {
-  const isOpenRouter = model.id === 'openrouter';
   return (
     <Card 
       className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 animate-scale-in"
@@ -120,6 +113,13 @@ const ApiKeyCard = ({
       </div>
 
       <div className="space-y-4">
+        <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+          <p className="text-sm text-indigo-300">
+            <Icon name="Info" size={14} className="inline mr-1" />
+            Один ключ даёт доступ ко всем платным AI моделям на платформе
+          </p>
+        </div>
+        
         <div>
           <div className="flex items-center justify-between mb-2">
             <Label htmlFor={`api-${model.id}`} className="text-white">
@@ -189,45 +189,7 @@ const ApiKeyCard = ({
           </div>
         )}
 
-        {isOpenRouter && freeModels && onModelSelect && selectedModel && (
-          <div className="space-y-3 mb-4 pt-4 border-t border-slate-700">
-            <Label className="text-white text-sm">Выберите AI модель:</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {freeModels.map((freeModel) => (
-                <button
-                  key={freeModel.id}
-                  type="button"
-                  onClick={() => onModelSelect(freeModel.id)}
-                  className={`p-3 rounded-xl border-2 transition-all text-left ${
-                    selectedModel === freeModel.id
-                      ? 'border-indigo-500 bg-indigo-500/10'
-                      : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${freeModel.color} flex items-center justify-center`}>
-                      <Icon name={freeModel.icon as any} size={16} className="text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{freeModel.name}</p>
-                    </div>
-                    {selectedModel === freeModel.id && (
-                      <Icon name="CheckCircle" size={18} className="text-indigo-400 flex-shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-400 mb-2">{freeModel.description}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {freeModel.features.map((feature: string, idx: number) => (
-                      <span key={idx} className="text-xs px-1.5 py-0.5 rounded bg-slate-700/50 text-gray-400">
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         <div className="flex items-center gap-2 text-sm">
           <div className={`w-2 h-2 rounded-full ${config.enabled ? 'bg-emerald-400' : 'bg-gray-600'}`} />
