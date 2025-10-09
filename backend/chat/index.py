@@ -1,8 +1,7 @@
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 import requests
-import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -48,14 +47,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    # Get OpenRouter API key from database
-    api_key = get_api_key_from_db('openrouter')
+    # Get OpenRouter API key from environment
+    api_key = os.environ.get('OPENROUTER_API_KEY', '')
     
     if not api_key:
         return {
             'statusCode': 400,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'OpenRouter API key not configured. Please add it in admin panel.'}),
+            'body': json.dumps({'error': 'OpenRouter API key not configured. Please add OPENROUTER_API_KEY secret.'}),
             'isBase64Encoded': False
         }
     
@@ -155,22 +154,3 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
 
-def get_api_key_from_db(model_id: str) -> str:
-    '''Get API key from database'''
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        return ''
-    
-    try:
-        conn = psycopg2.connect(db_url)
-        cur = conn.cursor()
-        cur.execute("SELECT api_key FROM api_keys WHERE model_id = %s AND enabled = true", (model_id,))
-        result = cur.fetchone()
-        cur.close()
-        conn.close()
-        
-        if result and result[0]:
-            return result[0]
-        return ''
-    except Exception:
-        return ''

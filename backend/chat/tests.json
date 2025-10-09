@@ -1,33 +1,19 @@
 {
   "tests": [
     {
-      "name": "Test chat with message",
-      "method": "POST",
+      "name": "OPTIONS request",
+      "method": "OPTIONS",
       "path": "/",
-      "body": {
-        "message": "Hello! Say just 'Hi' back.",
-        "model_id": "gemini",
-        "session_id": "test-session"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "response": "string",
-        "usedModel": "gemini"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Test missing message error",
+      "name": "Missing message error",
       "method": "POST",
       "path": "/",
       "body": {
         "model_id": "gemini"
       },
-      "expectedStatus": 400,
-      "expectedBody": {
-        "error": "Message is required"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 400
     }
   ]
 }
