@@ -101,15 +101,52 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     url = 'https://openrouter.ai/api/v1/chat/completions'
     
+    # Умный выбор модели на основе запроса пользователя
+    message_lower = message.lower()
+    
+    # Определяем тип задачи
+    if any(word in message_lower for word in ['код', 'code', 'программ', 'function', 'debug', 'script', 'python', 'javascript', 'react', 'tsx', 'jsx']):
+        # Для кода - DeepSeek (лучший для программирования)
+        auto_model = 'deepseek/deepseek-chat:free'
+        task_type = 'Программирование'
+    elif any(word in message_lower for word in ['логика', 'reasoning', 'размышл', 'анализ', 'почему', 'explain', 'докажи', 'proof']):
+        # Для логики и рассуждений - Llama или Claude
+        auto_model = 'anthropic/claude-3.5-sonnet:free'
+        task_type = 'Логика и анализ'
+    elif any(word in message_lower for word in ['творч', 'creative', 'истор', 'story', 'стих', 'poem', 'сочин', 'write']):
+        # Для творчества - Claude
+        auto_model = 'anthropic/claude-3.5-sonnet:free'
+        task_type = 'Творчество'
+    elif any(word in message_lower for word in ['матем', 'math', 'calculate', 'вычисл', 'уравнен', 'equation', 'формул']):
+        # Для математики - DeepSeek
+        auto_model = 'deepseek/deepseek-chat:free'
+        task_type = 'Математика'
+    elif any(word in message_lower for word in ['перевод', 'translate', 'на английский', 'to english', 'на русский', 'to russian']):
+        # Для переводов - Qwen (мультиязычная)
+        auto_model = 'qwen/qwen-2.5-72b-instruct:free'
+        task_type = 'Перевод'
+    elif len(message) < 50:
+        # Для коротких быстрых вопросов - Gemini (самая быстрая)
+        auto_model = 'google/gemini-2.0-flash-thinking-exp:free'
+        task_type = 'Быстрый ответ'
+    else:
+        # Для всего остального - баланс (Mistral или Llama)
+        auto_model = 'meta-llama/llama-3.3-70b-instruct:free'
+        task_type = 'Общие вопросы'
+    
+    # Если пользователь явно выбрал модель через UI - используем её
     model_mapping = {
         'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
         'llama': 'meta-llama/llama-3.3-70b-instruct:free',
         'deepseek': 'deepseek/deepseek-chat:free',
         'qwen': 'qwen/qwen-2.5-72b-instruct:free',
         'mistral': 'mistralai/mistral-large:free',
-        'claude': 'anthropic/claude-3.5-sonnet:free'
+        'claude': 'anthropic/claude-3.5-sonnet:free',
+        'auto': auto_model
     }
-    model_name = model_mapping.get(model_id, 'google/gemini-2.0-flash-thinking-exp:free')
+    
+    model_name = model_mapping.get(model_id, auto_model)
+    used_model_name = task_type if model_id == 'auto' else model_id
     
     messages = []
     for msg in conversation_history:
@@ -160,7 +197,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'body': json.dumps({
             'response': ai_response,
             'model': model_name,
-            'provider': 'OpenRouter'
+            'provider': 'OpenRouter',
+            'task_type': used_model_name
         }),
         'isBase64Encoded': False
     }

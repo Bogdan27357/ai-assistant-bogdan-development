@@ -15,15 +15,15 @@ export interface ChatMessage {
 }
 
 export const sendMessageToAI = async (
-  model: 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude',
+  model: 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto',
   message: string,
   sessionId: string,
   files?: { name: string; type: string; size: number; content: string }[],
   conversationHistory?: ChatMessage[],
   onChunk?: (chunk: string) => void
-): Promise<{ response: string; usedModel: string }> => {
-  const allModels: Array<'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude'> = [
-    'gemini', 'llama', 'deepseek', 'qwen', 'mistral', 'claude'
+): Promise<{ response: string; usedModel: string; taskType?: string }> => {
+  const allModels: Array<'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto'> = [
+    'auto', 'gemini', 'llama', 'deepseek', 'qwen', 'mistral', 'claude'
   ];
   const startIndex = allModels.indexOf(model as any);
   const attempts = startIndex >= 0 
@@ -114,7 +114,11 @@ export const sendMessageToAI = async (
         console.warn(`✅ Переключено на модель ${currentModel} (основная ${model} недоступна)`);
       }
       
-      return { response: data.response, usedModel: currentModel };
+      return { 
+        response: data.response, 
+        usedModel: currentModel,
+        taskType: data.task_type
+      };
     } catch (error) {
       lastError = error as Error;
       console.warn(`❌ Модель ${currentModel} недоступна: ${lastError.message}`);

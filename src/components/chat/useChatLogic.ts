@@ -139,7 +139,7 @@ export const useChatLogic = (
       }));
       
       const result = await sendMessageToAI(
-        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude', 
+        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto', 
         userInput, 
         sessionId,
         uploadedFiles.length > 0 ? uploadedFiles : undefined,
@@ -157,14 +157,16 @@ export const useChatLogic = (
         }
       );
 
-      if (result.usedModel !== activeModel) {
+      if (activeModel === 'auto' && result.taskType) {
+        toast.success(`🤖 Выбрана модель: ${result.taskType}`, { duration: 2000 });
+      } else if (result.usedModel !== activeModel) {
         const modelNames: Record<string, string> = {
-          gemini: 'Скорость',
-          llama: 'Логика',
-          deepseek: 'Размышление',
-          qwen: 'Код',
-          mistral: 'Баланс',
-          claude: 'Творчество'
+          gemini: 'Gemini Flash',
+          llama: 'Llama 70B',
+          deepseek: 'DeepSeek',
+          qwen: 'Qwen 72B',
+          mistral: 'Mistral Large',
+          claude: 'Claude Sonnet'
         };
         toast.info(`Переключено на ${modelNames[result.usedModel]} (основная модель недоступна)`);
       }
