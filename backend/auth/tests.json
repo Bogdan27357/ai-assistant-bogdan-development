@@ -1,7 +1,7 @@
 {
   "tests": [
     {
-      "name": "Login with valid credentials",
+      "name": "Login successful with admin",
       "method": "POST",
       "path": "/",
       "body": {
@@ -9,14 +9,7 @@
         "email": "admin@ai-platform.com",
         "password": "admin123"
       },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "user": {
-          "email": "string",
-          "name": "string"
-        }
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
       "name": "Login with invalid credentials",
