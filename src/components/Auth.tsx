@@ -24,35 +24,41 @@ const Auth = ({ onAuth }: AuthProps) => {
     e.preventDefault();
     setLoading(true);
     
-    setTimeout(() => {
-      if (!loginEmail || !loginPassword) {
-        toast.error('Заполните все поля');
-        setLoading(false);
-        return;
-      }
+    if (!loginEmail || !loginPassword) {
+      toast.error('Заполните все поля');
+      setLoading(false);
+      return;
+    }
 
-      const demoUsers = [
-        { email: 'admin@ai-platform.com', password: 'admin123', name: 'Administrator' },
-        { email: 'user@test.com', password: 'test123', name: 'Test User' }
-      ];
+    try {
+      const response = await fetch('https://functions.poehali.dev/3ad80b22-8cf3-4be9-9e9a-6f36d45e5700', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'login',
+          email: loginEmail,
+          password: loginPassword
+        })
+      });
 
-      const foundUser = demoUsers.find(
-        u => u.email === loginEmail && u.password === loginPassword
-      );
+      const data = await response.json();
 
-      if (foundUser) {
+      if (response.ok && data.user) {
         const user = { 
-          email: foundUser.email, 
-          name: foundUser.name 
+          email: data.user.email, 
+          name: data.user.name 
         };
         localStorage.setItem('user', JSON.stringify(user));
         toast.success('Вход выполнен успешно!');
         onAuth(user);
       } else {
-        toast.error('Неверный email или пароль');
+        toast.error(data.error || 'Неверный email или пароль');
       }
-      setLoading(false);
-    }, 800);
+    } catch (error) {
+      toast.error('Ошибка подключения к серверу');
+    }
+
+    setLoading(false);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
