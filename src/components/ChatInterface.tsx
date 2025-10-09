@@ -20,17 +20,26 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
 
   const availableModels = [
     { id: 'auto', name: 'Авто', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ сам выберет лучшую модель для вашего запроса', category: 'main' },
-    { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500', description: 'Google Gemini 2.0 - быстрая и умная', category: 'text' },
-    { id: 'deepseek', name: 'DeepSeek', icon: 'Brain', color: 'from-violet-500 to-purple-500', description: 'DeepSeek V3 - лучшая для кода', category: 'text' },
-    { id: 'claude', name: 'Claude', icon: 'BookOpen', color: 'from-amber-500 to-orange-500', description: 'Claude 3.5 - творчество и анализ', category: 'text' },
-    { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'from-purple-500 to-pink-500', description: 'Meta Llama 3.3 70B - логика', category: 'text' },
-    { id: 'qwen', name: 'Qwen', icon: 'Code', color: 'from-orange-500 to-red-500', description: 'Qwen 2.5 72B - универсальная', category: 'text' },
-    { id: 'mistral', name: 'Mistral', icon: 'Wind', color: 'from-cyan-500 to-blue-500', description: 'Mistral Large - баланс', category: 'text' },
-    { id: 'gemini-vision', name: 'Gemini Vision', icon: 'Eye', color: 'from-blue-400 to-indigo-500', description: 'Анализ изображений и видео', category: 'vision' },
-    { id: 'llama-vision', name: 'Llama Vision', icon: 'Camera', color: 'from-purple-400 to-pink-500', description: 'Llama 3.2 90B - мультимодальная', category: 'vision' },
-    { id: 'qwen-vision', name: 'Qwen Vision', icon: 'ScanEye', color: 'from-orange-400 to-red-500', description: 'Qwen 2 VL - анализ картинок', category: 'vision' },
-    { id: 'flux', name: 'FLUX Pro', icon: 'Palette', color: 'from-pink-500 to-rose-500', description: 'Генерация изображений высокого качества', category: 'image-gen' },
-    { id: 'dalle', name: 'DALL-E 3', icon: 'Paintbrush', color: 'from-green-500 to-emerald-500', description: 'OpenAI DALL-E 3 - креативная генерация', category: 'image-gen' },
+    
+    // OpenRouter (платные и бесплатные через один ключ)
+    { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500', description: 'Google Gemini 2.0 - быстрая и умная (OpenRouter)', category: 'text' },
+    { id: 'deepseek', name: 'DeepSeek', icon: 'Brain', color: 'from-violet-500 to-purple-500', description: 'DeepSeek V3 - лучшая для кода (OpenRouter)', category: 'text' },
+    { id: 'claude', name: 'Claude', icon: 'BookOpen', color: 'from-amber-500 to-orange-500', description: 'Claude 3.5 - творчество и анализ (OpenRouter)', category: 'text' },
+    { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'from-purple-500 to-pink-500', description: 'Meta Llama 3.3 70B - логика (OpenRouter)', category: 'text' },
+    { id: 'qwen', name: 'Qwen', icon: 'Code', color: 'from-orange-500 to-red-500', description: 'Qwen 2.5 72B - универсальная (OpenRouter)', category: 'text' },
+    { id: 'mistral', name: 'Mistral', icon: 'Wind', color: 'from-cyan-500 to-blue-500', description: 'Mistral Large - баланс (OpenRouter)', category: 'text' },
+    { id: 'gemini-vision', name: 'Gemini Vision', icon: 'Eye', color: 'from-blue-400 to-indigo-500', description: 'Анализ изображений и видео (OpenRouter)', category: 'vision' },
+    { id: 'llama-vision', name: 'Llama Vision', icon: 'Camera', color: 'from-purple-400 to-pink-500', description: 'Llama 3.2 90B - мультимодальная (OpenRouter)', category: 'vision' },
+    { id: 'qwen-vision', name: 'Qwen Vision', icon: 'ScanEye', color: 'from-orange-400 to-red-500', description: 'Qwen 2 VL - анализ картинок (OpenRouter)', category: 'vision' },
+    { id: 'flux', name: 'FLUX Pro', icon: 'Palette', color: 'from-pink-500 to-rose-500', description: 'Генерация изображений высокого качества (OpenRouter)', category: 'image-gen' },
+    { id: 'dalle', name: 'DALL-E 3', icon: 'Paintbrush', color: 'from-green-500 to-emerald-500', description: 'OpenAI DALL-E 3 - креативная генерация (OpenRouter)', category: 'image-gen' },
+    
+    // Бесплатные модели с собственными API ключами
+    { id: 'gemini-free', name: '🆓 Gemini Free', icon: 'Sparkles', color: 'from-blue-400 to-cyan-400', description: 'Gemini 2.0 Flash - бесплатный API от Google', category: 'free' },
+    { id: 'gpt-free', name: '🆓 GPT-4o mini', icon: 'Zap', color: 'from-green-400 to-emerald-400', description: 'GPT-4o mini - бесплатный tier OpenAI', category: 'free' },
+    { id: 'claude-free', name: '🆓 Claude Free', icon: 'BookOpen', color: 'from-amber-400 to-orange-400', description: 'Claude 3.5 Haiku - бесплатный от Anthropic', category: 'free' },
+    { id: 'groq-llama', name: '🆓 Groq Llama', icon: 'Rocket', color: 'from-purple-400 to-pink-400', description: 'Llama 3.3 70B на Groq - сверхбыстрая', category: 'free' },
+    { id: 'groq-mixtral', name: '🆓 Groq Mixtral', icon: 'Layers', color: 'from-indigo-400 to-purple-400', description: 'Mixtral 8x7B на Groq - очень быстрая', category: 'free' },
   ];
 
   const {
@@ -177,6 +186,33 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                     className={`p-2.5 rounded-xl border-2 transition-all ${
                       activeModel === model.id
                         ? 'border-indigo-500 bg-indigo-500/20'
+                        : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                    }`}
+                    title={model.description}
+                  >
+                    <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
+                      <Icon name={model.icon as any} size={16} className="text-white" />
+                    </div>
+                    <p className="text-xs font-semibold text-white text-center">{model.name}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Бесплатные модели с собственными API */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                <Icon name="Gift" size={12} />
+                🆓 Бесплатные модели (отдельные API ключи)
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                {availableModels.filter(m => m.category === 'free').map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setActiveModel(model.id)}
+                    className={`p-2.5 rounded-xl border-2 transition-all ${
+                      activeModel === model.id
+                        ? 'border-green-500 bg-green-500/20'
                         : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                     }`}
                     title={model.description}

@@ -50,30 +50,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
-    # Используем только OpenRouter ключ для всех моделей
-    cur.execute(f"SELECT api_key, enabled FROM api_keys WHERE model_id = 'openrouter'")
+    # Получаем все доступные API ключи
+    cur.execute("SELECT model_id, api_key, enabled FROM api_keys WHERE enabled = true")
     
-    row = cur.fetchone()
+    api_keys = {}
+    for row in cur.fetchall():
+        api_keys[row[0]] = row[1]
+    
     cur.close()
     conn.close()
     
-    if not row or not row[0]:
+    # Проверяем, есть ли хотя бы один ключ
+    if not api_keys:
         return {
             'statusCode': 400,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'OpenRouter API key not configured in admin panel'}),
+            'body': json.dumps({'error': 'No API keys configured. Please add at least one API key in admin panel'}),
             'isBase64Encoded': False
         }
-    
-    if not row[1]:
-        return {
-            'statusCode': 400,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'OpenRouter is disabled in admin panel'}),
-            'isBase64Encoded': False
-        }
-    
-    api_key = row[0]
     
     if not message:
         return {
@@ -142,24 +136,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         auto_model = 'meta-llama/llama-3.3-70b-instruct:free'
         task_type = 'Общие вопросы'
     
-    # Если пользователь явно выбрал модель через UI - используем её
-    model_mapping = {
-        'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
-        'gemini-vision': 'google/gemini-2.0-flash-exp:free',
-        'llama': 'meta-llama/llama-3.3-70b-instruct:free',
-        'llama-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
-        'deepseek': 'deepseek/deepseek-chat:free',
-        'qwen': 'qwen/qwen-2.5-72b-instruct:free',
-        'qwen-vision': 'qwen/qwen-2-vl-72b-instruct:free',
-        'mistral': 'mistralai/mistral-large:free',
-        'claude': 'anthropic/claude-3.5-sonnet:free',
-        'flux': 'black-forest-labs/flux-1.1-pro',
-        'dalle': 'openai/dall-e-3',
-        'auto': auto_model
+    # Маппинг моделей на провайдеров и их API
+    model_providers = {
+        # OpenRouter (платные и бесплатные модели через один ключ)
+        'gemini': {'provider': 'openrouter', 'model': 'google/gemini-2.0-flash-thinking-exp:free'},
+        'gemini-vision': {'provider': 'openrouter', 'model': 'google/gemini-2.0-flash-exp:free'},
+        'llama': {'provider': 'openrouter', 'model': 'meta-llama/llama-3.3-70b-instruct:free'},
+        'llama-vision': {'provider': 'openrouter', 'model': 'meta-llama/llama-3.2-90b-vision-instruct:free'},
+        'deepseek': {'provider': 'openrouter', 'model': 'deepseek/deepseek-chat:free'},
+        'qwen': {'provider': 'openrouter', 'model': 'qwen/qwen-2.5-72b-instruct:free'},
+        'qwen-vision': {'provider': 'openrouter', 'model': 'qwen/qwen-2-vl-72b-instruct:free'},
+        'mistral': {'provider': 'openrouter', 'model': 'mistralai/mistral-large:free'},
+        'claude': {'provider': 'openrouter', 'model': 'anthropic/claude-3.5-sonnet:free'},
+        'flux': {'provider': 'openrouter', 'model': 'black-forest-labs/flux-1.1-pro'},
+        'dalle': {'provider': 'openrouter', 'model': 'openai/dall-e-3'},
+        
+        # Бесплатные модели с собственными API ключами
+        'gemini-free': {'provider': 'gemini', 'model': 'gemini-2.0-flash-exp'},
+        'gpt-free': {'provider': 'openai', 'model': 'gpt-4o-mini'},
+        'claude-free': {'provider': 'anthropic', 'model': 'claude-3-5-haiku-20241022'},
+        'groq-llama': {'provider': 'groq', 'model': 'llama-3.3-70b-versatile'},
+        'groq-mixtral': {'provider': 'groq', 'model': 'mixtral-8x7b-32768'},
+        
+        'auto': {'provider': 'openrouter', 'model': auto_model}
     }
     
-    model_name = model_mapping.get(model_id, auto_model)
+    # Получаем информацию о выбранной модели
+    model_info = model_providers.get(model_id, model_providers['auto'])
+    provider = model_info['provider']
+    model_name = model_info['model']
     used_model_name = task_type if model_id == 'auto' else model_id
+    
+    # Проверяем наличие ключа для провайдера
+    if provider not in api_keys:
+        return {
+            'statusCode': 400,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': f'{provider.upper()} API key not configured. Please add it in admin panel'}),
+            'isBase64Encoded': False
+        }
+    
+    api_key = api_keys[provider]
     
     # Проверяем, это модель генерации изображений или нет
     is_image_gen = model_id in ['flux', 'dalle'] or (model_id == 'auto' and 'генерир' in message_lower)
@@ -169,29 +186,57 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         messages.append({'role': msg['role'], 'content': msg['content']})
     messages.append({'role': 'user', 'content': enhanced_message})
     
-    # Для генерации изображений используем другой формат
-    if is_image_gen:
-        payload = {
-            'model': model_name,
-            'prompt': message,
-            'n': 1,
-            'size': '1024x1024'
+    # Определяем URL и формат запроса в зависимости от провайдера
+    if provider == 'openrouter':
+        url = 'https://openrouter.ai/api/v1/chat/completions'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}',
+            'HTTP-Referer': 'https://ai-platform.example.com',
+            'X-Title': 'AI Platform'
         }
-        stream_mode = False
-    else:
-        payload = {
-            'model': model_name,
-            'messages': messages,
-            'stream': True
-        }
+        if is_image_gen:
+            payload = {'model': model_name, 'prompt': message, 'n': 1, 'size': '1024x1024'}
+            stream_mode = False
+        else:
+            payload = {'model': model_name, 'messages': messages, 'stream': True}
+            stream_mode = True
+    
+    elif provider == 'gemini':
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/{model_name}:streamGenerateContent?key={api_key}'
+        headers = {'Content-Type': 'application/json'}
+        payload = {'contents': [{'parts': [{'text': msg['content']}], 'role': 'user' if msg['role'] == 'user' else 'model'} for msg in messages]}
         stream_mode = True
     
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {api_key}',
-        'HTTP-Referer': 'https://ai-platform.example.com',
-        'X-Title': 'AI Platform'
-    }
+    elif provider == 'openai':
+        url = 'https://api.openai.com/v1/chat/completions'
+        headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {api_key}'}
+        payload = {'model': model_name, 'messages': messages, 'stream': True}
+        stream_mode = True
+    
+    elif provider == 'anthropic':
+        url = 'https://api.anthropic.com/v1/messages'
+        headers = {
+            'Content-Type': 'application/json',
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01'
+        }
+        payload = {'model': model_name, 'messages': messages, 'max_tokens': 4096, 'stream': True}
+        stream_mode = True
+    
+    elif provider == 'groq':
+        url = 'https://api.groq.com/openai/v1/chat/completions'
+        headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {api_key}'}
+        payload = {'model': model_name, 'messages': messages, 'stream': True}
+        stream_mode = True
+    
+    else:
+        return {
+            'statusCode': 400,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': f'Unknown provider: {provider}'}),
+            'isBase64Encoded': False
+        }
     
     response = requests.post(url, json=payload, headers=headers, stream=stream_mode)
     
@@ -199,22 +244,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': response.status_code,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': f'OpenRouter API error: {response.text}'}),
+            'body': json.dumps({'error': f'{provider.upper()} API error: {response.text}'}),
             'isBase64Encoded': False
         }
     
-    # Обработка ответа для генерации изображений
+    # Обработка ответа в зависимости от провайдера
+    ai_response = ''
+    
     if is_image_gen:
         data = response.json()
-        # OpenRouter может вернуть URL изображения или base64
         image_url = data.get('data', [{}])[0].get('url', '')
         if image_url:
             ai_response = f'🎨 Изображение сгенерировано!\n\n![Generated Image]({image_url})\n\nURL: {image_url}'
         else:
             ai_response = 'Ошибка генерации изображения'
+    
+    elif provider == 'gemini':
+        for line in response.iter_lines():
+            if line:
+                try:
+                    chunk = json.loads(line.decode('utf-8'))
+                    content = chunk.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                    ai_response += content
+                except:
+                    continue
+    
+    elif provider == 'anthropic':
+        for line in response.iter_lines():
+            if line:
+                line_str = line.decode('utf-8')
+                if line_str.startswith('data: '):
+                    data_str = line_str[6:]
+                    try:
+                        chunk = json.loads(data_str)
+                        if chunk.get('type') == 'content_block_delta':
+                            content = chunk.get('delta', {}).get('text', '')
+                            ai_response += content
+                    except:
+                        continue
+    
     else:
-        # Стандартная обработка для текстовых моделей
-        ai_response = ''
+        # OpenAI-совместимый формат (openrouter, openai, groq)
         for line in response.iter_lines():
             if line:
                 line_str = line.decode('utf-8')
@@ -235,7 +305,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'body': json.dumps({
             'response': ai_response,
             'model': model_name,
-            'provider': 'OpenRouter',
+            'provider': provider,
             'task_type': used_model_name,
             'is_image': is_image_gen
         }),
