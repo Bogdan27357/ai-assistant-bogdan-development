@@ -45,11 +45,14 @@ const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
 
           <div className="flex flex-wrap justify-center gap-4 mb-16 max-w-5xl mx-auto">
             {[
-              { icon: 'Code', text: t.codeGen, color: 'indigo' },
-              { icon: 'FileText', text: t.docAnalysis, color: 'purple' },
-              { icon: 'Languages', text: t.translations, color: 'blue' },
-              { icon: 'Lightbulb', text: t.ideas, color: 'yellow' },
-              { icon: 'Search', text: t.search, color: 'green' },
+              { icon: 'Wand2', text: '🤖 Умный автовыбор модели', color: 'indigo' },
+              { icon: 'Code', text: '💻 Помощь с кодом', color: 'purple' },
+              { icon: 'Eye', text: '👁️ Анализ изображений', color: 'blue' },
+              { icon: 'Palette', text: '🎨 Генерация картинок', color: 'pink' },
+              { icon: 'Languages', text: '🌏 Переводы на 100+ языков', color: 'orange' },
+              { icon: 'Brain', text: '🧠 Глубокий анализ', color: 'purple' },
+              { icon: 'Feather', text: '✍️ Творческое письмо', color: 'amber' },
+              { icon: 'FileText', text: '📚 База знаний', color: 'emerald' },
             ].map((item, idx) => (
               <div 
                 key={idx}

@@ -19,27 +19,21 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   const t = getTranslations(language).chat;
 
   const availableModels = [
-    { id: 'auto', name: 'Авто', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ сам выберет лучшую модель для вашего запроса', category: 'main' },
+    { id: 'auto', name: '🤖 Умный режим', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ автоматически выберет лучшую модель для вашей задачи', category: 'main' },
     
-    // OpenRouter (платные и бесплатные через один ключ)
-    { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500', description: 'Google Gemini 2.0 - быстрая и умная (OpenRouter)', category: 'text' },
-    { id: 'deepseek', name: 'DeepSeek', icon: 'Brain', color: 'from-violet-500 to-purple-500', description: 'DeepSeek V3 - лучшая для кода (OpenRouter)', category: 'text' },
-    { id: 'claude', name: 'Claude', icon: 'BookOpen', color: 'from-amber-500 to-orange-500', description: 'Claude 3.5 - творчество и анализ (OpenRouter)', category: 'text' },
-    { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'from-purple-500 to-pink-500', description: 'Meta Llama 3.3 70B - логика (OpenRouter)', category: 'text' },
-    { id: 'qwen', name: 'Qwen', icon: 'Code', color: 'from-orange-500 to-red-500', description: 'Qwen 2.5 72B - универсальная (OpenRouter)', category: 'text' },
-    { id: 'mistral', name: 'Mistral', icon: 'Wind', color: 'from-cyan-500 to-blue-500', description: 'Mistral Large - баланс (OpenRouter)', category: 'text' },
-    { id: 'gemini-vision', name: 'Gemini Vision', icon: 'Eye', color: 'from-blue-400 to-indigo-500', description: 'Анализ изображений и видео (OpenRouter)', category: 'vision' },
-    { id: 'llama-vision', name: 'Llama Vision', icon: 'Camera', color: 'from-purple-400 to-pink-500', description: 'Llama 3.2 90B - мультимодальная (OpenRouter)', category: 'vision' },
-    { id: 'qwen-vision', name: 'Qwen Vision', icon: 'ScanEye', color: 'from-orange-400 to-red-500', description: 'Qwen 2 VL - анализ картинок (OpenRouter)', category: 'vision' },
-    { id: 'flux', name: 'FLUX Pro', icon: 'Palette', color: 'from-pink-500 to-rose-500', description: 'Генерация изображений высокого качества (OpenRouter)', category: 'image-gen' },
-    { id: 'dalle', name: 'DALL-E 3', icon: 'Paintbrush', color: 'from-green-500 to-emerald-500', description: 'OpenAI DALL-E 3 - креативная генерация (OpenRouter)', category: 'image-gen' },
+    { id: 'gemini', name: '⚡ Быстрый', icon: 'Zap', color: 'from-blue-500 to-cyan-500', description: 'Мгновенные ответы на простые вопросы', category: 'text' },
+    { id: 'deepseek', name: '💻 Программист', icon: 'Code', color: 'from-violet-500 to-purple-500', description: 'Помощь с кодом, отладкой и разработкой', category: 'text' },
+    { id: 'claude', name: '✍️ Творец', icon: 'Feather', color: 'from-amber-500 to-orange-500', description: 'Тексты, истории, креативное письмо', category: 'text' },
+    { id: 'llama', name: '🧠 Логик', icon: 'Brain', color: 'from-purple-500 to-pink-500', description: 'Сложные рассуждения и анализ', category: 'text' },
+    { id: 'qwen', name: '🌏 Полиглот', icon: 'Languages', color: 'from-orange-500 to-red-500', description: 'Переводы и многоязычная поддержка', category: 'text' },
+    { id: 'mistral', name: '⚖️ Универсал', icon: 'Scale', color: 'from-cyan-500 to-blue-500', description: 'Баланс скорости и качества', category: 'text' },
     
-    // Бесплатные модели с собственными API ключами
-    { id: 'gemini-free', name: '🆓 Gemini Free', icon: 'Sparkles', color: 'from-blue-400 to-cyan-400', description: 'Gemini 2.0 Flash - бесплатный API от Google', category: 'free' },
-    { id: 'gpt-free', name: '🆓 GPT-4o mini', icon: 'Zap', color: 'from-green-400 to-emerald-400', description: 'GPT-4o mini - бесплатный tier OpenAI', category: 'free' },
-    { id: 'claude-free', name: '🆓 Claude Free', icon: 'BookOpen', color: 'from-amber-400 to-orange-400', description: 'Claude 3.5 Haiku - бесплатный от Anthropic', category: 'free' },
-    { id: 'groq-llama', name: '🆓 Groq Llama', icon: 'Rocket', color: 'from-purple-400 to-pink-400', description: 'Llama 3.3 70B на Groq - сверхбыстрая', category: 'free' },
-    { id: 'groq-mixtral', name: '🆓 Groq Mixtral', icon: 'Layers', color: 'from-indigo-400 to-purple-400', description: 'Mixtral 8x7B на Groq - очень быстрая', category: 'free' },
+    { id: 'gemini-vision', name: '👁️ Визор-1', icon: 'Eye', color: 'from-blue-400 to-indigo-500', description: 'Анализ фото, описание изображений', category: 'vision' },
+    { id: 'llama-vision', name: '📸 Визор-2', icon: 'Camera', color: 'from-purple-400 to-pink-500', description: 'Распознавание объектов на фото', category: 'vision' },
+    { id: 'qwen-vision', name: '🔍 Визор-3', icon: 'ScanEye', color: 'from-orange-400 to-red-500', description: 'Детальный анализ картинок', category: 'vision' },
+    
+    { id: 'flux', name: '🎨 Художник-1', icon: 'Palette', color: 'from-pink-500 to-rose-500', description: 'Реалистичная генерация изображений', category: 'image-gen' },
+    { id: 'dalle', name: '🖌️ Художник-2', icon: 'Paintbrush', color: 'from-green-500 to-emerald-500', description: 'Креативная генерация картинок', category: 'image-gen' },
   ];
 
   const {
@@ -62,6 +56,39 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   return (
     <div className="pt-24 pb-12 px-6 min-h-screen">
       <div className="container mx-auto max-w-5xl space-y-4">
+        {/* Информация о платформе */}
+        <Card className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border-indigo-500/30 backdrop-blur-xl p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+              <Icon name="Info" size={24} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-white mb-2">🤖 12 AI моделей в одной платформе</h3>
+              <p className="text-sm text-gray-300 mb-3">
+                Универсальная AI-платформа для любых задач: диалоги, код, анализ фото, генерация изображений, переводы и многое другое
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                <div className="flex items-center gap-2 text-gray-300">
+                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <span>Умный автовыбор</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <span>6 текстовых моделей</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <span>3 визор-модели</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <span>2 художника</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Выбор AI модели */}
         <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
@@ -70,8 +97,8 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <Icon name="Cpu" size={20} className="text-white" />
               </div>
               <div>
-                <h3 className="text-white font-semibold">Выбор AI модели</h3>
-                <p className="text-xs text-gray-400">Выберите модель или включите автовыбор</p>
+                <h3 className="text-white font-semibold">Выбор режима работы</h3>
+                <p className="text-xs text-gray-400">Выберите специализацию или доверьтесь ИИ</p>
               </div>
             </div>
             {activeModel === 'auto' && (
@@ -122,7 +149,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             <div>
               <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
                 <Icon name="MessageSquare" size={12} />
-                Текст и диалоги
+                💬 Специализированные помощники
               </h4>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                 {availableModels.filter(m => m.category === 'text').map((model) => (
@@ -149,7 +176,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             <div>
               <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
                 <Icon name="Eye" size={12} />
-                Анализ изображений
+                👁️ Визор-модели (анализ фото)
               </h4>
               <div className="grid grid-cols-3 gap-2">
                 {availableModels.filter(m => m.category === 'vision').map((model) => (
@@ -176,7 +203,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             <div>
               <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
                 <Icon name="Palette" size={12} />
-                Генерация изображений
+                🎨 Художники (генерация картинок)
               </h4>
               <div className="grid grid-cols-2 gap-2">
                 {availableModels.filter(m => m.category === 'image-gen').map((model) => (
@@ -199,32 +226,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
               </div>
             </div>
 
-            {/* Бесплатные модели с собственными API */}
-            <div>
-              <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
-                <Icon name="Gift" size={12} />
-                🆓 Бесплатные модели (отдельные API ключи)
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                {availableModels.filter(m => m.category === 'free').map((model) => (
-                  <button
-                    key={model.id}
-                    onClick={() => setActiveModel(model.id)}
-                    className={`p-2.5 rounded-xl border-2 transition-all ${
-                      activeModel === model.id
-                        ? 'border-green-500 bg-green-500/20'
-                        : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
-                    }`}
-                    title={model.description}
-                  >
-                    <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
-                      <Icon name={model.icon as any} size={16} className="text-white" />
-                    </div>
-                    <p className="text-xs font-semibold text-white text-center">{model.name}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
+
           </div>
         </Card>
 

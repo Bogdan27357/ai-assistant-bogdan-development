@@ -14,54 +14,10 @@ export const models = [
     provider: 'OpenRouter',
     icon: 'Sparkles', 
     color: 'from-indigo-500 to-purple-500',
-    description: 'Единый ключ для доступа ко всем платным AI моделям',
-    status: 'PAID',
-    features: ['Все модели', 'Pay-as-you-go', 'Без лимитов'],
+    description: 'Единый ключ для доступа ко всем AI моделям платформы',
+    status: 'REQUIRED',
+    features: ['12 AI моделей', 'Умный автовыбор', 'Генерация изображений', 'Анализ фото'],
     apiDocsUrl: 'https://openrouter.ai/keys'
-  },
-  { 
-    id: 'gemini', 
-    name: 'Google Gemini API', 
-    provider: 'Google',
-    icon: 'Sparkles', 
-    color: 'from-blue-500 to-cyan-500',
-    description: 'Бесплатный API от Google (Gemini 2.0 Flash)',
-    status: 'FREE',
-    features: ['60 запросов/минута', 'Бесплатно', 'Мультимодальность'],
-    apiDocsUrl: 'https://aistudio.google.com/apikey'
-  },
-  { 
-    id: 'openai', 
-    name: 'OpenAI API', 
-    provider: 'OpenAI',
-    icon: 'Zap', 
-    color: 'from-green-500 to-emerald-500',
-    description: 'GPT-4o mini с бесплатным tier',
-    status: 'FREE',
-    features: ['Бесплатный tier', 'GPT-4o mini', 'Надёжная'],
-    apiDocsUrl: 'https://platform.openai.com/api-keys'
-  },
-  { 
-    id: 'anthropic', 
-    name: 'Anthropic API', 
-    provider: 'Anthropic',
-    icon: 'BookOpen', 
-    color: 'from-amber-500 to-orange-500',
-    description: 'Claude 3.5 Haiku - бесплатно',
-    status: 'FREE',
-    features: ['Бесплатный tier', 'Claude Haiku', 'Быстрая'],
-    apiDocsUrl: 'https://console.anthropic.com/settings/keys'
-  },
-  { 
-    id: 'groq', 
-    name: 'Groq API', 
-    provider: 'Groq',
-    icon: 'Rocket', 
-    color: 'from-purple-500 to-pink-500',
-    description: 'Сверхбыстрые модели на Groq чипах',
-    status: 'FREE',
-    features: ['Очень быстро', 'Llama 3.3 70B', 'Mixtral 8x7B'],
-    apiDocsUrl: 'https://console.groq.com/keys'
   }
 ];
 
@@ -124,11 +80,7 @@ export const freeModels = [
 
 export const useApiKeyManagement = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
-    openrouter: { enabled: false, apiKey: '' },
-    gemini: { enabled: false, apiKey: '' },
-    openai: { enabled: false, apiKey: '' },
-    anthropic: { enabled: false, apiKey: '' },
-    groq: { enabled: false, apiKey: '' }
+    openrouter: { enabled: false, apiKey: '' }
   });
   const [selectedModel, setSelectedModel] = useState('gemini');
   const [testing, setTesting] = useState<Record<string, boolean>>({});
@@ -138,11 +90,7 @@ export const useApiKeyManagement = () => {
     try {
       const keys = await getApiKeys();
       const newConfigs: Record<string, ApiConfig> = {
-        openrouter: { enabled: false, apiKey: '' },
-        gemini: { enabled: false, apiKey: '' },
-        openai: { enabled: false, apiKey: '' },
-        anthropic: { enabled: false, apiKey: '' },
-        groq: { enabled: false, apiKey: '' }
+        openrouter: { enabled: false, apiKey: '' }
       };
       
       keys.forEach(key => {

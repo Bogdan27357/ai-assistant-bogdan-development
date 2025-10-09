@@ -11,57 +11,75 @@ const Features = ({ language = 'ru' }: FeaturesProps) => {
   
   const features = [
     {
-      icon: 'Brain',
-      title: t.reasoning,
-      description: t.reasoningDesc,
-      gradient: 'from-indigo-500 to-purple-600'
+      icon: 'Wand2',
+      title: 'Умный автовыбор',
+      description: 'ИИ сам определит лучшую модель для вашей задачи - просто задайте вопрос',
+      gradient: 'from-gradient-start to-gradient-end'
     },
     {
-      icon: 'Code',
-      title: t.coding,
-      description: t.codingDesc,
-      gradient: 'from-purple-500 to-pink-600'
-    },
-    {
-      icon: 'Image',
-      title: t.multimodal,
-      description: t.multimodalDesc,
+      icon: 'Zap',
+      title: 'Мгновенные ответы',
+      description: 'Быстрая модель для простых вопросов и быстрых консультаций',
       gradient: 'from-blue-500 to-cyan-600'
     },
     {
-      icon: 'FileText',
-      title: t.longContext,
-      description: t.longContextDesc,
-      gradient: 'from-emerald-500 to-teal-600'
+      icon: 'Code',
+      title: 'Помощь с кодом',
+      description: 'Генерация, отладка и объяснение программного кода на любых языках',
+      gradient: 'from-purple-500 to-pink-600'
+    },
+    {
+      icon: 'Feather',
+      title: 'Творческое письмо',
+      description: 'Статьи, истории, стихи и любой креативный контент высокого качества',
+      gradient: 'from-amber-500 to-orange-600'
+    },
+    {
+      icon: 'Brain',
+      title: 'Глубокий анализ',
+      description: 'Сложные рассуждения, логические задачи и детальный разбор проблем',
+      gradient: 'from-indigo-500 to-purple-600'
     },
     {
       icon: 'Languages',
-      title: t.translation,
-      description: t.translationDesc,
+      title: 'Переводы',
+      description: 'Качественный перевод на 100+ языков с сохранением смысла и стиля',
       gradient: 'from-orange-500 to-red-600'
     },
     {
-      icon: 'Lightbulb',
-      title: t.creative,
-      description: t.creativeDesc,
+      icon: 'Eye',
+      title: 'Анализ изображений',
+      description: '3 визор-модели для описания фото, распознавания объектов и текста',
+      gradient: 'from-blue-400 to-indigo-500'
+    },
+    {
+      icon: 'Palette',
+      title: 'Генерация картинок',
+      description: '2 художника для создания реалистичных и креативных изображений',
       gradient: 'from-pink-500 to-rose-600'
     },
     {
-      icon: 'BarChart',
-      title: t.data,
-      description: t.dataDesc,
+      icon: 'FileText',
+      title: 'База знаний',
+      description: 'Загрузите свои документы - ИИ будет отвечать с учётом вашей информации',
+      gradient: 'from-emerald-500 to-teal-600'
+    },
+    {
+      icon: 'Volume2',
+      title: 'Озвучка ответов',
+      description: 'Включите голосовую озвучку - слушайте ответы вместо чтения',
       gradient: 'from-cyan-500 to-blue-600'
     },
     {
-      icon: 'Search',
-      title: t.research,
-      description: t.researchDesc,
+      icon: 'History',
+      title: 'История диалогов',
+      description: 'Все разговоры сохраняются - возвращайтесь к ним в любой момент',
       gradient: 'from-violet-500 to-indigo-600'
     },
     {
-      icon: 'MessageSquare',
-      title: t.chat,
-      description: t.chatDesc,
+      icon: 'Download',
+      title: 'Экспорт чатов',
+      description: 'Скачивайте переписку в TXT или Markdown для дальнейшего использования',
       gradient: 'from-yellow-500 to-orange-600'
     }
   ];
