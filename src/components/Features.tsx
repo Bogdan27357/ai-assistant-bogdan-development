@@ -59,6 +59,12 @@ const Features = ({ language = 'ru' }: FeaturesProps) => {
       gradient: 'from-pink-500 to-rose-600'
     },
     {
+      icon: 'Video',
+      title: 'Генерация видео',
+      description: '3 режиссёра (Veo-3, Kling, Hailuo) для создания AI-видео из текста',
+      gradient: 'from-rose-500 to-pink-600'
+    },
+    {
       icon: 'FileText',
       title: 'База знаний',
       description: 'Загрузите свои документы - ИИ будет отвечать с учётом вашей информации',

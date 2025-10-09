@@ -49,6 +49,7 @@ const Hero = ({ onStartChat, language = 'ru' }: HeroProps) => {
               { icon: 'Code', text: '💻 Помощь с кодом', color: 'purple' },
               { icon: 'Eye', text: '👁️ Анализ изображений', color: 'blue' },
               { icon: 'Palette', text: '🎨 Генерация картинок', color: 'pink' },
+              { icon: 'Video', text: '🎬 Генерация видео', color: 'rose' },
               { icon: 'Languages', text: '🌏 Переводы на 100+ языков', color: 'orange' },
               { icon: 'Brain', text: '🧠 Глубокий анализ', color: 'purple' },
               { icon: 'Feather', text: '✍️ Творческое письмо', color: 'amber' },

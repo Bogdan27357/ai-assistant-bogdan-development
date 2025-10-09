@@ -5,7 +5,8 @@ const API_URLS = {
   saveMessage: 'https://functions.poehali.dev/6ff4ff7a-3331-40ce-ba16-7fd13be4e583',
   getHistory: 'https://functions.poehali.dev/aa1d79d8-9887-428e-87c1-cda250564de1',
   saveApiKey: 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437',
-  getApiKeys: 'https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa'
+  getApiKeys: 'https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa',
+  videoGen: 'https://functions.poehali.dev/84e36534-2b8c-40de-9ea1-1f4562b2fb6e'
 };
 
 export interface ChatMessage {
@@ -15,13 +16,45 @@ export interface ChatMessage {
 }
 
 export const sendMessageToAI = async (
-  model: 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle',
+  model: 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle' | 'veo-3-fast' | 'kling-v2.1-standard' | 'hailuo-02-standard',
   message: string,
   sessionId: string,
   files?: { name: string; type: string; size: number; content: string }[],
   conversationHistory?: ChatMessage[],
   onChunk?: (chunk: string) => void
-): Promise<{ response: string; usedModel: string; taskType?: string }> => {
+): Promise<{ response: string; usedModel: string; taskType?: string; videoUrl?: string }> => {
+  // Проверяем, это видео-модель?
+  const videoModels = ['veo-3-fast', 'kling-v2.1-standard', 'hailuo-02-standard'];
+  if (videoModels.includes(model)) {
+    try {
+      const response = await fetch(API_URLS.videoGen, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: message,
+          model: model
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(error.error || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      return {
+        response: `🎬 Видео успешно сгенерировано!\n\nМодель: ${model}\nПромпт: ${message}\n\n📹 [Смотреть видео](${result.video_url})`,
+        usedModel: model,
+        videoUrl: result.video_url
+      };
+    } catch (error: any) {
+      throw new Error(error.message || 'Ошибка генерации видео');
+    }
+  }
+
   const allModels: Array<'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle'> = [
     'auto', 'gemini', 'llama', 'deepseek', 'qwen', 'mistral', 'claude', 'gemini-vision', 'llama-vision', 'qwen-vision', 'flux', 'dalle'
   ];

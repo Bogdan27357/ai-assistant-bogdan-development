@@ -138,13 +138,16 @@ export const useChatLogic = (
         content: msg.content
       }));
       
+      const videoModels = ['veo-3-fast', 'kling-v2.1-standard', 'hailuo-02-standard'];
+      const isVideoModel = videoModels.includes(activeModel);
+      
       const result = await sendMessageToAI(
-        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle', 
+        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle' | 'veo-3-fast' | 'kling-v2.1-standard' | 'hailuo-02-standard', 
         userInput, 
         sessionId,
         uploadedFiles.length > 0 ? uploadedFiles : undefined,
         conversationHistory,
-        (chunk: string) => {
+        isVideoModel ? undefined : (chunk: string) => {
           setMessages(prev => {
             const updated = [...prev];
             const lastIndex = updated.length - 1;

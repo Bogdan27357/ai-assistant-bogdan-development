@@ -18,6 +18,17 @@ export const models = [
     status: 'REQUIRED',
     features: ['12 AI моделей', 'Умный автовыбор', 'Генерация изображений', 'Анализ фото'],
     apiDocsUrl: 'https://openrouter.ai/keys'
+  },
+  { 
+    id: 'imagerouter', 
+    name: 'ImageRouter API', 
+    provider: 'ImageRouter',
+    icon: 'Video', 
+    color: 'from-pink-500 to-rose-500',
+    description: 'API для генерации и обработки видео с ИИ',
+    status: 'OPTIONAL',
+    features: ['11 видео-моделей', 'Veo 2/3', 'Kling v2.1', 'Hailuo-02'],
+    apiDocsUrl: 'https://imagerouter.io'
   }
 ];
 
@@ -80,7 +91,8 @@ export const freeModels = [
 
 export const useApiKeyManagement = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
-    openrouter: { enabled: false, apiKey: '' }
+    openrouter: { enabled: false, apiKey: '' },
+    imagerouter: { enabled: false, apiKey: '' }
   });
   const [selectedModel, setSelectedModel] = useState('gemini');
   const [testing, setTesting] = useState<Record<string, boolean>>({});
@@ -90,7 +102,8 @@ export const useApiKeyManagement = () => {
     try {
       const keys = await getApiKeys();
       const newConfigs: Record<string, ApiConfig> = {
-        openrouter: { enabled: false, apiKey: '' }
+        openrouter: { enabled: false, apiKey: '' },
+        imagerouter: { enabled: false, apiKey: '' }
       };
       
       keys.forEach(key => {

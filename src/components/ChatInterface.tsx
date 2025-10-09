@@ -34,6 +34,10 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     
     { id: 'flux', name: '🎨 Художник-1', icon: 'Palette', color: 'from-pink-500 to-rose-500', description: 'Реалистичная генерация изображений', category: 'image-gen' },
     { id: 'dalle', name: '🖌️ Художник-2', icon: 'Paintbrush', color: 'from-green-500 to-emerald-500', description: 'Креативная генерация картинок', category: 'image-gen' },
+    
+    { id: 'veo-3-fast', name: '🎬 Режиссёр-1', icon: 'Video', color: 'from-rose-500 to-pink-600', description: 'Быстрая генерация видео (Veo-3)', category: 'video-gen' },
+    { id: 'kling-v2.1-standard', name: '🎥 Режиссёр-2', icon: 'Film', color: 'from-violet-500 to-purple-600', description: 'Качественные видео (Kling v2.1)', category: 'video-gen' },
+    { id: 'hailuo-02-standard', name: '📹 Режиссёр-3', icon: 'Clapperboard', color: 'from-blue-500 to-indigo-600', description: 'Креативная генерация видео', category: 'video-gen' },
   ];
 
   const {
@@ -63,11 +67,11 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
               <Icon name="Info" size={24} className="text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-white mb-2">🤖 12 AI моделей в одной платформе</h3>
+              <h3 className="text-xl font-bold text-white mb-2">🤖 15 AI моделей в одной платформе</h3>
               <p className="text-sm text-gray-300 mb-3">
-                Универсальная AI-платформа для любых задач: диалоги, код, анализ фото, генерация изображений, переводы и многое другое
+                Универсальная AI-платформа для любых задач: диалоги, код, анализ фото, генерация изображений и видео, переводы и многое другое
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
                 <div className="flex items-center gap-2 text-gray-300">
                   <Icon name="CheckCircle" size={14} className="text-green-400" />
                   <span>Умный автовыбор</span>
@@ -83,6 +87,10 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <div className="flex items-center gap-2 text-gray-300">
                   <Icon name="CheckCircle" size={14} className="text-green-400" />
                   <span>2 художника</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-300">
+                  <Icon name="CheckCircle" size={14} className="text-green-400" />
+                  <span>3 режиссёра</span>
                 </div>
               </div>
             </div>
@@ -226,6 +234,32 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
               </div>
             </div>
 
+            {/* Генерация видео */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                <Icon name="Video" size={12} />
+                🎬 Режиссёры (генерация видео)
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                {availableModels.filter(m => m.category === 'video-gen').map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setActiveModel(model.id)}
+                    className={`p-2.5 rounded-xl border-2 transition-all ${
+                      activeModel === model.id
+                        ? 'border-indigo-500 bg-indigo-500/20'
+                        : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                    }`}
+                    title={model.description}
+                  >
+                    <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
+                      <Icon name={model.icon as any} size={16} className="text-white" />
+                    </div>
+                    <p className="text-xs font-semibold text-white text-center">{model.name}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
 
           </div>
         </Card>
