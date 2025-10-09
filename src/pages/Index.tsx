@@ -71,11 +71,7 @@ const Index = () => {
       {currentPage === 'home' && (
         <>
           <HeroSection onStartChat={() => setCurrentPage('chat')} language={language} />
-          <StatsSection language={language} />
           <FeaturesSection language={language} />
-          <ModelsShowcase language={language} />
-          <InteractiveDemo onStartChat={() => setCurrentPage('chat')} language={language} />
-          <CTASection onStartChat={() => setCurrentPage('chat')} language={language} />
           <Footer />
         </>
       )}

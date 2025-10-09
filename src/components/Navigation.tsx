@@ -35,12 +35,15 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
         <div className="flex items-center justify-between">
           <button 
             onClick={() => handleNavigate('home')}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/50">
-              <Icon name="Sparkles" size={24} className="text-white" />
+            <div className="relative">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-indigo-500/50 border border-white/20">
+                <span className="text-2xl font-black text-white">B</span>
+              </div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-900 animate-pulse" />
             </div>
-            <h1 className="text-2xl font-bold text-gradient hidden md:block">
+            <h1 className="text-xl font-black text-white hidden md:block tracking-tight">
               Богдан
             </h1>
           </button>
