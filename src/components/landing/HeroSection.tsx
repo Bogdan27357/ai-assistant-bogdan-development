@@ -10,20 +10,20 @@ interface HeroSectionProps {
 const HeroSection = ({ onStartChat, language }: HeroSectionProps) => {
   const content = {
     ru: {
-      title: 'Мультимодальная ИИ-платформа',
-      subtitle: 'Нового поколения',
-      description: 'Объединяем 15+ передовых моделей для работы с текстом, изображениями и видео в единой экосистеме',
+      title: 'Богдан',
+      subtitle: 'Твой цифровой помощник',
+      description: 'Универсальная ИИ-платформа для работы с текстом, изображениями и видео. Все возможности искусственного интеллекта в одном месте',
       startButton: 'Начать работу',
       learnMore: 'Узнать больше',
-      features: ['Мультимодальность', 'Безопасность', 'Масштабируемость']
+      features: ['Быстро', 'Умно', 'Доступно']
     },
     en: {
-      title: 'Multimodal AI Platform',
-      subtitle: 'Next Generation',
-      description: 'Combining 15+ cutting-edge models for text, images, and video in a unified ecosystem',
+      title: 'Bogdan',
+      subtitle: 'Your Digital Assistant',
+      description: 'Universal AI platform for text, images, and video. All artificial intelligence capabilities in one place',
       startButton: 'Get Started',
       learnMore: 'Learn More',
-      features: ['Multimodal', 'Secure', 'Scalable']
+      features: ['Fast', 'Smart', 'Accessible']
     }
   };
 

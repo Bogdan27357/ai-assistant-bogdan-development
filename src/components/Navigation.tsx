@@ -41,7 +41,7 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
               <Icon name="Sparkles" size={24} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gradient hidden md:block">
-              AI Platform
+              Богдан
             </h1>
           </button>
 
