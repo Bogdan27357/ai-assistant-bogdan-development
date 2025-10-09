@@ -25,19 +25,34 @@ const Auth = ({ onAuth }: AuthProps) => {
     setLoading(true);
     
     setTimeout(() => {
-      if (loginEmail && loginPassword) {
+      if (!loginEmail || !loginPassword) {
+        toast.error('Заполните все поля');
+        setLoading(false);
+        return;
+      }
+
+      const demoUsers = [
+        { email: 'admin@ai-platform.com', password: 'admin123', name: 'Administrator' },
+        { email: 'user@test.com', password: 'test123', name: 'Test User' }
+      ];
+
+      const foundUser = demoUsers.find(
+        u => u.email === loginEmail && u.password === loginPassword
+      );
+
+      if (foundUser) {
         const user = { 
-          email: loginEmail, 
-          name: loginEmail.split('@')[0] 
+          email: foundUser.email, 
+          name: foundUser.name 
         };
         localStorage.setItem('user', JSON.stringify(user));
         toast.success('Вход выполнен успешно!');
         onAuth(user);
       } else {
-        toast.error('Заполните все поля');
+        toast.error('Неверный email или пароль');
       }
       setLoading(false);
-    }, 1000);
+    }, 800);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
