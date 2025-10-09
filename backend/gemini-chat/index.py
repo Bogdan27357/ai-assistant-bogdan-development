@@ -105,7 +105,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     message_lower = message.lower()
     
     # Определяем тип задачи
-    if any(word in message_lower for word in ['код', 'code', 'программ', 'function', 'debug', 'script', 'python', 'javascript', 'react', 'tsx', 'jsx']):
+    if any(word in message_lower for word in ['изображен', 'картинк', 'фото', 'image', 'picture', 'photo', 'что на', 'опиши', 'describe', 'vision']):
+        # Для анализа изображений - Gemini 2.0 Flash (мультимодальная)
+        auto_model = 'google/gemini-2.0-flash-exp:free'
+        task_type = 'Анализ изображения'
+    elif any(word in message_lower for word in ['генерир', 'нарисуй', 'создай картинк', 'generate image', 'create image', 'draw']):
+        # Для генерации изображений - Flux
+        auto_model = 'black-forest-labs/flux-1.1-pro'
+        task_type = 'Генерация изображения'
+    elif any(word in message_lower for word in ['код', 'code', 'программ', 'function', 'debug', 'script', 'python', 'javascript', 'react', 'tsx', 'jsx']):
         # Для кода - DeepSeek (лучший для программирования)
         auto_model = 'deepseek/deepseek-chat:free'
         task_type = 'Программирование'
@@ -137,27 +145,46 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Если пользователь явно выбрал модель через UI - используем её
     model_mapping = {
         'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
+        'gemini-vision': 'google/gemini-2.0-flash-exp:free',
         'llama': 'meta-llama/llama-3.3-70b-instruct:free',
+        'llama-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
         'deepseek': 'deepseek/deepseek-chat:free',
         'qwen': 'qwen/qwen-2.5-72b-instruct:free',
+        'qwen-vision': 'qwen/qwen-2-vl-72b-instruct:free',
         'mistral': 'mistralai/mistral-large:free',
         'claude': 'anthropic/claude-3.5-sonnet:free',
+        'flux': 'black-forest-labs/flux-1.1-pro',
+        'dalle': 'openai/dall-e-3',
         'auto': auto_model
     }
     
     model_name = model_mapping.get(model_id, auto_model)
     used_model_name = task_type if model_id == 'auto' else model_id
     
+    # Проверяем, это модель генерации изображений или нет
+    is_image_gen = model_id in ['flux', 'dalle'] or (model_id == 'auto' and 'генерир' in message_lower)
+    
     messages = []
     for msg in conversation_history:
         messages.append({'role': msg['role'], 'content': msg['content']})
     messages.append({'role': 'user', 'content': enhanced_message})
     
-    payload = {
-        'model': model_name,
-        'messages': messages,
-        'stream': True
-    }
+    # Для генерации изображений используем другой формат
+    if is_image_gen:
+        payload = {
+            'model': model_name,
+            'prompt': message,
+            'n': 1,
+            'size': '1024x1024'
+        }
+        stream_mode = False
+    else:
+        payload = {
+            'model': model_name,
+            'messages': messages,
+            'stream': True
+        }
+        stream_mode = True
     
     headers = {
         'Content-Type': 'application/json',
@@ -166,7 +193,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'X-Title': 'AI Platform'
     }
     
-    response = requests.post(url, json=payload, headers=headers, stream=True)
+    response = requests.post(url, json=payload, headers=headers, stream=stream_mode)
     
     if response.status_code != 200:
         return {
@@ -176,20 +203,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    ai_response = ''
-    for line in response.iter_lines():
-        if line:
-            line_str = line.decode('utf-8')
-            if line_str.startswith('data: '):
-                data_str = line_str[6:]
-                if data_str.strip() == '[DONE]':
-                    break
-                try:
-                    chunk = json.loads(data_str)
-                    content = chunk.get('choices', [{}])[0].get('delta', {}).get('content', '')
-                    ai_response += content
-                except:
-                    continue
+    # Обработка ответа для генерации изображений
+    if is_image_gen:
+        data = response.json()
+        # OpenRouter может вернуть URL изображения или base64
+        image_url = data.get('data', [{}])[0].get('url', '')
+        if image_url:
+            ai_response = f'🎨 Изображение сгенерировано!\n\n![Generated Image]({image_url})\n\nURL: {image_url}'
+        else:
+            ai_response = 'Ошибка генерации изображения'
+    else:
+        # Стандартная обработка для текстовых моделей
+        ai_response = ''
+        for line in response.iter_lines():
+            if line:
+                line_str = line.decode('utf-8')
+                if line_str.startswith('data: '):
+                    data_str = line_str[6:]
+                    if data_str.strip() == '[DONE]':
+                        break
+                    try:
+                        chunk = json.loads(data_str)
+                        content = chunk.get('choices', [{}])[0].get('delta', {}).get('content', '')
+                        ai_response += content
+                    except:
+                        continue
     
     return {
         'statusCode': 200,
@@ -198,7 +236,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'response': ai_response,
             'model': model_name,
             'provider': 'OpenRouter',
-            'task_type': used_model_name
+            'task_type': used_model_name,
+            'is_image': is_image_gen
         }),
         'isBase64Encoded': False
     }

@@ -139,7 +139,7 @@ export const useChatLogic = (
       }));
       
       const result = await sendMessageToAI(
-        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto', 
+        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle', 
         userInput, 
         sessionId,
         uploadedFiles.length > 0 ? uploadedFiles : undefined,

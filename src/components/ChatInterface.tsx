@@ -19,13 +19,18 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   const t = getTranslations(language).chat;
 
   const availableModels = [
-    { id: 'auto', name: 'Авто', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ сам выберет лучшую модель для вашего запроса' },
-    { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500', description: 'Google Gemini 2.0 Flash - быстрая и умная' },
-    { id: 'deepseek', name: 'DeepSeek', icon: 'Brain', color: 'from-violet-500 to-purple-500', description: 'DeepSeek V3 - лучшая для кода и математики' },
-    { id: 'claude', name: 'Claude', icon: 'BookOpen', color: 'from-amber-500 to-orange-500', description: 'Claude 3.5 Sonnet - творчество и анализ' },
-    { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'from-purple-500 to-pink-500', description: 'Meta Llama 3.3 70B - мощная логика' },
-    { id: 'qwen', name: 'Qwen', icon: 'Code', color: 'from-orange-500 to-red-500', description: 'Qwen 2.5 72B - универсальная модель' },
-    { id: 'mistral', name: 'Mistral', icon: 'Wind', color: 'from-cyan-500 to-blue-500', description: 'Mistral Large - европейский баланс' },
+    { id: 'auto', name: 'Авто', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ сам выберет лучшую модель для вашего запроса', category: 'main' },
+    { id: 'gemini', name: 'Gemini', icon: 'Sparkles', color: 'from-blue-500 to-cyan-500', description: 'Google Gemini 2.0 - быстрая и умная', category: 'text' },
+    { id: 'deepseek', name: 'DeepSeek', icon: 'Brain', color: 'from-violet-500 to-purple-500', description: 'DeepSeek V3 - лучшая для кода', category: 'text' },
+    { id: 'claude', name: 'Claude', icon: 'BookOpen', color: 'from-amber-500 to-orange-500', description: 'Claude 3.5 - творчество и анализ', category: 'text' },
+    { id: 'llama', name: 'Llama', icon: 'Cpu', color: 'from-purple-500 to-pink-500', description: 'Meta Llama 3.3 70B - логика', category: 'text' },
+    { id: 'qwen', name: 'Qwen', icon: 'Code', color: 'from-orange-500 to-red-500', description: 'Qwen 2.5 72B - универсальная', category: 'text' },
+    { id: 'mistral', name: 'Mistral', icon: 'Wind', color: 'from-cyan-500 to-blue-500', description: 'Mistral Large - баланс', category: 'text' },
+    { id: 'gemini-vision', name: 'Gemini Vision', icon: 'Eye', color: 'from-blue-400 to-indigo-500', description: 'Анализ изображений и видео', category: 'vision' },
+    { id: 'llama-vision', name: 'Llama Vision', icon: 'Camera', color: 'from-purple-400 to-pink-500', description: 'Llama 3.2 90B - мультимодальная', category: 'vision' },
+    { id: 'qwen-vision', name: 'Qwen Vision', icon: 'ScanEye', color: 'from-orange-400 to-red-500', description: 'Qwen 2 VL - анализ картинок', category: 'vision' },
+    { id: 'flux', name: 'FLUX Pro', icon: 'Palette', color: 'from-pink-500 to-rose-500', description: 'Генерация изображений высокого качества', category: 'image-gen' },
+    { id: 'dalle', name: 'DALL-E 3', icon: 'Paintbrush', color: 'from-green-500 to-emerald-500', description: 'OpenAI DALL-E 3 - креативная генерация', category: 'image-gen' },
   ];
 
   const {
@@ -68,27 +73,122 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             )}
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
-            {availableModels.map((model) => (
-              <button
-                key={model.id}
-                onClick={() => setActiveModel(model.id)}
-                className={`p-3 rounded-xl border-2 transition-all ${
-                  activeModel === model.id
-                    ? 'border-indigo-500 bg-indigo-500/20 scale-105'
-                    : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
-                }`}
-                title={model.description}
-              >
-                <div className={`w-8 h-8 mx-auto mb-2 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
-                  <Icon name={model.icon as any} size={16} className="text-white" />
-                </div>
-                <p className="text-xs font-semibold text-white text-center truncate">{model.name}</p>
-                {activeModel === model.id && (
-                  <Icon name="CheckCircle" size={14} className="text-indigo-400 mx-auto mt-1" />
-                )}
-              </button>
-            ))}
+          <div className="space-y-4">
+            {/* Авто-выбор */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                <Icon name="Wand2" size={12} />
+                Умный режим
+              </h4>
+              <div className="grid grid-cols-1 gap-2">
+                {availableModels.filter(m => m.category === 'main').map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setActiveModel(model.id)}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      activeModel === model.id
+                        ? 'border-indigo-500 bg-indigo-500/20'
+                        : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                    }`}
+                    title={model.description}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
+                        <Icon name={model.icon as any} size={20} className="text-white" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-semibold text-white">{model.name}</p>
+                        <p className="text-xs text-gray-400">{model.description}</p>
+                      </div>
+                      {activeModel === model.id && (
+                        <Icon name="CheckCircle" size={18} className="text-indigo-400" />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Текстовые модели */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                <Icon name="MessageSquare" size={12} />
+                Текст и диалоги
+              </h4>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                {availableModels.filter(m => m.category === 'text').map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setActiveModel(model.id)}
+                    className={`p-2.5 rounded-xl border-2 transition-all ${
+                      activeModel === model.id
+                        ? 'border-indigo-500 bg-indigo-500/20'
+                        : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                    }`}
+                    title={model.description}
+                  >
+                    <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
+                      <Icon name={model.icon as any} size={16} className="text-white" />
+                    </div>
+                    <p className="text-xs font-semibold text-white text-center">{model.name}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Vision модели */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                <Icon name="Eye" size={12} />
+                Анализ изображений
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                {availableModels.filter(m => m.category === 'vision').map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setActiveModel(model.id)}
+                    className={`p-2.5 rounded-xl border-2 transition-all ${
+                      activeModel === model.id
+                        ? 'border-indigo-500 bg-indigo-500/20'
+                        : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                    }`}
+                    title={model.description}
+                  >
+                    <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
+                      <Icon name={model.icon as any} size={16} className="text-white" />
+                    </div>
+                    <p className="text-xs font-semibold text-white text-center">{model.name}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Генерация изображений */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                <Icon name="Palette" size={12} />
+                Генерация изображений
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {availableModels.filter(m => m.category === 'image-gen').map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setActiveModel(model.id)}
+                    className={`p-2.5 rounded-xl border-2 transition-all ${
+                      activeModel === model.id
+                        ? 'border-indigo-500 bg-indigo-500/20'
+                        : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                    }`}
+                    title={model.description}
+                  >
+                    <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
+                      <Icon name={model.icon as any} size={16} className="text-white" />
+                    </div>
+                    <p className="text-xs font-semibold text-white text-center">{model.name}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </Card>
 

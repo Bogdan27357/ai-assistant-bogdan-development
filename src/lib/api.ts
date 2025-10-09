@@ -15,15 +15,15 @@ export interface ChatMessage {
 }
 
 export const sendMessageToAI = async (
-  model: 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto',
+  model: 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle',
   message: string,
   sessionId: string,
   files?: { name: string; type: string; size: number; content: string }[],
   conversationHistory?: ChatMessage[],
   onChunk?: (chunk: string) => void
 ): Promise<{ response: string; usedModel: string; taskType?: string }> => {
-  const allModels: Array<'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto'> = [
-    'auto', 'gemini', 'llama', 'deepseek', 'qwen', 'mistral', 'claude'
+  const allModels: Array<'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle'> = [
+    'auto', 'gemini', 'llama', 'deepseek', 'qwen', 'mistral', 'claude', 'gemini-vision', 'llama-vision', 'qwen-vision', 'flux', 'dalle'
   ];
   const startIndex = allModels.indexOf(model as any);
   const attempts = startIndex >= 0 
