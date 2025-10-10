@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
@@ -28,7 +28,7 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [models, setModels] = useState<Model[]>([]);
-  const [selectedModel, setSelectedModel] = useState('mistral');
+  const [selectedModel, setSelectedModel] = useState('gemini');
   const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -151,8 +151,43 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-4 pt-24">
       <div className="max-w-4xl mx-auto py-8">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-white">AI Ассистент</h1>
+          <h1 className="text-3xl font-bold text-white">AI Чат</h1>
           <div className="flex gap-3">
+            {enabledModels.length > 0 ? (
+              <Select value={selectedModel} onValueChange={setSelectedModel}>
+                <SelectTrigger className="w-64 bg-slate-900 border-slate-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {enabledModels.map(model => (
+                    <SelectItem key={model.id} value={model.id}>
+                      <div className="flex items-center gap-2">
+                        <span>{model.name}</span>
+                        {model.free && (
+                          <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">Free</span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Button
+                onClick={onNavigateAdmin}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+              >
+                <Icon name="Settings" size={20} className="mr-2" />
+                Настроить API ключ
+              </Button>
+            )}
+            <Button
+              onClick={onNavigateAdmin}
+              variant="outline"
+              className="bg-slate-900 border-slate-700 text-white hover:bg-slate-800"
+              title="Настройки"
+            >
+              <Icon name="Settings" size={20} />
+            </Button>
             <Button
               onClick={clearHistory}
               variant="outline"
@@ -163,27 +198,6 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
             </Button>
           </div>
         </div>
-
-        {enabledModels.length > 0 && (
-          <div className="mb-4 flex gap-2 flex-wrap">
-            {enabledModels.map(model => (
-              <Button
-                key={model.id}
-                onClick={() => setSelectedModel(model.id)}
-                variant={selectedModel === model.id ? 'default' : 'outline'}
-                className={
-                  selectedModel === model.id
-                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                    : 'bg-slate-900 border-slate-700 text-white hover:bg-slate-800'
-                }
-              >
-                <Icon name="Bot" size={16} className="mr-2" />
-                {model.name}
-                {model.free && <span className="ml-2 text-xs opacity-70">(бесплатно)</span>}
-              </Button>
-            ))}
-          </div>
-        )}
 
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm p-4 mb-4 min-h-[400px] max-h-[500px] overflow-y-auto">
           {messages.length === 0 ? (
