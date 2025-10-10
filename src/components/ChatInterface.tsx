@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
@@ -16,6 +16,7 @@ interface Model {
   name: string;
   description: string;
   free: boolean;
+  enabled: boolean;
 }
 
 const ChatInterface = () => {
@@ -24,33 +25,102 @@ const ChatInterface = () => {
   const [loading, setLoading] = useState(false);
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState('gemini');
-  const apiUrl = 'https://functions.poehali.dev/2de7375b-0cb3-42d8-9542-1ad0bd90ad35';
+  const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const chatUrl = 'https://functions.poehali.dev/2de7375b-0cb3-42d8-9542-1ad0bd90ad35';
+  const historyUrl = 'https://functions.poehali.dev/199fa287-f2b3-4190-b276-d4a8f4ff80b3';
 
   useEffect(() => {
-    fetch(apiUrl)
-      .then(res => res.json())
-      .then(data => {
-        if (data.models) {
-          setModels(data.models);
-        }
-      })
-      .catch(err => console.error('Failed to load models:', err));
+    loadModels();
+    loadHistory();
   }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const loadModels = async () => {
+    try {
+      const response = await fetch(chatUrl);
+      const data = await response.json();
+      if (data.models) {
+        setModels(data.models);
+        const enabledModel = data.models.find((m: Model) => m.enabled);
+        if (enabledModel) {
+          setSelectedModel(enabledModel.id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load models:', err);
+    }
+  };
+
+  const loadHistory = async () => {
+    try {
+      const response = await fetch(`${historyUrl}?session_id=${sessionId}`);
+      const data = await response.json();
+      if (data.messages) {
+        setMessages(data.messages.map((m: any) => ({
+          role: m.role,
+          content: m.content
+        })));
+      }
+    } catch (err) {
+      console.error('Failed to load history:', err);
+    }
+  };
+
+  const saveMessage = async (role: string, content: string) => {
+    try {
+      await fetch(historyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          model_id: selectedModel,
+          role,
+          content
+        })
+      });
+    } catch (err) {
+      console.error('Failed to save message:', err);
+    }
+  };
+
+  const clearHistory = async () => {
+    try {
+      await fetch(`${historyUrl}?session_id=${sessionId}`, {
+        method: 'DELETE'
+      });
+      setMessages([]);
+      toast.success('История очищена');
+    } catch (err) {
+      toast.error('Не удалось очистить историю');
+    }
+  };
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
+    await saveMessage('user', input);
+    
+    const currentInput = input;
     setInput('');
     setLoading(true);
 
     try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch(chatUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: input,
+          message: currentInput,
           model_id: selectedModel
         })
       });
@@ -60,6 +130,7 @@ const ChatInterface = () => {
       if (response.ok) {
         const aiMessage: Message = { role: 'assistant', content: data.response };
         setMessages(prev => [...prev, aiMessage]);
+        await saveMessage('assistant', data.response);
       } else {
         toast.error(data.error || 'Ошибка при отправке сообщения');
       }
@@ -70,28 +141,39 @@ const ChatInterface = () => {
     }
   };
 
+  const enabledModels = models.filter(m => m.enabled);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-4">
       <div className="max-w-4xl mx-auto py-8">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-white">AI Чат</h1>
-          <Select value={selectedModel} onValueChange={setSelectedModel}>
-            <SelectTrigger className="w-64 bg-slate-900 border-slate-700 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {models.map(model => (
-                <SelectItem key={model.id} value={model.id}>
-                  <div className="flex items-center gap-2">
-                    <span>{model.name}</span>
-                    {model.free && (
-                      <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">Free</span>
-                    )}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-3">
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger className="w-64 bg-slate-900 border-slate-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {enabledModels.map(model => (
+                  <SelectItem key={model.id} value={model.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{model.name}</span>
+                      {model.free && (
+                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">Free</span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={clearHistory}
+              variant="outline"
+              className="bg-slate-900 border-slate-700 text-white hover:bg-slate-800"
+            >
+              <Icon name="Trash2" size={20} />
+            </Button>
+          </div>
         </div>
 
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm p-4 mb-4 min-h-[400px] max-h-[500px] overflow-y-auto">
@@ -120,6 +202,7 @@ const ChatInterface = () => {
                   </div>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </Card>
