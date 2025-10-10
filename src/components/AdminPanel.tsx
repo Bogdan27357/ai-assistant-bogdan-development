@@ -40,7 +40,8 @@ const AdminPanel = () => {
       const response = await fetch(getKeysUrl);
       const data = await response.json();
       if (data.api_keys) {
-        setApiKeys(data.api_keys.filter((k: ApiKey) => ['gemini', 'llama', 'qwen'].includes(k.model_id)));
+        const chatModels = data.api_keys.filter((k: ApiKey) => ['gemini', 'llama', 'qwen'].includes(k.model_id));
+        setApiKeys(chatModels.length > 0 ? chatModels : data.api_keys);
       }
     } catch (error) {
       toast.error('Не удалось загрузить API ключи');
