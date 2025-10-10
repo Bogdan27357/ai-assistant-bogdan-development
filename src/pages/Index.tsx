@@ -77,7 +77,7 @@ const Index = () => {
               Бесплатный AI Чат
             </h1>
             <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Google Gemini 2.0, Meta Llama 3.3 70B, Qwen 2.5 72B
+              Mistral 7B Instruct - быстрая модель от Mistral AI
             </p>
             <div className="flex gap-4 justify-center">
               <button

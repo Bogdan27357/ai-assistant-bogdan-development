@@ -23,6 +23,7 @@ const AdminPanel = () => {
   const saveKeyUrl = 'https://functions.poehali.dev/fd5aa99c-6c5c-41ad-a55a-96eb4f8bc75d';
 
   const modelNames: Record<string, string> = {
+    mistral: 'Mistral 7B Instruct',
     gemini: 'Google Gemini 2.0 Flash',
     llama: 'Meta Llama 3.3 70B',
     qwen: 'Qwen 2.5 72B',
@@ -40,8 +41,8 @@ const AdminPanel = () => {
       const response = await fetch(getKeysUrl);
       const data = await response.json();
       if (data.api_keys) {
-        const chatModels = data.api_keys.filter((k: ApiKey) => ['gemini', 'llama', 'qwen'].includes(k.model_id));
-        setApiKeys(chatModels.length > 0 ? chatModels : data.api_keys);
+        const mistralModel = data.api_keys.filter((k: ApiKey) => k.model_id === 'mistral');
+        setApiKeys(mistralModel);
       }
     } catch (error) {
       toast.error('Не удалось загрузить API ключи');
