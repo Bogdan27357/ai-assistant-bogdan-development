@@ -1,6 +1,7 @@
 import json
 from typing import Dict, Any
 import requests
+import os
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -51,11 +52,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     }
     
     api_url = model_endpoints.get(model_id, model_endpoints['qwen'])
+    api_key = os.environ.get('HUGGINGFACE_API_KEY', '')
     
     try:
+        headers = {'Content-Type': 'application/json'}
+        if api_key:
+            headers['Authorization'] = f'Bearer {api_key}'
+            
         response = requests.post(
             api_url,
-            headers={'Content-Type': 'application/json'},
+            headers=headers,
             json={
                 'inputs': message,
                 'parameters': {
