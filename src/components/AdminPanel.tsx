@@ -199,6 +199,19 @@ const AdminPanel = () => {
                 <li>Создайте новый ключ</li>
                 <li>Скопируйте и вставьте его в таблицу ниже</li>
               </ol>
+              <div className="flex gap-2">
+                <Button
+                  onClick={async () => {
+                    await saveApiKey('mistral', '', true);
+                    await saveApiKey('deepseek-r1t2', '', true);
+                    toast.success('Обе модели включены');
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Icon name="Zap" size={16} className="mr-2" />
+                  Включить обе модели
+                </Button>
+              </div>
             </Card>
 
             <Card className="bg-slate-900/50 border-slate-700 overflow-hidden">
@@ -213,7 +226,7 @@ const AdminPanel = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {apiKeys.map((key, index) => (
+                    {apiKeys.filter(key => modelNames[key.model_id]).map((key, index) => (
                       <tr key={key.id} className={`border-t border-slate-700 ${index % 2 === 0 ? 'bg-slate-800/20' : ''}`}>
                         <td className="p-4">
                           <div className="text-white font-medium">{modelNames[key.model_id]}</div>

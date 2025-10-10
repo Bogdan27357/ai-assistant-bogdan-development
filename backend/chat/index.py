@@ -146,11 +146,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         model_map = {
             'mistral': 'mistralai/mistral-small-3.24b:free',
-            'deepseek-r1t2': 'deepseek/deepseek-r1t2-chimera:free',
-            'gemini': 'google/gemini-flash-1.5:free',
-            'llama': 'meta-llama/llama-3.1-8b-instruct:free',
-            'qwen': 'qwen/qwen-2.5-7b-instruct:free',
-            'deepseek': 'deepseek/deepseek-chat:free'
+            'deepseek-r1t2': 'deepseek/deepseek-r1t2-chimera:free'
         }
         model_name = model_map.get(model_id, 'mistralai/mistral-small-3.24b:free')
         
