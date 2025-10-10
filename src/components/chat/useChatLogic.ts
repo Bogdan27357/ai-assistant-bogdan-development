@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { sendMessageToAI, saveMessageToDB, generateSessionId, uploadToKnowledgeBase, getChatHistory } from '@/lib/api';
+import { sendMessageToAI, generateSessionId } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -33,28 +33,15 @@ export const useChatLogic = (
   const t = translations;
 
   useEffect(() => {
-    const initSession = async () => {
-      const savedSessionId = localStorage.getItem('currentSessionId');
-      let currentSessionId = savedSessionId;
-      
-      if (!currentSessionId) {
-        currentSessionId = generateSessionId();
-        localStorage.setItem('currentSessionId', currentSessionId);
-      }
-      
-      setSessionId(currentSessionId);
-      
-      const history = await getChatHistory(currentSessionId);
-      if (history.length > 0) {
-        setMessages(history.map(msg => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date()
-        })));
-      }
-    };
+    const savedSessionId = localStorage.getItem('currentSessionId');
+    let currentSessionId = savedSessionId;
     
-    initSession();
+    if (!currentSessionId) {
+      currentSessionId = generateSessionId();
+      localStorage.setItem('currentSessionId', currentSessionId);
+    }
+    
+    setSessionId(currentSessionId);
   }, []);
 
   useEffect(() => {
@@ -86,9 +73,7 @@ export const useChatLogic = (
           content: content
         });
         
-        await uploadToKnowledgeBase(file.name, content, file.type);
-        
-        toast.success(`Файл ${file.name} добавлен в базу знаний`);
+        toast.success(`Файл ${file.name} загружен`);
       } catch (error) {
         toast.error(`Ошибка загрузки ${file.name}`);
       }
@@ -131,23 +116,18 @@ export const useChatLogic = (
     setMessages(prev => [...prev, emptyAiMessage]);
 
     try {
-      await saveMessageToDB(sessionId, activeModel, 'user', messageContent);
-      
       const conversationHistory = messages.slice(-10).map(msg => ({
         role: msg.role,
         content: msg.content
       }));
       
-      const videoModels = ['veo-3-fast', 'kling-v2.1-standard', 'hailuo-02-standard'];
-      const isVideoModel = videoModels.includes(activeModel);
-      
       const result = await sendMessageToAI(
-        activeModel as 'gemini' | 'llama' | 'deepseek' | 'qwen' | 'mistral' | 'claude' | 'auto' | 'gemini-vision' | 'llama-vision' | 'qwen-vision' | 'flux' | 'dalle' | 'veo-3-fast' | 'kling-v2.1-standard' | 'hailuo-02-standard', 
+        activeModel as 'qwen' | 'deepseek' | 'llama' | 'gemini', 
         userInput, 
         sessionId,
         uploadedFiles.length > 0 ? uploadedFiles : undefined,
         conversationHistory,
-        isVideoModel ? undefined : (chunk: string) => {
+        (chunk: string) => {
           setMessages(prev => {
             const updated = [...prev];
             const lastIndex = updated.length - 1;
@@ -159,11 +139,6 @@ export const useChatLogic = (
           });
         }
       );
-
-      // Умный режим - без уведомлений о выборе модели
-      // Пользователь просто получает ответ без информации о технических деталях
-
-      await saveMessageToDB(sessionId, result.usedModel, 'assistant', result.response);
       
       if (voiceEnabled) {
         await speak(result.response);
