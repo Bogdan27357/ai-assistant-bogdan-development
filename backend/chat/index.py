@@ -63,7 +63,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'https://openrouter.ai/api/v1/chat/completions',
             headers={
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}'
+                'Authorization': f'Bearer {api_key}',
+                'HTTP-Referer': 'https://poehali.dev',
+                'X-Title': 'Poehali AI Test'
             },
             json={
                 'model': model_name,
@@ -77,15 +79,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         )
         
         if response.status_code != 200:
+            error_msg = f'API error (status {response.status_code}): {response.text[:300]}'
             return {
                 'statusCode': 500,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'error': f'API error: {response.text[:200]}'}),
+                'body': json.dumps({'error': error_msg}),
                 'isBase64Encoded': False
             }
         
         result = response.json()
-        ai_response = result['choices'][0]['message']['content']
+        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', 'No response')
         
         return {
             'statusCode': 200,
