@@ -1,13 +1,12 @@
 import json
-import os
 from typing import Dict, Any
 import requests
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Universal chat function for all AI models via OpenRouter
-    Args: event with httpMethod, body (message, model_id, session_id, conversation_history, stream)
-    Returns: HTTP response with AI response (streaming or complete)
+    Business: Chat with free AI models via HuggingFace
+    Args: event with httpMethod, body (message, model_id, session_id)
+    Returns: HTTP response with AI response
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -17,7 +16,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
+                'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
@@ -34,10 +33,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     body_data = json.loads(event.get('body', '{}'))
     message = body_data.get('message', '')
-    model_id = body_data.get('model_id', 'auto')
-    session_id = body_data.get('session_id', '')
-    conversation_history = body_data.get('conversation_history', [])
-    stream = False
+    model_id = body_data.get('model_id', 'qwen')
     
     if not message:
         return {
@@ -47,101 +43,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    api_key = os.environ.get('OPENROUTER_API_KEY', '')
-    
-    if not api_key:
-        return {
-            'statusCode': 500,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'OpenRouter API key not configured'}),
-            'isBase64Encoded': False
-        }
-    
-    def detect_task_type(message: str, files: list) -> tuple[str, str]:
-        msg_lower = message.lower()
-        
-        if files or any(word in msg_lower for word in ['фото', 'картинк', 'изображени', 'что на фото', 'опиши картинку']):
-            return 'google/gemini-2.5-flash-image-preview:free', 'Визор'
-        
-        if any(word in msg_lower for word in ['нарисуй', 'создай картинку', 'сгенерируй изображение']):
-            return 'black-forest-labs/flux-1.1-pro', 'Художник'
-        
-        if any(word in msg_lower for word in ['вычисли', 'посчитай', 'реши', 'уравнение', 'формула']):
-            return 'deepseek/deepseek-chat:free', 'Математик'
-        
-        if any(word in msg_lower for word in ['код', 'функци', 'программ', 'баг', 'ошибк', 'debug']):
-            return 'deepseek/deepseek-chat:free', 'Программист'
-        
-        if any(word in msg_lower for word in ['переведи', 'translate', 'на английский', 'на русский']):
-            return 'qwen/qwen-2.5-72b-instruct:free', 'Переводчик'
-        
-        if any(word in msg_lower for word in ['напиши статью', 'создай текст', 'сочини', 'рассказ']):
-            return 'anthropic/claude-3.5-sonnet:free', 'Писатель'
-        
-        if len(message) > 500:
-            return 'google/gemini-2.5-pro-experimental:free', 'Эксперт'
-        
-        return 'google/gemini-2.0-flash-thinking-exp:free', 'Ассистент'
-    
-    model_mapping = {
-        'auto': None,
-        'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
-        'gemini-pro': 'google/gemini-2.5-pro-experimental:free',
-        'gemini-nano-banana': 'google/gemini-2.5-flash-image-preview:free',
-        'llama': 'meta-llama/llama-3.3-70b-instruct:free',
-        'deepseek': 'deepseek/deepseek-chat:free',
-        'qwen': 'qwen/qwen-2.5-72b-instruct:free',
-        'mistral': 'mistralai/mistral-large:free',
-        'claude': 'anthropic/claude-3.5-sonnet:free',
-        'gemini-vision': 'google/gemini-2.5-flash-image-preview:free',
-        'llama-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
-        'qwen-vision': 'qwen/qwen-2-vl-72b-instruct:free',
-        'flux': 'black-forest-labs/flux-1.1-pro',
-        'dalle': 'openai/dall-e-3'
+    model_endpoints = {
+        'qwen': 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct',
+        'deepseek': 'https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',
+        'llama': 'https://api-inference.huggingface.co/models/meta-llama/Llama-3.3-70B-Instruct',
+        'gemini': 'https://api-inference.huggingface.co/models/google/gemma-2-27b-it'
     }
     
-    files = body_data.get('files', [])
-    if model_id == 'auto':
-        openrouter_model, task_type = detect_task_type(message, files)
-    else:
-        openrouter_model = model_mapping.get(model_id, 'google/gemini-2.0-flash-thinking-exp:free')
-        task_type = None
-    
-    messages = []
-    for msg in conversation_history[-10:]:
-        messages.append({
-            'role': msg.get('role', 'user'),
-            'content': msg.get('content', '')
-        })
-    messages.append({'role': 'user', 'content': message})
+    api_url = model_endpoints.get(model_id, model_endpoints['qwen'])
     
     try:
-        payload = {
-            'model': openrouter_model,
-            'messages': messages
-        }
-        
         response = requests.post(
-            'https://openrouter.ai/api/v1/chat/completions',
-            headers={
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json'
+            api_url,
+            headers={'Content-Type': 'application/json'},
+            json={
+                'inputs': message,
+                'parameters': {
+                    'max_new_tokens': 1000,
+                    'temperature': 0.7,
+                    'top_p': 0.9,
+                    'return_full_text': False
+                }
             },
-            json=payload,
             timeout=60
         )
         
         if response.status_code != 200:
-            error_text = response.text[:200]
             return {
                 'statusCode': 500,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'error': f'OpenRouter error {response.status_code}: {error_text}'}),
+                'body': json.dumps({'error': f'API error: {response.text[:200]}'}),
                 'isBase64Encoded': False
             }
         
         result = response.json()
-        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '')
+        
+        if isinstance(result, list) and len(result) > 0:
+            ai_response = result[0].get('generated_text', '')
+        elif isinstance(result, dict):
+            ai_response = result.get('generated_text', result.get('text', ''))
+        else:
+            ai_response = str(result)
         
         return {
             'statusCode': 200,
@@ -149,10 +91,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({
-                'response': ai_response,
-                'task_type': task_type
-            }),
+            'body': json.dumps({'response': ai_response}),
             'isBase64Encoded': False
         }
     
@@ -160,20 +99,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 504,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Превышено время ожидания ответа от AI. Попробуйте сократить запрос.'}),
-            'isBase64Encoded': False
-        }
-    except requests.exceptions.ConnectionError:
-        return {
-            'statusCode': 503,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Не удалось подключиться к AI сервису. Проверьте интернет-соединение.'}),
+            'body': json.dumps({'error': 'Timeout'}),
             'isBase64Encoded': False
         }
     except Exception as e:
         return {
             'statusCode': 500,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': f'Ошибка сервера: {str(e)}'}),
+            'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False
         }
