@@ -166,7 +166,7 @@ export const useApiKeyManagement = () => {
         return;
       }
 
-      const modelName = 'google/gemini-2.0-flash-thinking-exp:free';
+      const modelName = 'meta-llama/llama-3.3-70b-instruct';
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',

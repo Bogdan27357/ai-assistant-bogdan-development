@@ -89,6 +89,7 @@ const Index = () => {
         />
       )}
       
+      {/* Публичные страницы для клиентов */}
       {currentPage === 'home' && (
         <>
           <HeroSection onStartChat={() => setCurrentPage('chat')} language={language} />
@@ -98,6 +99,8 @@ const Index = () => {
       )}
       
       {currentPage === 'chat' && <ChatInterface onNavigateToAdmin={() => setCurrentPage('admin')} language={language} />}
+      
+      {/* Скрытые страницы (доступны только через прямые ссылки, не отображаются в навигации) */}
       {currentPage === 'tools' && <AITools />}
       {currentPage === 'images' && <ImageGenerator />}
       {currentPage === 'prompts' && <PromptLibrary />}
@@ -108,7 +111,11 @@ const Index = () => {
       {currentPage === 'telegram' && <TelegramBot />}
       {currentPage === 'history' && <ChatHistory />}
       {currentPage === 'api' && <DeveloperAPI />}
+      
+      {/* Админ-панель (требует пароль, содержит: API ключи, база знаний, настройки, аналитика) */}
       {currentPage === 'admin' && <AdminPanel />}
+      
+      {/* Авторизация и профиль */}
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
       
