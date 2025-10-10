@@ -185,9 +185,13 @@ export const useChatLogic = (
           '• Проверьте подключение к интернету\n' +
           '• Попробуйте перезагрузить страницу';
         toast.error('Ошибка подключения');
+      } else if (errorMessage.includes('API key') || errorMessage.includes('configured')) {
+        // Скрываем техническую ошибку об API ключе от пользователя
+        userFriendlyMessage = '⚠️ Временная ошибка сервиса. Пожалуйста, попробуйте еще раз через несколько секунд.';
+        toast.error('Попробуйте еще раз');
       } else {
-        userFriendlyMessage = `❌ Ошибка: ${errorMessage}\n\nПопробуйте:\n• Переключиться на другую модель\n• Обновить страницу`;
-        toast.error(errorMessage);
+        userFriendlyMessage = `❌ Ошибка: ${errorMessage}\n\nПопробуйте:\n• Обновить страницу\n• Повторить запрос`;
+        toast.error('Произошла ошибка');
       }
       
       const fallbackMessage: Message = {

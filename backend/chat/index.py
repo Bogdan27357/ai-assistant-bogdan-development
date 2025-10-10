@@ -104,6 +104,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if any(word in msg_lower for word in ['объясни как', 'научи', 'урок', 'лекци', 'обучени', 'teach', 'explain how', 'lesson', 'tutorial', 'learn', 'курс', 'course']):
             return 'google/gemini-2.5-pro-experimental:free', 'Преподаватель'
         
+        # Кулинария и рецепты
+        if any(word in msg_lower for word in ['рецепт', 'приготовь', 'как готовить', 'блюдо', 'кухня', 'recipe', 'cook', 'cooking', 'dish', 'cuisine', 'ингредиент', 'ingredient']):
+            return 'anthropic/claude-3.5-sonnet:free', 'Шеф-повар'
+        
+        # Путешествия и туризм
+        if any(word in msg_lower for word in ['путешестви', 'туризм', 'город', 'страна', 'достопримечательност', 'travel', 'tourism', 'city', 'country', 'attraction', 'отель', 'hotel', 'виза', 'visa']):
+            return 'qwen/qwen-2.5-72b-instruct:free', 'Гид'
+        
+        # Психология и личностный рост
+        if any(word in msg_lower for word in ['психолог', 'стресс', 'мотивац', 'эмоци', 'отношени', 'psychology', 'stress', 'motivation', 'emotion', 'relationship', 'self-help', 'саморазвитие']):
+            return 'anthropic/claude-3.5-sonnet:free', 'Психолог'
+        
+        # Спорт и фитнес
+        if any(word in msg_lower for word in ['тренировк', 'упражнени', 'фитнес', 'спорт', 'мышц', 'workout', 'exercise', 'fitness', 'sport', 'muscle', 'диета', 'diet']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Фитнес-тренер'
+        
+        # Музыка и искусство
+        if any(word in msg_lower for word in ['музык', 'песн', 'инструмент', 'живопись', 'искусств', 'music', 'song', 'instrument', 'painting', 'art', 'guitar', 'piano']):
+            return 'anthropic/claude-3.5-sonnet:free', 'Музыкант'
+        
+        # Технологии и гаджеты
+        if any(word in msg_lower for word in ['смартфон', 'компьютер', 'гаджет', 'технолог', 'устройств', 'smartphone', 'computer', 'gadget', 'technology', 'device', 'app', 'приложение']):
+            return 'deepseek/deepseek-chat:free', 'Техник'
+        
+        # Финансы и инвестиции
+        if any(word in msg_lower for word in ['акци', 'крипто', 'биткоин', 'инвестиц', 'портфел', 'финанс', 'stock', 'crypto', 'bitcoin', 'investment', 'portfolio', 'finance', 'трейдинг', 'trading']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Финансовый аналитик'
+        
+        # Автомобили и техника
+        if any(word in msg_lower for word in ['автомобиль', 'машина', 'двигател', 'ремонт авто', 'car', 'vehicle', 'engine', 'automotive', 'repair', 'тюнинг', 'tuning']):
+            return 'deepseek/deepseek-chat:free', 'Автомеханик'
+        
+        # Садоводство и растения
+        if any(word in msg_lower for word in ['растени', 'сад', 'огород', 'цвет', 'выращива', 'plant', 'garden', 'flower', 'grow', 'soil', 'почва', 'удобрение']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Садовод'
+        
         # Сложный анализ и рассуждения
         if any(word in msg_lower for word in ['проанализируй', 'почему', 'как работает', 'reasoning', 'analyze', 'в чем причина', 'why', 'how does']):
             return 'google/gemini-2.5-pro-experimental:free', 'Аналитик'
