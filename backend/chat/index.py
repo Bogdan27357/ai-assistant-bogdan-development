@@ -37,7 +37,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     model_id = body_data.get('model_id', 'auto')
     session_id = body_data.get('session_id', '')
     conversation_history = body_data.get('conversation_history', [])
-    stream = body_data.get('stream', False)
+    # Стриминг отключен для стабильности
+    stream = False
     
     if not message:
         return {
@@ -188,6 +189,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     # Call OpenRouter API
     try:
+        print(f'Calling OpenRouter with model: {openrouter_model}, stream: {stream}')
+        
         response = requests.post(
             'https://openrouter.ai/api/v1/chat/completions',
             headers={
@@ -206,6 +209,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             timeout=120
         )
         
+        print(f'OpenRouter response status: {response.status_code}')
+        
         if not response.ok:
             error_data = response.json() if response.text else {}
             return {
@@ -217,40 +222,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        if stream:
-            # Streaming response
-            return {
-                'statusCode': 200,
-                'headers': {
-                    'Content-Type': 'text/event-stream',
-                    'Access-Control-Allow-Origin': '*',
-                    'Cache-Control': 'no-cache'
-                },
-                'body': response.text,
-                'isBase64Encoded': False
-            }
-        else:
-            # Complete response
-            result = response.json()
-            ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '')
-            
-            return {
-                'statusCode': 200,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps({
-                    'response': ai_response,
-                    'task_type': task_type
-                }),
-                'isBase64Encoded': False
-            }
+        # Complete response
+        result = response.json()
+        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '')
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'response': ai_response,
+                'task_type': task_type
+            }),
+            'isBase64Encoded': False
+        }
     
+    except requests.exceptions.Timeout:
+        print('Request timeout error')
+        return {
+            'statusCode': 504,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'Превышено время ожидания ответа от AI. Попробуйте сократить запрос.'}),
+            'isBase64Encoded': False
+        }
+    except requests.exceptions.ConnectionError:
+        print('Connection error')
+        return {
+            'statusCode': 503,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'Не удалось подключиться к AI сервису. Проверьте интернет-соединение.'}),
+            'isBase64Encoded': False
+        }
     except Exception as e:
+        print(f'Unexpected error: {str(e)}')
         return {
             'statusCode': 500,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': str(e)}),
+            'body': json.dumps({'error': f'Ошибка сервера: {str(e)}'}),
             'isBase64Encoded': False
         }

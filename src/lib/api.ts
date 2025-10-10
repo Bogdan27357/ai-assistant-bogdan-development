@@ -98,42 +98,17 @@ export const sendMessageToAI = async (
       throw new Error(error.error || `Ошибка сервера: ${response.status}`);
     }
 
-    // Если есть callback для streaming, обрабатываем поток
-    if (onChunk && response.body) {
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let fullResponse = '';
-      
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-        
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const dataStr = line.slice(6);
-            if (dataStr.trim() === '[DONE]') break;
-            
-            try {
-              const parsed = JSON.parse(dataStr);
-              const content = parsed.choices?.[0]?.delta?.content || '';
-              if (content) {
-                fullResponse += content;
-                onChunk(content);
-              }
-            } catch (e) {
-              // Пропускаем невалидный JSON
-            }
-          }
-        }
-      }
-      
-      return { response: fullResponse, usedModel: model };
-    }
-    
     const data = await response.json();
+    
+    // Если есть callback для streaming, симулируем постепенный вывод
+    if (onChunk && data.response) {
+      const words = data.response.split(' ');
+      for (let i = 0; i < words.length; i++) {
+        const chunk = (i === 0 ? '' : ' ') + words[i];
+        onChunk(chunk);
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+    }
     
     return { 
       response: data.response, 
