@@ -1,6 +1,7 @@
 {
   "chat-history": "https://functions.poehali.dev/199fa287-f2b3-4190-b276-d4a8f4ff80b3",
   "chat": "https://functions.poehali.dev/2de7375b-0cb3-42d8-9542-1ad0bd90ad35",
+  "auth": "https://functions.poehali.dev/3ad80b22-8cf3-4be9-9e9a-6f36d45e5700",
   "save-api-key": "https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437",
   "get-api-keys": "https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa"
 }
