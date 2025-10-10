@@ -40,15 +40,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         models = [
             {
                 'id': 'mistral',
-                'name': 'Llama 3.2 3B',
-                'description': 'Быстрая бесплатная модель от Meta',
+                'name': 'Mistral 3 24B',
+                'description': 'Мощная модель от Mistral AI',
                 'free': True,
                 'enabled': enabled_map.get('mistral', False)
             },
             {
                 'id': 'deepseek-r1t2',
-                'name': 'Gemini 2.0 Flash',
-                'description': 'Новейшая модель от Google',
+                'name': 'DeepSeek R1T2 Chimera',
+                'description': 'Модель с reasoning от DeepSeek',
                 'free': True,
                 'enabled': enabled_map.get('deepseek-r1t2', False)
             }
@@ -125,10 +125,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn.close()
         
         model_map = {
-            'mistral': 'meta-llama/llama-3.2-3b-instruct:free',
-            'deepseek-r1t2': 'google/gemini-2.0-flash-exp:free'
+            'mistral': 'mistralai/mistral-3-24b:free',
+            'deepseek-r1t2': 'deepseek/deepseek-r1t2-chimera:free'
         }
-        model_name = model_map.get(model_id, 'meta-llama/llama-3.2-3b-instruct:free')
+        model_name = model_map.get(model_id, 'mistralai/mistral-3-24b:free')
         
         response = requests.post(
             'https://openrouter.ai/api/v1/chat/completions',
