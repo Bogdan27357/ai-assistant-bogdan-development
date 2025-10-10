@@ -151,7 +151,7 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-4 pt-24">
       <div className="max-w-4xl mx-auto py-8">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-white">AI Чат</h1>
+          <h1 className="text-3xl font-bold text-white">Богдан</h1>
           <div className="flex gap-3">
             {enabledModels.length > 0 ? (
               <Select value={selectedModel} onValueChange={setSelectedModel}>
@@ -204,7 +204,7 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
             <div className="flex items-center justify-center h-full text-slate-400">
               <div className="text-center">
                 <Icon name="MessageSquare" size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Начните диалог с AI</p>
+                <p>Привет! Я Богдан, чем могу помочь?</p>
               </div>
             </div>
           ) : (

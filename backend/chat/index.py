@@ -30,17 +30,52 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     if method == 'GET':
-        cur.execute("SELECT model_id, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = 'mistral'")
+        cur.execute("SELECT model_id, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys")
         rows = cur.fetchall()
         enabled_map = {row[0]: row[1] for row in rows}
         
         models = [
             {
                 'id': 'mistral',
-                'name': 'Mistral 7B',
-                'description': 'Free fast model from Mistral AI',
+                'name': 'Mistral Small 3 24B',
+                'description': 'Продвинутая модель 24B параметров',
                 'free': True,
                 'enabled': enabled_map.get('mistral', False)
+            },
+            {
+                'id': 'deepseek-r1t2',
+                'name': 'DeepSeek R1T2 Chimera 671B',
+                'description': 'Мощнейшая модель с reasoning (пошаговые рассуждения)',
+                'free': True,
+                'enabled': enabled_map.get('deepseek-r1t2', False)
+            },
+            {
+                'id': 'gemini',
+                'name': 'Google Gemini Flash',
+                'description': 'Быстрая модель от Google',
+                'free': True,
+                'enabled': enabled_map.get('gemini', False)
+            },
+            {
+                'id': 'llama',
+                'name': 'Meta Llama 3.1 8B',
+                'description': 'Открытая модель от Meta',
+                'free': True,
+                'enabled': enabled_map.get('llama', False)
+            },
+            {
+                'id': 'qwen',
+                'name': 'Qwen 2.5 7B',
+                'description': 'Модель от Alibaba',
+                'free': True,
+                'enabled': enabled_map.get('qwen', False)
+            },
+            {
+                'id': 'deepseek',
+                'name': 'DeepSeek Chat',
+                'description': 'Модель от DeepSeek',
+                'free': True,
+                'enabled': enabled_map.get('deepseek', False)
             }
         ]
         
@@ -93,7 +128,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         api_key = row[0]
         
-        model_name = 'mistralai/mistral-7b-instruct:free'
+        model_map = {
+            'mistral': 'mistralai/mistral-small-3.24b:free',
+            'deepseek-r1t2': 'deepseek/deepseek-r1t2-chimera:free',
+            'gemini': 'google/gemini-flash-1.5:free',
+            'llama': 'meta-llama/llama-3.1-8b-instruct:free',
+            'qwen': 'qwen/qwen-2.5-7b-instruct:free',
+            'deepseek': 'deepseek/deepseek-chat:free'
+        }
+        model_name = model_map.get(model_id, 'mistralai/mistral-small-3.24b:free')
+        
+        cur_kb = conn.cursor()
+        cur_kb.execute("SELECT current_schema()")
+        schema_name = cur_kb.fetchone()[0]
+        
+        query_kb = f"SELECT content FROM {schema_name}.knowledge_base ORDER BY uploaded_at DESC LIMIT 5"
+        cur_kb.execute(query_kb)
+        kb_rows = cur_kb.fetchall()
+        cur_kb.close()
+        
+        knowledge_context = ''
+        if kb_rows:
+            knowledge_context = 'База знаний:\n' + '\n---\n'.join([row[0] for row in kb_rows]) + '\n\n'
+        
+        user_message = knowledge_context + message
         
         response = requests.post(
             'https://openrouter.ai/api/v1/chat/completions',
@@ -101,11 +159,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {api_key}',
                 'HTTP-Referer': 'https://poehali.dev',
-                'X-Title': 'AI Chat'
+                'X-Title': 'Bogdan AI'
             },
             json={
                 'model': model_name,
-                'messages': [{'role': 'user', 'content': message}]
+                'messages': [
+                    {'role': 'system', 'content': 'Ты - Богдан, умный AI-ассистент. Отвечай кратко и по делу.'},
+                    {'role': 'user', 'content': user_message}
+                ]
             },
             timeout=30
         )

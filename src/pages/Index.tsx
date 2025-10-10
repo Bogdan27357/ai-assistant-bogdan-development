@@ -74,10 +74,10 @@ const Index = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="text-center">
             <h1 className={`text-5xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              Бесплатный AI Чат
+              Богдан - Твой AI Ассистент
             </h1>
             <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Mistral 7B Instruct - быстрая модель от Mistral AI
+              Умный помощник для любых задач
             </p>
             <div className="flex gap-4 justify-center">
               <button
