@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
@@ -14,40 +14,58 @@ interface ApiKey {
   enabled: boolean;
 }
 
+interface KnowledgeFile {
+  id: number;
+  filename: string;
+  content: string;
+  uploaded_at: string;
+}
+
 const AdminPanel = () => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [showKey, setShowKey] = useState<Record<string, boolean>>({});
-  const getKeysUrl = 'https://functions.poehali.dev/ab69f8ed-fcb3-4e6e-b3c5-f5aeb6cb02f8';
-  const saveKeyUrl = 'https://functions.poehali.dev/fd5aa99c-6c5c-41ad-a55a-96eb4f8bc75d';
+  const [uploadingFile, setUploadingFile] = useState(false);
+  
+  const getKeysUrl = 'https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa';
+  const saveKeyUrl = 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437';
+  const knowledgeUrl = 'https://functions.poehali.dev/2de7375b-0cb3-42d8-9542-1ad0bd90ad35?action=knowledge';
 
   const modelNames: Record<string, string> = {
-    mistral: 'Mistral 7B Instruct',
-    gemini: 'Google Gemini 2.0 Flash',
-    llama: 'Meta Llama 3.3 70B',
-    qwen: 'Qwen 2.5 72B',
-    deepseek: 'DeepSeek',
-    gigachat: 'GigaChat',
-    imagerouter: 'Image Router'
+    mistral: 'Mistral Small 3 24B',
+    'deepseek-r1t2': 'DeepSeek R1T2 Chimera 671B'
   };
 
   useEffect(() => {
     loadApiKeys();
+    loadKnowledgeFiles();
   }, []);
 
   const loadApiKeys = async () => {
     try {
       const response = await fetch(getKeysUrl);
       const data = await response.json();
-      if (data.api_keys) {
-        const mistralModel = data.api_keys.filter((k: ApiKey) => k.model_id === 'mistral');
-        setApiKeys(mistralModel);
+      if (data.keys) {
+        setApiKeys(data.keys);
       }
     } catch (error) {
       toast.error('Не удалось загрузить API ключи');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadKnowledgeFiles = async () => {
+    try {
+      const response = await fetch(knowledgeUrl);
+      const data = await response.json();
+      if (data.files) {
+        setKnowledgeFiles(data.files);
+      }
+    } catch (error) {
+      console.error('Failed to load knowledge files:', error);
     }
   };
 
@@ -82,6 +100,59 @@ const AdminPanel = () => {
     );
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingFile(true);
+    
+    for (const file of Array.from(files)) {
+      try {
+        const content = await file.text();
+        
+        const response = await fetch(knowledgeUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: file.name,
+            content: content
+          })
+        });
+        
+        if (response.ok) {
+          toast.success(`Файл ${file.name} добавлен в базу знаний`);
+        } else {
+          const data = await response.json();
+          toast.error(data.error || `Ошибка загрузки ${file.name}`);
+        }
+      } catch (error) {
+        toast.error(`Ошибка загрузки ${file.name}`);
+      }
+    }
+    
+    setUploadingFile(false);
+    event.target.value = '';
+    loadKnowledgeFiles();
+  };
+
+  const deleteFile = async (fileId: number) => {
+    try {
+      const response = await fetch(`${knowledgeUrl}?id=${fileId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        toast.success('Файл удален');
+        loadKnowledgeFiles();
+      } else {
+        const data = await response.json();
+        toast.error(data.error || 'Ошибка удаления');
+      }
+    } catch (error) {
+      toast.error('Не удалось удалить файл');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center">
@@ -94,91 +165,255 @@ const AdminPanel = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-4 pt-24">
       <div className="max-w-6xl mx-auto py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Настройка API ключей</h1>
-          <p className="text-slate-400">Один ключ OpenRouter работает для всех моделей</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Панель управления Богданом</h1>
+          <p className="text-slate-400">Настройка AI моделей и базы знаний</p>
         </div>
 
-        <Card className="bg-slate-900/50 border-slate-700 p-6 mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">Как получить бесплатный API ключ OpenRouter</h3>
-          <ol className="text-slate-300 space-y-2 list-decimal list-inside mb-6">
-            <li>Перейдите на <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline font-semibold">openrouter.ai</a></li>
-            <li>Зарегистрируйтесь через Google или GitHub</li>
-            <li>Откройте раздел "Keys" в меню</li>
-            <li>Создайте новый ключ</li>
-            <li>Скопируйте и вставьте его в таблицу ниже</li>
-          </ol>
-        </Card>
+        <Tabs defaultValue="models" className="w-full">
+          <TabsList className="bg-slate-900 border-slate-700 mb-6">
+            <TabsTrigger value="models" className="data-[state=active]:bg-indigo-600">
+              <Icon name="Bot" size={18} className="mr-2" />
+              AI Модели
+            </TabsTrigger>
+            <TabsTrigger value="knowledge" className="data-[state=active]:bg-indigo-600">
+              <Icon name="FileText" size={18} className="mr-2" />
+              База знаний
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-indigo-600">
+              <Icon name="Sliders" size={18} className="mr-2" />
+              Настройки сайта
+            </TabsTrigger>
+            <TabsTrigger value="images" className="data-[state=active]:bg-indigo-600">
+              <Icon name="Image" size={18} className="mr-2" />
+              Генерация изображений
+            </TabsTrigger>
+          </TabsList>
 
-        <Card className="bg-slate-900/50 border-slate-700 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-800/50">
-                <tr>
-                  <th className="text-left p-4 text-white font-semibold">Модель</th>
-                  <th className="text-left p-4 text-white font-semibold">API Ключ</th>
-                  <th className="text-center p-4 text-white font-semibold">Статус</th>
-                  <th className="text-center p-4 text-white font-semibold">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {apiKeys.map((key, index) => (
-                  <tr key={key.id} className={`border-t border-slate-700 ${index % 2 === 0 ? 'bg-slate-800/20' : ''}`}>
-                    <td className="p-4">
-                      <div className="text-white font-medium">{modelNames[key.model_id]}</div>
-                      <div className="text-sm text-slate-400">{key.model_id}</div>
-                    </td>
-                    <td className="p-4">
-                      <div className="relative max-w-md">
-                        <Input
-                          type={showKey[key.model_id] ? "text" : "password"}
-                          value={key.api_key}
-                          onChange={e => handleKeyChange(key.model_id, e.target.value)}
-                          placeholder="sk-or-v1-xxxxxxxxxxxxxxxx"
-                          className="bg-slate-800 border-slate-600 text-white pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowKey(prev => ({ ...prev, [key.model_id]: !prev[key.model_id] }))}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+          <TabsContent value="models">
+            <Card className="bg-slate-900/50 border-slate-700 p-6 mb-8">
+              <h3 className="text-lg font-semibold text-white mb-4">Как получить бесплатный API ключ OpenRouter</h3>
+              <ol className="text-slate-300 space-y-2 list-decimal list-inside mb-6">
+                <li>Перейдите на <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline font-semibold">openrouter.ai</a></li>
+                <li>Зарегистрируйтесь через Google или GitHub</li>
+                <li>Откройте раздел "Keys" в меню</li>
+                <li>Создайте новый ключ</li>
+                <li>Скопируйте и вставьте его в таблицу ниже</li>
+              </ol>
+              <div className="flex gap-2">
+                <Button
+                  onClick={async () => {
+                    await saveApiKey('mistral', '', true);
+                    await saveApiKey('deepseek-r1t2', '', true);
+                    toast.success('Обе модели включены');
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Icon name="Zap" size={16} className="mr-2" />
+                  Включить обе модели
+                </Button>
+              </div>
+            </Card>
+
+            <Card className="bg-slate-900/50 border-slate-700 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-800/50">
+                    <tr>
+                      <th className="text-left p-4 text-white font-semibold">Модель</th>
+                      <th className="text-left p-4 text-white font-semibold">API Ключ</th>
+                      <th className="text-center p-4 text-white font-semibold">Статус</th>
+                      <th className="text-center p-4 text-white font-semibold">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apiKeys.filter(key => modelNames[key.model_id]).map((key, index) => (
+                      <tr key={key.id} className={`border-t border-slate-700 ${index % 2 === 0 ? 'bg-slate-800/20' : ''}`}>
+                        <td className="p-4">
+                          <div className="text-white font-medium">{modelNames[key.model_id]}</div>
+                          <div className="text-sm text-slate-400">{key.model_id}</div>
+                        </td>
+                        <td className="p-4">
+                          <div className="relative max-w-md">
+                            <Input
+                              type={showKey[key.model_id] ? "text" : "password"}
+                              value={key.api_key}
+                              onChange={e => handleKeyChange(key.model_id, e.target.value)}
+                              placeholder="sk-or-v1-xxxxxxxxxxxxxxxx"
+                              className="bg-slate-800 border-slate-600 text-white pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowKey(prev => ({ ...prev, [key.model_id]: !prev[key.model_id] }))}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                            >
+                              <Icon name={showKey[key.model_id] ? "EyeOff" : "Eye"} size={18} />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <Switch
+                              checked={key.enabled}
+                              onCheckedChange={checked => saveApiKey(key.model_id, key.api_key, checked)}
+                            />
+                            <span className={`text-sm font-medium ${key.enabled ? 'text-green-400' : 'text-slate-400'}`}>
+                              {key.enabled ? 'Включено' : 'Выключено'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <Button
+                            onClick={() => saveApiKey(key.model_id, key.api_key, key.enabled)}
+                            disabled={saving === key.model_id}
+                            className="bg-indigo-600 hover:bg-indigo-700"
+                            size="sm"
+                          >
+                            {saving === key.model_id ? (
+                              <Icon name="Loader2" size={16} className="animate-spin" />
+                            ) : (
+                              <>
+                                <Icon name="Save" size={16} className="mr-2" />
+                                Сохранить
+                              </>
+                            )}
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="knowledge">
+            <Card className="bg-slate-900/50 border-slate-700 p-6 mb-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Загрузка файлов в базу знаний</h3>
+              <p className="text-slate-300 mb-4">
+                Загрузите текстовые файлы, чтобы Богдан мог использовать их для ответов. Поддерживаются форматы: .txt, .md, .json
+              </p>
+              <div className="flex items-center gap-4">
+                <Input
+                  type="file"
+                  accept=".txt,.md,.json"
+                  multiple
+                  onChange={handleFileUpload}
+                  disabled={uploadingFile}
+                  className="bg-slate-800 border-slate-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
+                />
+                {uploadingFile && <Icon name="Loader2" size={20} className="animate-spin text-white" />}
+              </div>
+            </Card>
+
+            <Card className="bg-slate-900/50 border-slate-700 overflow-hidden">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Загруженные файлы</h3>
+                {knowledgeFiles.length === 0 ? (
+                  <div className="text-center py-12 text-slate-400">
+                    <Icon name="FolderOpen" size={48} className="mx-auto mb-4 opacity-50" />
+                    <p>Файлы не загружены</p>
+                    <p className="text-sm mt-2">Загрузите первый файл в базу знаний</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {knowledgeFiles.map(file => (
+                      <div key={file.id} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Icon name="FileText" size={20} className="text-indigo-400" />
+                          <div>
+                            <div className="text-white font-medium">{file.filename}</div>
+                            <div className="text-sm text-slate-400">{new Date(file.uploaded_at).toLocaleString('ru-RU')}</div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => deleteFile(file.id)}
+                          variant="outline"
+                          size="sm"
+                          className="bg-red-900/20 border-red-700 text-red-400 hover:bg-red-900/40"
                         >
-                          <Icon name={showKey[key.model_id] ? "EyeOff" : "Eye"} size={18} />
-                        </button>
+                          <Icon name="Trash2" size={16} />
+                        </Button>
                       </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Switch
-                          checked={key.enabled}
-                          onCheckedChange={checked => saveApiKey(key.model_id, key.api_key, checked)}
-                        />
-                        <span className={`text-sm font-medium ${key.enabled ? 'text-green-400' : 'text-slate-400'}`}>
-                          {key.enabled ? 'Включено' : 'Выключено'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <Button
-                        onClick={() => saveApiKey(key.model_id, key.api_key, key.enabled)}
-                        disabled={saving === key.model_id}
-                        className="bg-indigo-600 hover:bg-indigo-700"
-                        size="sm"
-                      >
-                        {saving === key.model_id ? (
-                          <Icon name="Loader2" size={16} className="animate-spin" />
-                        ) : (
-                          <>
-                            <Icon name="Save" size={16} className="mr-2" />
-                            Сохранить
-                          </>
-                        )}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card className="bg-slate-900/50 border-slate-700 p-6">
+              <h3 className="text-lg font-semibold text-white mb-6">Настройки сайта</h3>
+              <div className="space-y-6">
+                <div>
+                  <label className="text-white font-medium block mb-2">Название AI ассистента</label>
+                  <Input 
+                    value="Богдан" 
+                    className="bg-slate-800 border-slate-600 text-white"
+                    placeholder="Имя ассистента"
+                  />
+                  <p className="text-sm text-slate-400 mt-1">Это имя будет отображаться в чате и на главной странице</p>
+                </div>
+                
+                <div>
+                  <label className="text-white font-medium block mb-2">Описание на главной</label>
+                  <Input 
+                    value="Умный помощник для любых задач" 
+                    className="bg-slate-800 border-slate-600 text-white"
+                    placeholder="Краткое описание"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-white font-medium block mb-2">Приветственное сообщение в чате</label>
+                  <Input 
+                    value="Привет! Я Богдан, чем могу помочь?" 
+                    className="bg-slate-800 border-slate-600 text-white"
+                    placeholder="Первое сообщение"
+                  />
+                </div>
+
+                <div className="pt-4 border-t border-slate-700">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Icon name="Save" size={16} className="mr-2" />
+                    Сохранить настройки
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="images">
+            <Card className="bg-slate-900/50 border-slate-700 p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Генерация изображений</h3>
+              <p className="text-slate-300 mb-6">
+                Используйте AI для создания изображений. Доступна бесплатная модель Gemini 2.5 Flash Image Preview.
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-white font-medium block mb-2">Описание изображения</label>
+                  <Input 
+                    className="bg-slate-800 border-slate-600 text-white mb-2"
+                    placeholder="Например: красивый закат на пляже, реалистичный стиль"
+                  />
+                </div>
+
+                <Button className="bg-indigo-600 hover:bg-indigo-700">
+                  <Icon name="Sparkles" size={16} className="mr-2" />
+                  Генерировать изображение
+                </Button>
+
+                <div className="mt-6 p-4 bg-slate-800/50 rounded-lg">
+                  <p className="text-slate-400 text-sm">
+                    <Icon name="Info" size={16} className="inline mr-2" />
+                    Генерация изображений доступна через модель Gemini 2.5 Flash Image Preview. Убедитесь, что у вас настроен API ключ OpenRouter.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

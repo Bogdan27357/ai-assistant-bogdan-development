@@ -6,7 +6,7 @@ import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Chat with AI models via OpenRouter
+    Business: Chat with Mistral AI via OpenRouter
     Args: event with httpMethod, body (message, model_id)
     Returns: HTTP response with AI response
     '''
@@ -126,38 +126,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        model_id_escaped = model_id.replace("'", "''")
-        query_api = f"SELECT api_key, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = '{model_id_escaped}'"
-        cur.execute(query_api)
+        cur.execute("SELECT api_key, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = %s", (model_id,))
         row = cur.fetchone()
+        cur.close()
+        conn.close()
         
         if not row or not row[1]:
-            cur.close()
-            conn.close()
             return {
                 'statusCode': 400,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'Model not enabled'}),
+                'body': json.dumps({'error': 'Model not enabled or API key not configured'}),
                 'isBase64Encoded': False
             }
         
-        api_key = row[0] if row[0] else ''
-        
-        if not api_key:
-            cur.close()
-            conn.close()
-            return {
-                'statusCode': 400,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps({'error': 'API key not configured. Please add OpenRouter API key in admin panel.'}),
-                'isBase64Encoded': False
-            }
+        api_key = row[0]
         
         model_map = {
             'mistral': 'mistralai/mistral-small-3.24b:free',
@@ -165,14 +150,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         model_name = model_map.get(model_id, 'mistralai/mistral-small-3.24b:free')
         
-        cur.execute("SELECT current_schema()")
-        schema_name = cur.fetchone()[0]
+        cur_kb = conn.cursor()
+        cur_kb.execute("SELECT current_schema()")
+        schema_name = cur_kb.fetchone()[0]
         
         query_kb = f"SELECT content FROM {schema_name}.knowledge_base ORDER BY uploaded_at DESC LIMIT 5"
-        cur.execute(query_kb)
-        kb_rows = cur.fetchall()
-        cur.close()
-        conn.close()
+        cur_kb.execute(query_kb)
+        kb_rows = cur_kb.fetchall()
+        cur_kb.close()
         
         knowledge_context = ''
         if kb_rows:
