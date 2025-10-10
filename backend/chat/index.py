@@ -49,7 +49,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     # Get OpenRouter API key from environment
-    api_key = os.environ.get('OPENROUTER_API_KEY', '')
+    api_key = os.environ.get('OPENROUTER_API_KEY', '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')
     print(f'API key present: {bool(api_key)}')
     print(f'API key starts with: {api_key[:15] if api_key else "NONE"}...')
     
