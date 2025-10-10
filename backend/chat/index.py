@@ -189,6 +189,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     # Call OpenRouter API
     try:
+        print(f'=== CHAT REQUEST DEBUG ===')
+        print(f'Model ID: {model_id}')
+        print(f'OpenRouter model: {openrouter_model}')
+        print(f'Stream: {stream}')
+        print(f'Message length: {len(message)}')
+        print(f'API key present: {bool(api_key)}')
+        print(f'Messages count: {len(messages)}')
         print(f'Calling OpenRouter with model: {openrouter_model}, stream: {stream}')
         
         response = requests.post(
@@ -210,9 +217,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         )
         
         print(f'OpenRouter response status: {response.status_code}')
+        print(f'OpenRouter response headers: {dict(response.headers)}')
         
         if not response.ok:
+            print(f'ERROR: OpenRouter returned error status')
+            print(f'Response text: {response.text}')
             error_data = response.json() if response.text else {}
+            print(f'Error data: {error_data}')
             return {
                 'statusCode': response.status_code,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
@@ -224,7 +235,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Complete response
         result = response.json()
+        print(f'OpenRouter result keys: {list(result.keys())}')
         ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '')
+        print(f'AI response length: {len(ai_response)}')
+        print(f'SUCCESS: Returning response')
         
         return {
             'statusCode': 200,
