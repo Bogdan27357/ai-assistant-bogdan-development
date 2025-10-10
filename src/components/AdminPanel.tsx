@@ -23,7 +23,7 @@ const AdminPanel = () => {
   const saveKeyUrl = 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437';
 
   const modelNames: Record<string, string> = {
-    mistral: 'Mistral 7B Instruct',
+    mistral: 'Dolphin 3.0 Mistral 24B',
     'deepseek-r1t2': 'DeepSeek R1T2 Chimera',
     gemini: 'Google Gemini 2.0 Flash',
     llama: 'Meta Llama 3.3 70B',

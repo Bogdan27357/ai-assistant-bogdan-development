@@ -81,8 +81,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         models = [
             {
                 'id': 'mistral',
-                'name': 'Mistral Small 3 24B',
-                'description': 'Продвинутая модель 24B параметров',
+                'name': 'Dolphin 3.0 Mistral 24B',
+                'description': 'Мощная бесплатная модель от Cognitive Computations',
                 'free': True,
                 'enabled': enabled_map.get('mistral', False)
             },
@@ -160,10 +160,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         model_map = {
-            'mistral': 'mistralai/mistral-small-3.24b:free',
+            'mistral': 'cognitivecomputations/dolphin-3.0-mistral-24b:free',
             'deepseek-r1t2': 'deepseek/deepseek-r1t2-chimera:free'
         }
-        model_name = model_map.get(model_id, 'mistralai/mistral-small-3.24b:free')
+        model_name = model_map.get(model_id, 'cognitivecomputations/dolphin-3.0-mistral-24b:free')
         
         cur.execute("SELECT current_schema()")
         schema_name = cur.fetchone()[0]
