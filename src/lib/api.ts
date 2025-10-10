@@ -44,8 +44,9 @@ export const sendMessageToAI = async (
       const result = await response.json();
       
       return {
-        response: `🎬 Видео успешно сгенерировано!\n\nМодель: ${model}\nПромпт: ${message}\n\n📹 [Смотреть видео](${result.video_url})`,
-        usedModel: model,
+        response: `🎬 Видео успешно сгенерировано!\n\n📹 [Смотреть видео](${result.video_url})`,
+        usedModel: 'Режиссёр',
+        taskType: 'Режиссёр',
         videoUrl: result.video_url
       };
     } catch (error: any) {
@@ -71,7 +72,7 @@ export const sendMessageToAI = async (
     enhancedMessage = `${message}\n\n📎 Загруженные файлы для анализа:${filesContent}`;
   }
   
-  console.log(`Отправка запроса через модель: ${model}`);
+  // Отправка запроса к AI
   
   try {
     const response = await fetch(url, {

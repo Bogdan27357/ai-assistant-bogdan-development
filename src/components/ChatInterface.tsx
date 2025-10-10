@@ -28,14 +28,14 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     { id: 'auto', name: '🤖 Умный режим', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ автоматически выберет лучшую модель для вашей задачи', category: 'main' },
     
     { id: 'gemini', name: '⚡ Быстрый', icon: 'Zap', color: 'from-blue-500 to-cyan-500', description: 'Мгновенные ответы на простые вопросы', category: 'text' },
-    { id: 'gemini-pro', name: '🚀 Gemini Pro', icon: 'Sparkles', color: 'from-blue-600 to-cyan-600', description: 'Самая мощная модель Google для сложных задач', category: 'text' },
+    { id: 'gemini-pro', name: '🚀 Эксперт', icon: 'Sparkles', color: 'from-blue-600 to-cyan-600', description: 'Самый умный режим для сложных задач', category: 'text' },
     { id: 'deepseek', name: '💻 Программист', icon: 'Code', color: 'from-violet-500 to-purple-500', description: 'Помощь с кодом, отладкой и разработкой', category: 'text' },
     { id: 'claude', name: '✍️ Творец', icon: 'Feather', color: 'from-amber-500 to-orange-500', description: 'Тексты, истории, креативное письмо', category: 'text' },
     { id: 'llama', name: '🧠 Логик', icon: 'Brain', color: 'from-purple-500 to-pink-500', description: 'Сложные рассуждения и анализ', category: 'text' },
     { id: 'qwen', name: '🌏 Полиглот', icon: 'Languages', color: 'from-orange-500 to-red-500', description: 'Переводы и многоязычная поддержка', category: 'text' },
     { id: 'mistral', name: '⚖️ Универсал', icon: 'Scale', color: 'from-cyan-500 to-blue-500', description: 'Баланс скорости и качества', category: 'text' },
     
-    { id: 'gemini-nano-banana', name: '🍌 Nano Banana', icon: 'Image', color: 'from-cyan-400 to-blue-500', description: 'Анализ и описание изображений с Gemini', category: 'vision' },
+    { id: 'gemini-nano-banana', name: '🍌 Визор', icon: 'Image', color: 'from-cyan-400 to-blue-500', description: 'Анализ и описание изображений', category: 'vision' },
     { id: 'gemini-vision', name: '👁️ Визор-1', icon: 'Eye', color: 'from-blue-400 to-indigo-500', description: 'Анализ фото, описание изображений', category: 'vision' },
     { id: 'llama-vision', name: '📸 Визор-2', icon: 'Camera', color: 'from-purple-400 to-pink-500', description: 'Распознавание объектов на фото', category: 'vision' },
     { id: 'qwen-vision', name: '🔍 Визор-3', icon: 'ScanEye', color: 'from-orange-400 to-red-500', description: 'Детальный анализ картинок', category: 'vision' },
@@ -43,8 +43,8 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     { id: 'flux', name: '🎨 Художник-1', icon: 'Palette', color: 'from-pink-500 to-rose-500', description: 'Реалистичная генерация изображений', category: 'image-gen' },
     { id: 'dalle', name: '🖌️ Художник-2', icon: 'Paintbrush', color: 'from-green-500 to-emerald-500', description: 'Креативная генерация картинок', category: 'image-gen' },
     
-    { id: 'veo-3-fast', name: '🎬 Режиссёр-1', icon: 'Video', color: 'from-rose-500 to-pink-600', description: 'Быстрая генерация видео (Veo-3)', category: 'video-gen' },
-    { id: 'kling-v2.1-standard', name: '🎥 Режиссёр-2', icon: 'Film', color: 'from-violet-500 to-purple-600', description: 'Качественные видео (Kling v2.1)', category: 'video-gen' },
+    { id: 'veo-3-fast', name: '🎬 Режиссёр-1', icon: 'Video', color: 'from-rose-500 to-pink-600', description: 'Быстрая генерация видео', category: 'video-gen' },
+    { id: 'kling-v2.1-standard', name: '🎥 Режиссёр-2', icon: 'Film', color: 'from-violet-500 to-purple-600', description: 'Качественные видео', category: 'video-gen' },
     { id: 'hailuo-02-standard', name: '📹 Режиссёр-3', icon: 'Clapperboard', color: 'from-blue-500 to-indigo-600', description: 'Креативная генерация видео', category: 'video-gen' },
   ];
 

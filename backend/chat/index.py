@@ -65,7 +65,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Математика и расчеты
         if any(word in msg_lower for word in ['вычисли', 'посчитай', 'реши', 'уравнение', 'формула', 'интеграл', 'производная', 'calculate', 'solve', 'equation', 'math', 'derivative', 'integral', '+', '-', '×', '÷', '=']):
             if any(x in message for x in ['∫', '∑', 'lim', 'derivative', 'integral', 'дифференц', 'интеграл']):
-                return 'google/gemini-2.5-pro-experimental:free', 'Математик Pro'
+                return 'google/gemini-2.5-pro-experimental:free', 'Математик'
             return 'deepseek/deepseek-chat:free', 'Математик'
         
         # Программирование
@@ -242,8 +242,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 },
                 'body': json.dumps({
                     'response': ai_response,
-                    'model': result.get('model', 'auto'),
-                    'task_type': task_type if model_id == 'auto' else None
+                    'task_type': task_type
                 }),
                 'isBase64Encoded': False
             }
