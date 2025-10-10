@@ -6,7 +6,7 @@ import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Chat with Mistral AI via OpenRouter
+    Business: Chat with AI models via OpenRouter
     Args: event with httpMethod, body (message, model_id)
     Returns: HTTP response with AI response
     '''
@@ -30,17 +30,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     if method == 'GET':
-        cur.execute("SELECT model_id, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = 'mistral'")
+        cur.execute("SELECT current_schema()")
+        schema_name = cur.fetchone()[0]
+        
+        cur.execute(f"SELECT model_id, enabled FROM {schema_name}.api_keys")
         rows = cur.fetchall()
         enabled_map = {row[0]: row[1] for row in rows}
         
         models = [
             {
                 'id': 'mistral',
-                'name': 'Mistral 7B',
-                'description': 'Free fast model from Mistral AI',
+                'name': 'Dolphin 3.0 Mistral 24B',
+                'description': 'Мощная бесплатная модель от Cognitive Computations',
                 'free': True,
                 'enabled': enabled_map.get('mistral', False)
+            },
+            {
+                'id': 'deepseek-r1t2',
+                'name': 'DeepSeek R1T2 Chimera 671B',
+                'description': 'Мощнейшая модель с reasoning (пошаговые рассуждения)',
+                'free': True,
+                'enabled': enabled_map.get('deepseek-r1t2', False)
             }
         ]
         
@@ -75,25 +85,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        cur.execute("SELECT api_key, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = %s", (model_id,))
+        cur.execute("SELECT current_schema()")
+        schema_name = cur.fetchone()[0]
+        
+        model_id_escaped = model_id.replace("'", "''")
+        query_api = f"SELECT api_key, enabled FROM {schema_name}.api_keys WHERE model_id = '{model_id_escaped}'"
+        cur.execute(query_api)
         row = cur.fetchone()
-        cur.close()
-        conn.close()
         
         if not row or not row[1]:
+            cur.close()
+            conn.close()
             return {
                 'statusCode': 400,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'Model not enabled or API key not configured'}),
+                'body': json.dumps({'error': 'Model not enabled'}),
                 'isBase64Encoded': False
             }
         
-        api_key = row[0]
+        api_key = row[0] if row[0] else ''
         
-        model_name = 'mistralai/mistral-7b-instruct:free'
+        if not api_key:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'API key not configured. Please add OpenRouter API key in admin panel.'}),
+                'isBase64Encoded': False
+            }
+        
+        cur.close()
+        conn.close()
+        
+        model_map = {
+            'mistral': 'cognitivecomputations/dolphin-3.0-mistral-24b:free',
+            'deepseek-r1t2': 'deepseek/deepseek-r1t2-chimera:free'
+        }
+        model_name = model_map.get(model_id, 'cognitivecomputations/dolphin-3.0-mistral-24b:free')
         
         response = requests.post(
             'https://openrouter.ai/api/v1/chat/completions',
@@ -107,7 +142,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'model': model_name,
                 'messages': [{'role': 'user', 'content': message}]
             },
-            timeout=30
+            timeout=60
         )
         
         if response.status_code == 200:
