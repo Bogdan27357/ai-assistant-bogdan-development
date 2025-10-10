@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
-import { setupDeepSeekKey } from '@/utils/setupKey';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -37,7 +36,6 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
   const historyUrl = 'https://functions.poehali.dev/199fa287-f2b3-4190-b276-d4a8f4ff80b3';
 
   useEffect(() => {
-    setupDeepSeekKey().catch(console.error);
     loadModels();
     loadHistory();
   }, []);

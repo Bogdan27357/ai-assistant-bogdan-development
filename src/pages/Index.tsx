@@ -77,7 +77,7 @@ const Index = () => {
               Бесплатный AI Чат
             </h1>
             <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Dolphin 3.0 Mistral 24B - мощная бесплатная модель
+              Mistral 7B Instruct - быстрая модель от Mistral AI
             </p>
             <div className="flex gap-4 justify-center">
               <button

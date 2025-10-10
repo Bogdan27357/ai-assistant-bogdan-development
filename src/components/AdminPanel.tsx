@@ -20,11 +20,10 @@ const AdminPanel = () => {
   const [saving, setSaving] = useState<string | null>(null);
   const [showKey, setShowKey] = useState<Record<string, boolean>>({});
   const getKeysUrl = 'https://functions.poehali.dev/ab69f8ed-fcb3-4e6e-b3c5-f5aeb6cb02f8';
-  const saveKeyUrl = 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437';
+  const saveKeyUrl = 'https://functions.poehali.dev/fd5aa99c-6c5c-41ad-a55a-96eb4f8bc75d';
 
   const modelNames: Record<string, string> = {
-    mistral: 'Dolphin 3.0 Mistral 24B',
-    'deepseek-r1t2': 'DeepSeek R1T2 Chimera',
+    mistral: 'Mistral 7B Instruct',
     gemini: 'Google Gemini 2.0 Flash',
     llama: 'Meta Llama 3.3 70B',
     qwen: 'Qwen 2.5 72B',
@@ -42,10 +41,8 @@ const AdminPanel = () => {
       const response = await fetch(getKeysUrl);
       const data = await response.json();
       if (data.api_keys) {
-        const relevantModels = data.api_keys.filter((k: ApiKey) => 
-          k.model_id === 'mistral' || k.model_id === 'deepseek-r1t2'
-        );
-        setApiKeys(relevantModels);
+        const mistralModel = data.api_keys.filter((k: ApiKey) => k.model_id === 'mistral');
+        setApiKeys(mistralModel);
       }
     } catch (error) {
       toast.error('Не удалось загрузить API ключи');
