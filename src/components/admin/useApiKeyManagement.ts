@@ -34,13 +34,22 @@ export const models = [
 
 export const freeModels = [
   {
-    id: 'gemini',
-    name: 'Google Gemini 2.0 Flash',
-    model: 'google/gemini-2.0-flash-thinking-exp:free',
+    id: 'gemini-pro',
+    name: 'Google Gemini 2.5 Pro',
+    model: 'google/gemini-2.5-pro-experimental:free',
     icon: 'Sparkles',
     color: 'from-blue-500 to-cyan-500',
-    description: 'Быстрый и точный помощник от Google',
-    features: ['Быстрая обработка', 'Длинный контекст', 'Мультимодальность']
+    description: 'Самая мощная модель Google с экспериментальными возможностями',
+    features: ['Глубокий анализ', 'Длинный контекст', 'Экспериментальные фичи']
+  },
+  {
+    id: 'gemini-nano-banana',
+    name: 'Google Gemini Nano Banana',
+    model: 'google/gemini-2.5-flash-image-preview:free',
+    icon: 'Image',
+    color: 'from-cyan-500 to-blue-500',
+    description: 'Gemini с поддержкой анализа изображений',
+    features: ['Анализ картинок', 'Описание фото', 'Визуальный поиск']
   },
   {
     id: 'llama',
@@ -94,7 +103,7 @@ export const useApiKeyManagement = () => {
     openrouter: { enabled: false, apiKey: '' },
     imagerouter: { enabled: false, apiKey: '' }
   });
-  const [selectedModel, setSelectedModel] = useState('gemini');
+  const [selectedModel, setSelectedModel] = useState('gemini-pro');
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string } | null>>({});
 
