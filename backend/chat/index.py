@@ -5,7 +5,7 @@ import os
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Chat with AI models via Groq (free tier)
+    Business: Chat with AI models via Together AI (free tier)
     Args: event with httpMethod, body (message, model_id)
     Returns: HTTP response with AI response
     '''
@@ -49,18 +49,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     model_map = {
-        'qwen': 'llama-3.3-70b-versatile',
-        'deepseek': 'llama-3.1-70b-versatile', 
-        'llama': 'llama-3.3-70b-versatile',
-        'gemini': 'gemma2-9b-it'
+        'qwen': 'Qwen/Qwen2.5-72B-Instruct-Turbo',
+        'deepseek': 'deepseek-ai/DeepSeek-V3',
+        'llama': 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+        'gemini': 'google/gemma-2-27b-it'
     }
     
     model_name = model_map.get(model_id, model_map['qwen'])
-    api_key = os.environ.get('GROQ_API_KEY', '')
+    api_key = os.environ.get('TOGETHER_API_KEY', '')
     
     try:
         response = requests.post(
-            'https://api.groq.com/openai/v1/chat/completions',
+            'https://api.together.xyz/v1/chat/completions',
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {api_key}'
