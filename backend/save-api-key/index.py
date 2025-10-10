@@ -57,6 +57,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
+    # Get schema name
+    cur.execute("SELECT current_schema()")
+    schema_name = cur.fetchone()[0]
+    
     # Escape strings for simple query protocol
     model_id_escaped = model_id.replace("'", "''")
     
@@ -65,7 +69,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         enabled_val = 'TRUE' if enabled else 'FALSE'
         
         query = f"""
-        INSERT INTO api_keys (model_id, api_key, enabled, updated_at) 
+        INSERT INTO {schema_name}.api_keys (model_id, api_key, enabled, updated_at) 
         VALUES ('{model_id_escaped}', '{api_key_escaped}', {enabled_val}, CURRENT_TIMESTAMP) 
         ON CONFLICT (model_id) DO UPDATE 
         SET api_key = EXCLUDED.api_key, enabled = EXCLUDED.enabled, updated_at = CURRENT_TIMESTAMP
@@ -73,7 +77,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur.execute(query)
     else:
         enabled_val = 'TRUE' if enabled else 'FALSE'
-        query = f"UPDATE api_keys SET enabled = {enabled_val}, updated_at = CURRENT_TIMESTAMP WHERE model_id = '{model_id_escaped}'"
+        query = f"UPDATE {schema_name}.api_keys SET enabled = {enabled_val}, updated_at = CURRENT_TIMESTAMP WHERE model_id = '{model_id_escaped}'"
         cur.execute(query)
     
     conn.commit()

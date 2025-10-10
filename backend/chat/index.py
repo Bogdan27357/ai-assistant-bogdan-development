@@ -55,35 +55,65 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         msg_lower = message.lower()
         
         # Анализ изображений
-        if files or any(word in msg_lower for word in ['фото', 'картинк', 'изображени', 'что на фото', 'опиши картинку', 'analyze image']):
-            return 'google/gemini-2.5-flash-image-preview:free', 'Визор (анализ изображений)'
+        if files or any(word in msg_lower for word in ['фото', 'картинк', 'изображени', 'что на фото', 'опиши картинку', 'analyze image', 'photo', 'picture']):
+            return 'google/gemini-2.5-flash-image-preview:free', 'Визор'
         
         # Генерация изображений
-        if any(word in msg_lower for word in ['нарисуй', 'создай картинку', 'сгенерируй изображение', 'draw', 'create image']):
-            return 'black-forest-labs/flux-1.1-pro', 'Художник (генерация)'
+        if any(word in msg_lower for word in ['нарисуй', 'создай картинку', 'сгенерируй изображение', 'draw', 'create image', 'generate picture']):
+            return 'black-forest-labs/flux-1.1-pro', 'Художник'
+        
+        # Математика и расчеты
+        if any(word in msg_lower for word in ['вычисли', 'посчитай', 'реши', 'уравнение', 'формула', 'интеграл', 'производная', 'calculate', 'solve', 'equation', 'math', 'derivative', 'integral', '+', '-', '×', '÷', '=']):
+            if any(x in message for x in ['∫', '∑', 'lim', 'derivative', 'integral', 'дифференц', 'интеграл']):
+                return 'google/gemini-2.5-pro-experimental:free', 'Математик Pro'
+            return 'deepseek/deepseek-chat:free', 'Математик'
         
         # Программирование
-        if any(word in msg_lower for word in ['код', 'функци', 'программ', 'баг', 'ошибк', 'debug', 'code', 'function', 'python', 'javascript']):
+        if any(word in msg_lower for word in ['код', 'функци', 'программ', 'баг', 'ошибк', 'debug', 'code', 'function', 'python', 'javascript', 'typescript', 'react', 'api', 'sql', 'database', 'алгоритм', 'algorithm']):
             return 'deepseek/deepseek-chat:free', 'Программист'
         
-        # Сложный анализ и рассуждения
-        if any(word in msg_lower for word in ['проанализируй', 'объясни', 'почему', 'как работает', 'reasoning', 'analyze', 'explain']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Аналитик'
+        # История и даты
+        if any(word in msg_lower for word in ['история', 'когда произошл', 'в каком году', 'исторически', 'history', 'historical', 'century', 'война', 'революци', 'империя', 'dynasty']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Историк'
+        
+        # Бизнес и экономика
+        if any(word in msg_lower for word in ['бизнес', 'стратеги', 'маркетинг', 'продажи', 'инвестици', 'стартап', 'бюджет', 'прибыль', 'business', 'strategy', 'marketing', 'sales', 'investment', 'startup', 'revenue', 'profit', 'swot', 'конкурент']):
+            return 'anthropic/claude-3.5-sonnet:free', 'Бизнес-аналитик'
+        
+        # Наука и технологии
+        if any(word in msg_lower for word in ['физика', 'химия', 'биология', 'квантов', 'молекул', 'атом', 'physics', 'chemistry', 'biology', 'quantum', 'molecule', 'atom', 'энергия', 'energy', 'эволюци', 'evolution']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Учёный'
+        
+        # Юриспруденция и право
+        if any(word in msg_lower for word in ['закон', 'право', 'юридическ', 'договор', 'иск', 'суд', 'law', 'legal', 'contract', 'court', 'statute', 'regulation', 'законодательств']):
+            return 'anthropic/claude-3.5-sonnet:free', 'Юрист'
+        
+        # Медицина и здоровье
+        if any(word in msg_lower for word in ['симптом', 'лечени', 'болезн', 'диагноз', 'здоровь', 'медицин', 'symptom', 'treatment', 'disease', 'diagnosis', 'health', 'medical', 'врач', 'doctor']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Медицинский консультант'
         
         # Переводы
-        if any(word in msg_lower for word in ['переведи', 'translate', 'на английский', 'на русский']):
+        if any(word in msg_lower for word in ['переведи', 'translate', 'на английский', 'на русский', 'на китайский', 'на испанский', 'to english', 'to russian']):
             return 'qwen/qwen-2.5-72b-instruct:free', 'Переводчик'
         
-        # Творческие задачи
-        if any(word in msg_lower for word in ['напиши статью', 'создай текст', 'сочини', 'write', 'compose']):
+        # Творческие задачи (тексты, истории, статьи)
+        if any(word in msg_lower for word in ['напиши статью', 'создай текст', 'сочини', 'рассказ', 'поэм', 'стих', 'write article', 'compose', 'story', 'poem', 'essay', 'blog']):
             return 'anthropic/claude-3.5-sonnet:free', 'Писатель'
         
-        # Длинные сложные запросы
-        if len(message) > 500:
-            return 'google/gemini-2.5-pro-experimental:free', 'Аналитик (сложный запрос)'
+        # Образование и обучение
+        if any(word in msg_lower for word in ['объясни как', 'научи', 'урок', 'лекци', 'обучени', 'teach', 'explain how', 'lesson', 'tutorial', 'learn', 'курс', 'course']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Преподаватель'
         
-        # По умолчанию - быстрая модель
-        return 'google/gemini-2.0-flash-thinking-exp:free', 'Универсал'
+        # Сложный анализ и рассуждения
+        if any(word in msg_lower for word in ['проанализируй', 'почему', 'как работает', 'reasoning', 'analyze', 'в чем причина', 'why', 'how does']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Аналитик'
+        
+        # Длинные сложные запросы (более 500 символов)
+        if len(message) > 500:
+            return 'google/gemini-2.5-pro-experimental:free', 'Эксперт'
+        
+        # По умолчанию - быстрая универсальная модель
+        return 'google/gemini-2.0-flash-thinking-exp:free', 'Ассистент'
     
     # Маппинг ID моделей на OpenRouter модели
     model_mapping = {

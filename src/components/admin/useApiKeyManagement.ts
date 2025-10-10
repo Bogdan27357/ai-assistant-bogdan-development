@@ -118,7 +118,7 @@ export const useApiKeyManagement = () => {
       keys.forEach(key => {
         newConfigs[key.model_id] = {
           enabled: key.enabled,
-          apiKey: ''
+          apiKey: key.api_key || ''
         };
       });
       setConfigs(newConfigs);

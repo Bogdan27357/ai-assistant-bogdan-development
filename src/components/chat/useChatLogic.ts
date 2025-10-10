@@ -160,21 +160,8 @@ export const useChatLogic = (
         }
       );
 
-      if (activeModel === 'auto' && result.taskType) {
-        toast.success(`🤖 ${result.taskType}`, { duration: 3000 });
-      } else if (result.usedModel !== activeModel) {
-        const modelNames: Record<string, string> = {
-          gemini: 'Gemini Flash',
-          'gemini-pro': 'Gemini Pro',
-          'gemini-nano-banana': 'Gemini Nano Banana',
-          llama: 'Llama 70B',
-          deepseek: 'DeepSeek',
-          qwen: 'Qwen 72B',
-          mistral: 'Mistral Large',
-          claude: 'Claude Sonnet'
-        };
-        toast.info(`Переключено на ${modelNames[result.usedModel]} (основная модель недоступна)`);
-      }
+      // Умный режим - без уведомлений о выборе модели
+      // Пользователь просто получает ответ без информации о технических деталях
 
       await saveMessageToDB(sessionId, result.usedModel, 'assistant', result.response);
       

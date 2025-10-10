@@ -202,7 +202,7 @@ export const saveApiKey = async (
   }
 };
 
-export const getApiKeys = async (): Promise<Array<{model_id: string, enabled: boolean, has_key: boolean}>> => {
+export const getApiKeys = async (): Promise<Array<{model_id: string, enabled: boolean, api_key?: string}>> => {
   const response = await fetch(API_URLS.getApiKeys);
   
   if (!response.ok) {

@@ -44,7 +44,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
-    cur.execute("SELECT model_id, enabled, LENGTH(api_key) > 0 as has_key FROM api_keys")
+    # Get schema name
+    cur.execute("SELECT current_schema()")
+    schema_name = cur.fetchone()[0]
+    
+    cur.execute(f"SELECT model_id, enabled, api_key FROM {schema_name}.api_keys")
     rows = cur.fetchall()
     
     keys = []
@@ -52,7 +56,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         keys.append({
             'model_id': row[0],
             'enabled': row[1],
-            'has_key': row[2]
+            'api_key': row[2] if row[2] else ''
         })
     
     cur.close()

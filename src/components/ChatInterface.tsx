@@ -21,10 +21,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
 
   const handleModelChange = (modelId: string) => {
     setActiveModel(modelId);
-    const model = availableModels.find(m => m.id === modelId);
-    if (model) {
-      toast.success(`Выбрана модель: ${model.name}`, { duration: 2000 });
-    }
+    // Убрали уведомления о смене модели - пользователю не нужна эта информация
   };
 
   const availableModels = [
@@ -71,45 +68,16 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   return (
     <div className="pt-20 md:pt-24 pb-6 md:pb-12 px-3 md:px-6 min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950/30 to-slate-950">
       <div className="container mx-auto max-w-5xl space-y-3 md:space-y-4">
-        {/* Информация о платформе */}
-        <Card className="glass-effect border-emerald-500/30 backdrop-blur-xl p-4 md:p-6 hover:border-emerald-500/50 transition-all duration-300">
-          <div className="flex items-start gap-3 md:gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/50 animate-pulse">
-              <Icon name="CheckCircle" size={20} className="text-white md:w-6 md:h-6" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-base md:text-xl font-bold text-white mb-1 md:mb-2">✅ Система готова к работе</h3>
-              <p className="text-xs md:text-sm text-gray-300 mb-2 md:mb-3">
-                Автоматически выбирает лучшую модель для каждой задачи — от программирования до генерации изображений
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-1.5 md:gap-2 text-xs">
-                <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span>Включен умный режим</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-blue-400" />
-                  <span>Анализ контекста</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-purple-400" />
-                  <span>Автовыбор моделей</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-amber-400" />
-                  <span>15 AI моделей</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Готов к работе</span>
-                </div>
-              </div>
-            </div>
+        {/* Статус подключения */}
+        <div className="flex justify-end">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/50 border border-emerald-500/30">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs text-gray-300">В сети</span>
           </div>
-        </Card>
+        </div>
 
-        {/* Выбор AI модели */}
-        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl p-3 md:p-4">
+        {/* Главный чат */}
+        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl p-3 md:p-4 hidden">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-3 mb-3">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
@@ -275,7 +243,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl shadow-2xl overflow-hidden">
+        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl shadow-2xl overflow-hidden mt-0">
           <ChatHeader
             title={t.title}
             subtitle={t.inputPlaceholder.includes('message') ? 'Your intelligent assistant' : 'Ваш умный помощник'}
