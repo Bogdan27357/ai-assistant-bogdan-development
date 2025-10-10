@@ -18,6 +18,7 @@ const AdminPanel = () => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [showKey, setShowKey] = useState<Record<string, boolean>>({});
   const getKeysUrl = 'https://functions.poehali.dev/ab69f8ed-fcb3-4e6e-b3c5-f5aeb6cb02f8';
   const saveKeyUrl = 'https://functions.poehali.dev/fd5aa99c-6c5c-41ad-a55a-96eb4f8bc75d';
 
@@ -125,27 +126,39 @@ const AdminPanel = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor={`key-${key.model_id}`} className="text-slate-300">
+                <Label htmlFor={`key-${key.model_id}`} className="text-slate-300 text-base">
                   API ключ
                 </Label>
                 <div className="flex gap-2">
-                  <Input
-                    id={`key-${key.model_id}`}
-                    type="password"
-                    value={key.api_key}
-                    onChange={e => handleKeyChange(key.model_id, e.target.value)}
-                    placeholder="Введите API ключ"
-                    className="bg-slate-800 border-slate-600 text-white"
-                  />
+                  <div className="relative flex-1">
+                    <Input
+                      id={`key-${key.model_id}`}
+                      type={showKey[key.model_id] ? "text" : "password"}
+                      value={key.api_key}
+                      onChange={e => handleKeyChange(key.model_id, e.target.value)}
+                      placeholder="sk-or-v1-xxxxxxxxxxxxxxxx"
+                      className="bg-slate-800 border-slate-600 text-white pr-10 h-12 text-base"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowKey(prev => ({ ...prev, [key.model_id]: !prev[key.model_id] }))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                    >
+                      <Icon name={showKey[key.model_id] ? "EyeOff" : "Eye"} size={20} />
+                    </button>
+                  </div>
                   <Button
                     onClick={() => saveApiKey(key.model_id, key.api_key, key.enabled)}
                     disabled={saving === key.model_id}
-                    className="bg-indigo-600 hover:bg-indigo-700"
+                    className="bg-indigo-600 hover:bg-indigo-700 h-12 px-6"
                   >
                     {saving === key.model_id ? (
                       <Icon name="Loader2" size={20} className="animate-spin" />
                     ) : (
-                      <Icon name="Save" size={20} />
+                      <>
+                        <Icon name="Save" size={20} className="mr-2" />
+                        Сохранить
+                      </>
                     )}
                   </Button>
                 </div>
