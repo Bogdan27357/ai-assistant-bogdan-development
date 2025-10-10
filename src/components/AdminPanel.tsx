@@ -35,10 +35,6 @@ const AdminPanel = () => {
 
   const modelNames: Record<string, string> = {
     mistral: 'Mistral Small 3 24B',
-    gemini: 'Google Gemini Flash',
-    llama: 'Meta Llama 3.1 8B',
-    qwen: 'Qwen 2.5 7B',
-    deepseek: 'DeepSeek Chat',
     'deepseek-r1t2': 'DeepSeek R1T2 Chimera 671B'
   };
 

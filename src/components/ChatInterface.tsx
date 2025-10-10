@@ -28,7 +28,7 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [models, setModels] = useState<Model[]>([]);
-  const [selectedModel, setSelectedModel] = useState('gemini');
+  const [selectedModel, setSelectedModel] = useState('mistral');
   const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -151,7 +151,7 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-4 pt-24">
       <div className="max-w-4xl mx-auto py-8">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-white">Богдан</h1>
+          <h1 className="text-3xl font-bold text-white">AI Ассистент</h1>
           <div className="flex gap-3">
             <Button
               onClick={clearHistory}
@@ -164,12 +164,33 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
           </div>
         </div>
 
+        {enabledModels.length > 0 && (
+          <div className="mb-4 flex gap-2 flex-wrap">
+            {enabledModels.map(model => (
+              <Button
+                key={model.id}
+                onClick={() => setSelectedModel(model.id)}
+                variant={selectedModel === model.id ? 'default' : 'outline'}
+                className={
+                  selectedModel === model.id
+                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                    : 'bg-slate-900 border-slate-700 text-white hover:bg-slate-800'
+                }
+              >
+                <Icon name="Bot" size={16} className="mr-2" />
+                {model.name}
+                {model.free && <span className="ml-2 text-xs opacity-70">(бесплатно)</span>}
+              </Button>
+            ))}
+          </div>
+        )}
+
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm p-4 mb-4 min-h-[400px] max-h-[500px] overflow-y-auto">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-slate-400">
               <div className="text-center">
                 <Icon name="MessageSquare" size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Привет! Я Богдан, чем могу помочь?</p>
+                <p>Начните диалог с AI</p>
               </div>
             </div>
           ) : (

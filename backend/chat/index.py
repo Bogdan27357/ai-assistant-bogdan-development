@@ -92,34 +92,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'description': 'Мощнейшая модель с reasoning (пошаговые рассуждения)',
                 'free': True,
                 'enabled': enabled_map.get('deepseek-r1t2', False)
-            },
-            {
-                'id': 'gemini',
-                'name': 'Google Gemini Flash',
-                'description': 'Быстрая модель от Google',
-                'free': True,
-                'enabled': enabled_map.get('gemini', False)
-            },
-            {
-                'id': 'llama',
-                'name': 'Meta Llama 3.1 8B',
-                'description': 'Открытая модель от Meta',
-                'free': True,
-                'enabled': enabled_map.get('llama', False)
-            },
-            {
-                'id': 'qwen',
-                'name': 'Qwen 2.5 7B',
-                'description': 'Модель от Alibaba',
-                'free': True,
-                'enabled': enabled_map.get('qwen', False)
-            },
-            {
-                'id': 'deepseek',
-                'name': 'DeepSeek Chat',
-                'description': 'Модель от DeepSeek',
-                'free': True,
-                'enabled': enabled_map.get('deepseek', False)
             }
         ]
         
