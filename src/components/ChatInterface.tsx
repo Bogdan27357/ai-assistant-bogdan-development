@@ -54,6 +54,7 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
     try {
       const response = await fetch(chatUrl);
       const data = await response.json();
+      console.log('Loaded models from backend:', data.models);
       if (data.models) {
         setModels(data.models);
         const enabledModel = data.models.find((m: Model) => m.enabled);
