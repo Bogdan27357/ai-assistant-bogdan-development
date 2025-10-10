@@ -5,9 +5,9 @@ import requests
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Universal chat function for all AI models via OpenRouter API
-    Args: event with httpMethod, body (message, model_id, session_id, conversation_history, stream)
-    Returns: HTTP response with AI response (streaming or complete)
+    Business: Universal chat function using Google Gemini API
+    Args: event with httpMethod, body (message, model_id, session_id, conversation_history)
+    Returns: HTTP response with AI response
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -35,10 +35,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     message = body_data.get('message', '')
     model_id = body_data.get('model_id', 'auto')
-    session_id = body_data.get('session_id', '')
     conversation_history = body_data.get('conversation_history', [])
-    # Стриминг отключен для стабильности
-    stream = False
     
     if not message:
         return {
@@ -48,199 +45,99 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    # Get OpenRouter API key from environment
-    api_key = os.environ.get('OPENROUTER_API_KEY', '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')
-    print(f'API key present: {bool(api_key)}')
-    print(f'API key starts with: {api_key[:15] if api_key else "NONE"}...')
+    # Get Google Gemini API key
+    api_key = os.environ.get('GOOGLE_GEMINI_API_KEY', '')
     
-    # Умный выбор модели в зависимости от типа запроса
-    def detect_task_type(message: str, files: list) -> tuple[str, str]:
-        msg_lower = message.lower()
-        
-        # Анализ изображений
-        if files or any(word in msg_lower for word in ['фото', 'картинк', 'изображени', 'что на фото', 'опиши картинку', 'analyze image', 'photo', 'picture']):
-            return 'google/gemini-2.5-flash-image-preview:free', 'Визор'
-        
-        # Генерация изображений
-        if any(word in msg_lower for word in ['нарисуй', 'создай картинку', 'сгенерируй изображение', 'draw', 'create image', 'generate picture']):
-            return 'black-forest-labs/flux-1.1-pro', 'Художник'
-        
-        # Математика и расчеты
-        if any(word in msg_lower for word in ['вычисли', 'посчитай', 'реши', 'уравнение', 'формула', 'интеграл', 'производная', 'calculate', 'solve', 'equation', 'math', 'derivative', 'integral', '+', '-', '×', '÷', '=']):
-            if any(x in message for x in ['∫', '∑', 'lim', 'derivative', 'integral', 'дифференц', 'интеграл']):
-                return 'google/gemini-2.5-pro-experimental:free', 'Математик'
-            return 'deepseek/deepseek-chat:free', 'Математик'
-        
-        # Программирование
-        if any(word in msg_lower for word in ['код', 'функци', 'программ', 'баг', 'ошибк', 'debug', 'code', 'function', 'python', 'javascript', 'typescript', 'react', 'api', 'sql', 'database', 'алгоритм', 'algorithm']):
-            return 'deepseek/deepseek-chat:free', 'Программист'
-        
-        # История и даты
-        if any(word in msg_lower for word in ['история', 'когда произошл', 'в каком году', 'исторически', 'history', 'historical', 'century', 'война', 'революци', 'империя', 'dynasty']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Историк'
-        
-        # Бизнес и экономика
-        if any(word in msg_lower for word in ['бизнес', 'стратеги', 'маркетинг', 'продажи', 'инвестици', 'стартап', 'бюджет', 'прибыль', 'business', 'strategy', 'marketing', 'sales', 'investment', 'startup', 'revenue', 'profit', 'swot', 'конкурент']):
-            return 'anthropic/claude-3.5-sonnet:free', 'Бизнес-аналитик'
-        
-        # Наука и технологии
-        if any(word in msg_lower for word in ['физика', 'химия', 'биология', 'квантов', 'молекул', 'атом', 'physics', 'chemistry', 'biology', 'quantum', 'molecule', 'atom', 'энергия', 'energy', 'эволюци', 'evolution']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Учёный'
-        
-        # Юриспруденция и право
-        if any(word in msg_lower for word in ['закон', 'право', 'юридическ', 'договор', 'иск', 'суд', 'law', 'legal', 'contract', 'court', 'statute', 'regulation', 'законодательств']):
-            return 'anthropic/claude-3.5-sonnet:free', 'Юрист'
-        
-        # Медицина и здоровье
-        if any(word in msg_lower for word in ['симптом', 'лечени', 'болезн', 'диагноз', 'здоровь', 'медицин', 'symptom', 'treatment', 'disease', 'diagnosis', 'health', 'medical', 'врач', 'doctor']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Медицинский консультант'
-        
-        # Переводы
-        if any(word in msg_lower for word in ['переведи', 'translate', 'на английский', 'на русский', 'на китайский', 'на испанский', 'to english', 'to russian']):
-            return 'qwen/qwen-2.5-72b-instruct:free', 'Переводчик'
-        
-        # Творческие задачи (тексты, истории, статьи)
-        if any(word in msg_lower for word in ['напиши статью', 'создай текст', 'сочини', 'рассказ', 'поэм', 'стих', 'write article', 'compose', 'story', 'poem', 'essay', 'blog']):
-            return 'anthropic/claude-3.5-sonnet:free', 'Писатель'
-        
-        # Образование и обучение
-        if any(word in msg_lower for word in ['объясни как', 'научи', 'урок', 'лекци', 'обучени', 'teach', 'explain how', 'lesson', 'tutorial', 'learn', 'курс', 'course']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Преподаватель'
-        
-        # Кулинария и рецепты
-        if any(word in msg_lower for word in ['рецепт', 'приготовь', 'как готовить', 'блюдо', 'кухня', 'recipe', 'cook', 'cooking', 'dish', 'cuisine', 'ингредиент', 'ingredient']):
-            return 'anthropic/claude-3.5-sonnet:free', 'Шеф-повар'
-        
-        # Путешествия и туризм
-        if any(word in msg_lower for word in ['путешестви', 'туризм', 'город', 'страна', 'достопримечательност', 'travel', 'tourism', 'city', 'country', 'attraction', 'отель', 'hotel', 'виза', 'visa']):
-            return 'qwen/qwen-2.5-72b-instruct:free', 'Гид'
-        
-        # Психология и личностный рост
-        if any(word in msg_lower for word in ['психолог', 'стресс', 'мотивац', 'эмоци', 'отношени', 'psychology', 'stress', 'motivation', 'emotion', 'relationship', 'self-help', 'саморазвитие']):
-            return 'anthropic/claude-3.5-sonnet:free', 'Психолог'
-        
-        # Спорт и фитнес
-        if any(word in msg_lower for word in ['тренировк', 'упражнени', 'фитнес', 'спорт', 'мышц', 'workout', 'exercise', 'fitness', 'sport', 'muscle', 'диета', 'diet']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Фитнес-тренер'
-        
-        # Музыка и искусство
-        if any(word in msg_lower for word in ['музык', 'песн', 'инструмент', 'живопись', 'искусств', 'music', 'song', 'instrument', 'painting', 'art', 'guitar', 'piano']):
-            return 'anthropic/claude-3.5-sonnet:free', 'Музыкант'
-        
-        # Технологии и гаджеты
-        if any(word in msg_lower for word in ['смартфон', 'компьютер', 'гаджет', 'технолог', 'устройств', 'smartphone', 'computer', 'gadget', 'technology', 'device', 'app', 'приложение']):
-            return 'deepseek/deepseek-chat:free', 'Техник'
-        
-        # Финансы и инвестиции
-        if any(word in msg_lower for word in ['акци', 'крипто', 'биткоин', 'инвестиц', 'портфел', 'финанс', 'stock', 'crypto', 'bitcoin', 'investment', 'portfolio', 'finance', 'трейдинг', 'trading']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Финансовый аналитик'
-        
-        # Автомобили и техника
-        if any(word in msg_lower for word in ['автомобиль', 'машина', 'двигател', 'ремонт авто', 'car', 'vehicle', 'engine', 'automotive', 'repair', 'тюнинг', 'tuning']):
-            return 'deepseek/deepseek-chat:free', 'Автомеханик'
-        
-        # Садоводство и растения
-        if any(word in msg_lower for word in ['растени', 'сад', 'огород', 'цвет', 'выращива', 'plant', 'garden', 'flower', 'grow', 'soil', 'почва', 'удобрение']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Садовод'
-        
-        # Сложный анализ и рассуждения
-        if any(word in msg_lower for word in ['проанализируй', 'почему', 'как работает', 'reasoning', 'analyze', 'в чем причина', 'why', 'how does']):
-            return 'google/gemini-2.5-pro-experimental:free', 'Аналитик'
-        
-        # Длинные сложные запросы (более 500 символов)
-        if len(message) > 500:
-            return 'google/gemini-2.5-pro-experimental:free', 'Эксперт'
-        
-        # По умолчанию - быстрая универсальная модель
-        return 'google/gemini-2.0-flash-thinking-exp:free', 'Ассистент'
+    if not api_key:
+        return {
+            'statusCode': 500,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'Google Gemini API key not configured'}),
+            'isBase64Encoded': False
+        }
     
-    # Маппинг ID моделей на OpenRouter модели
+    # Map model IDs to Gemini models
     model_mapping = {
-        'auto': None,  # Будет определено автоматически
-        'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
-        'gemini-pro': 'google/gemini-2.5-pro-experimental:free',
-        'gemini-nano-banana': 'google/gemini-2.5-flash-image-preview:free',
-        'llama': 'meta-llama/llama-3.3-70b-instruct:free',
-        'deepseek': 'deepseek/deepseek-chat:free',
-        'qwen': 'qwen/qwen-2.5-72b-instruct:free',
-        'mistral': 'mistralai/mistral-large:free',
-        'claude': 'anthropic/claude-3.5-sonnet:free',
-        'gemini-vision': 'google/gemini-2.5-flash-image-preview:free',
-        'llama-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
-        'qwen-vision': 'qwen/qwen-2-vl-72b-instruct:free',
-        'flux': 'black-forest-labs/flux-1.1-pro',
-        'dalle': 'openai/dall-e-3'
+        'auto': 'gemini-2.0-flash-exp',
+        'gemini': 'gemini-2.0-flash-exp',
+        'gemini-pro': 'gemini-1.5-pro',
+        'gemini-vision': 'gemini-1.5-flash',
+        'deepseek': 'gemini-2.0-flash-exp',
+        'llama': 'gemini-2.0-flash-exp',
+        'qwen': 'gemini-2.0-flash-exp',
+        'mistral': 'gemini-2.0-flash-exp',
+        'claude': 'gemini-1.5-pro',
     }
     
-    # Определяем модель
-    files = body_data.get('files', [])
-    if model_id == 'auto':
-        openrouter_model, task_type = detect_task_type(message, files)
-    else:
-        openrouter_model = model_mapping.get(model_id, 'google/gemini-2.0-flash-thinking-exp:free')
-        task_type = None
+    gemini_model = model_mapping.get(model_id, 'gemini-2.0-flash-exp')
     
-    # Build messages array
-    messages = []
+    # Build conversation contents for Gemini
+    contents = []
+    
+    # Add conversation history
     for msg in conversation_history[-10:]:
-        messages.append({
-            'role': msg.get('role', 'user'),
-            'content': msg.get('content', '')
+        role = 'user' if msg.get('role') == 'user' else 'model'
+        contents.append({
+            'role': role,
+            'parts': [{'text': msg.get('content', '')}]
         })
-    messages.append({'role': 'user', 'content': message})
     
-    # Call OpenRouter API
+    # Add current message
+    contents.append({
+        'role': 'user',
+        'parts': [{'text': message}]
+    })
+    
+    # Call Google Gemini API
     try:
-        print(f'=== CHAT REQUEST DEBUG ===')
-        print(f'Model ID: {model_id}')
-        print(f'OpenRouter model: {openrouter_model}')
-        print(f'Stream: {stream}')
+        print(f'=== GEMINI REQUEST ===')
+        print(f'Model: {gemini_model}')
         print(f'Message length: {len(message)}')
-        print(f'API key present: {bool(api_key)}')
-        print(f'Messages count: {len(messages)}')
-        print(f'Calling OpenRouter with model: {openrouter_model}, stream: {stream}')
+        print(f'History length: {len(conversation_history)}')
+        
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={api_key}'
         
         response = requests.post(
-            'https://openrouter.ai/api/v1/chat/completions',
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}',
-                'HTTP-Referer': 'https://preview--ai-assistant-bogdan-development.poehali.dev',
-                'X-Title': 'AI Platform'
-            },
+            url,
+            headers={'Content-Type': 'application/json'},
             json={
-                'model': openrouter_model,
-                'messages': messages,
-                'stream': stream,
-                'route': 'fallback'
+                'contents': contents,
+                'generationConfig': {
+                    'temperature': 0.7,
+                    'maxOutputTokens': 8192,
+                }
             },
-            stream=stream,
-            timeout=120
+            timeout=60
         )
         
-        print(f'OpenRouter response status: {response.status_code}')
-        print(f'OpenRouter response headers: {dict(response.headers)}')
+        print(f'Gemini response status: {response.status_code}')
         
         if not response.ok:
-            print(f'ERROR: OpenRouter returned error status')
-            print(f'Response text: {response.text}')
-            error_data = response.json() if response.text else {}
-            print(f'Error data: {error_data}')
+            error_text = response.text
+            print(f'ERROR: {error_text}')
             return {
                 'statusCode': response.status_code,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
                 'body': json.dumps({
-                    'error': error_data.get('error', {}).get('message', f'OpenRouter API error: {response.status_code}')
+                    'error': f'Gemini API error: {error_text[:200]}'
                 }),
                 'isBase64Encoded': False
             }
         
-        # Complete response
         result = response.json()
-        print(f'OpenRouter result keys: {list(result.keys())}')
-        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '')
-        print(f'AI response length: {len(ai_response)}')
-        print(f'SUCCESS: Returning response')
+        
+        # Extract response text
+        ai_response = ''
+        if 'candidates' in result and len(result['candidates']) > 0:
+            candidate = result['candidates'][0]
+            if 'content' in candidate and 'parts' in candidate['content']:
+                parts = candidate['content']['parts']
+                ai_response = ''.join([part.get('text', '') for part in parts])
+        
+        if not ai_response:
+            ai_response = 'Извините, не удалось получить ответ от ИИ.'
+        
+        print(f'SUCCESS: Response length: {len(ai_response)}')
         
         return {
             'statusCode': 200,
@@ -250,25 +147,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             },
             'body': json.dumps({
                 'response': ai_response,
-                'task_type': task_type
+                'task_type': 'Gemini AI'
             }),
             'isBase64Encoded': False
         }
     
     except requests.exceptions.Timeout:
-        print('Request timeout error')
+        print('Request timeout')
         return {
             'statusCode': 504,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Превышено время ожидания ответа от AI. Попробуйте сократить запрос.'}),
-            'isBase64Encoded': False
-        }
-    except requests.exceptions.ConnectionError:
-        print('Connection error')
-        return {
-            'statusCode': 503,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Не удалось подключиться к AI сервису. Проверьте интернет-соединение.'}),
+            'body': json.dumps({'error': 'Превышено время ожидания ответа от AI'}),
             'isBase64Encoded': False
         }
     except Exception as e:
