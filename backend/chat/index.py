@@ -126,12 +126,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        cur.execute("SELECT api_key, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = %s", (model_id,))
+        model_id_escaped = model_id.replace("'", "''")
+        query_api = f"SELECT api_key, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = '{model_id_escaped}'"
+        cur.execute(query_api)
         row = cur.fetchone()
-        cur.close()
-        conn.close()
         
         if not row or not row[1]:
+            cur.close()
+            conn.close()
             return {
                 'statusCode': 400,
                 'headers': {
@@ -150,14 +152,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         model_name = model_map.get(model_id, 'mistralai/mistral-small-3.24b:free')
         
-        cur_kb = conn.cursor()
-        cur_kb.execute("SELECT current_schema()")
-        schema_name = cur_kb.fetchone()[0]
+        cur.execute("SELECT current_schema()")
+        schema_name = cur.fetchone()[0]
         
         query_kb = f"SELECT content FROM {schema_name}.knowledge_base ORDER BY uploaded_at DESC LIMIT 5"
-        cur_kb.execute(query_kb)
-        kb_rows = cur_kb.fetchall()
-        cur_kb.close()
+        cur.execute(query_kb)
+        kb_rows = cur.fetchall()
+        cur.close()
+        conn.close()
         
         knowledge_context = ''
         if kb_rows:
