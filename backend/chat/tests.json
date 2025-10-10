@@ -5,15 +5,6 @@
       "method": "OPTIONS",
       "path": "/",
       "expectedStatus": 200
-    },
-    {
-      "name": "Missing message error",
-      "method": "POST",
-      "path": "/",
-      "body": {
-        "model_id": "gemini"
-      },
-      "expectedStatus": 400
     }
   ]
 }

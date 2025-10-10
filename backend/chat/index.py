@@ -5,8 +5,8 @@ import os
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Chat with free AI models via HuggingFace
-    Args: event with httpMethod, body (message, model_id, session_id)
+    Business: Chat with free AI models via OpenRouter
+    Args: event with httpMethod, body (message, model_id)
     Returns: HTTP response with AI response
     '''
     method: str = event.get('httpMethod', 'GET')
@@ -32,7 +32,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    body_data = json.loads(event.get('body', '{}'))
+    body_str = event.get('body', '{}')
+    if not body_str or body_str.strip() == '':
+        body_str = '{}'
+    
+    body_data = json.loads(body_str)
     message = body_data.get('message', '')
     model_id = body_data.get('model_id', 'qwen')
     
@@ -44,32 +48,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    model_endpoints = {
-        'qwen': 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct',
-        'deepseek': 'https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',
-        'llama': 'https://api-inference.huggingface.co/models/meta-llama/Llama-3.3-70B-Instruct',
-        'gemini': 'https://api-inference.huggingface.co/models/google/gemma-2-27b-it'
+    model_map = {
+        'qwen': 'qwen/qwen-2.5-72b-instruct',
+        'deepseek': 'deepseek/deepseek-r1-distill-qwen-32b',
+        'llama': 'meta-llama/llama-3.3-70b-instruct',
+        'gemini': 'google/gemma-2-27b-it'
     }
     
-    api_url = model_endpoints.get(model_id, model_endpoints['qwen'])
-    api_key = os.environ.get('HUGGINGFACE_API_KEY', '')
+    model_name = model_map.get(model_id, model_map['qwen'])
+    api_key = os.environ.get('OPENROUTER_API_KEY', '')
     
     try:
-        headers = {'Content-Type': 'application/json'}
-        if api_key:
-            headers['Authorization'] = f'Bearer {api_key}'
-            
         response = requests.post(
-            api_url,
-            headers=headers,
+            'https://openrouter.ai/api/v1/chat/completions',
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {api_key}'
+            },
             json={
-                'inputs': message,
-                'parameters': {
-                    'max_new_tokens': 1000,
-                    'temperature': 0.7,
-                    'top_p': 0.9,
-                    'return_full_text': False
-                }
+                'model': model_name,
+                'messages': [
+                    {'role': 'user', 'content': message}
+                ],
+                'max_tokens': 1000,
+                'temperature': 0.7
             },
             timeout=60
         )
@@ -83,13 +85,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         result = response.json()
-        
-        if isinstance(result, list) and len(result) > 0:
-            ai_response = result[0].get('generated_text', '')
-        elif isinstance(result, dict):
-            ai_response = result.get('generated_text', result.get('text', ''))
-        else:
-            ai_response = str(result)
+        ai_response = result['choices'][0]['message']['content']
         
         return {
             'statusCode': 200,
