@@ -1,33 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/sonner";
-import HeroSection from '@/components/landing/HeroSection';
-import FeaturesSection from '@/components/landing/FeaturesSection';
-import ModelsShowcase from '@/components/landing/ModelsShowcase';
-import InteractiveDemo from '@/components/landing/InteractiveDemo';
-import StatsSection from '@/components/landing/StatsSection';
-import CTASection from '@/components/landing/CTASection';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import ChatInterface from '@/components/ChatInterface';
-import AdminPanel from '@/components/AdminPanel';
-import AITools from '@/components/AITools';
-import ImageGenerator from '@/components/ImageGenerator';
-import PromptLibrary from '@/components/PromptLibrary';
-import CodePlayground from '@/components/CodePlayground';
-import AIAssistants from '@/components/AIAssistants';
-import VoiceInterface from '@/components/VoiceInterface';
-import DocumentProcessor from '@/components/DocumentProcessor';
-import TelegramBot from '@/components/TelegramBot';
-import ChatHistory from '@/components/ChatHistory';
-import DeveloperAPI from '@/components/DeveloperAPI';
 import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
-import ParticlesBackground from '@/components/ParticlesBackground';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'chat' | 'admin' | 'tools' | 'profile' | 'auth' | 'images' | 'prompts' | 'code' | 'assistants' | 'voice' | 'documents' | 'telegram' | 'history' | 'api'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'auth' | 'profile'>('home');
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [darkMode, setDarkMode] = useState(true);
@@ -74,8 +55,6 @@ const Index = () => {
         ? 'bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900' 
         : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50'
     }`}>
-      {darkMode && currentPage === 'home' && <ParticlesBackground />}
-      
       {currentPage !== 'auth' && (
         <Navigation 
           currentPage={currentPage} 
@@ -89,36 +68,23 @@ const Index = () => {
         />
       )}
       
-      {/* Публичные страницы для клиентов */}
       {currentPage === 'home' && (
-        <>
-          <HeroSection onStartChat={() => setCurrentPage('chat')} language={language} />
-          <FeaturesSection language={language} />
-          <Footer />
-        </>
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center">
+            <h1 className={`text-5xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+              Добро пожаловать
+            </h1>
+            <p className={`text-xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+              Ваш сайт готов к работе
+            </p>
+          </div>
+        </div>
       )}
       
-      {currentPage === 'chat' && <ChatInterface onNavigateToAdmin={() => setCurrentPage('admin')} language={language} />}
-      
-      {/* Скрытые страницы (доступны только через прямые ссылки, не отображаются в навигации) */}
-      {currentPage === 'tools' && <AITools />}
-      {currentPage === 'images' && <ImageGenerator />}
-      {currentPage === 'prompts' && <PromptLibrary />}
-      {currentPage === 'code' && <CodePlayground />}
-      {currentPage === 'assistants' && <AIAssistants />}
-      {currentPage === 'voice' && <VoiceInterface />}
-      {currentPage === 'documents' && <DocumentProcessor />}
-      {currentPage === 'telegram' && <TelegramBot />}
-      {currentPage === 'history' && <ChatHistory />}
-      {currentPage === 'api' && <DeveloperAPI />}
-      
-      {/* Админ-панель (требует пароль, содержит: API ключи, база знаний, настройки, аналитика) */}
-      {currentPage === 'admin' && <AdminPanel />}
-      
-      {/* Авторизация и профиль */}
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
       
+      <Footer />
       <ScrollToTop />
       <Toaster />
     </div>
