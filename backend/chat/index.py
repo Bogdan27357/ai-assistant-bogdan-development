@@ -40,15 +40,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         models = [
             {
                 'id': 'mistral',
-                'name': 'Dolphin 3.0 Mistral 24B',
-                'description': 'Мощная бесплатная модель от Cognitive Computations',
+                'name': 'Hermes 3 Llama 405B',
+                'description': 'Мощнейшая бесплатная модель 405B параметров',
                 'free': True,
                 'enabled': enabled_map.get('mistral', False)
             },
             {
                 'id': 'deepseek-r1t2',
-                'name': 'DeepSeek R1T2 Chimera 671B',
-                'description': 'Мощнейшая модель с reasoning (пошаговые рассуждения)',
+                'name': 'DeepSeek R1',
+                'description': 'Продвинутая модель с reasoning',
                 'free': True,
                 'enabled': enabled_map.get('deepseek-r1t2', False)
             }
@@ -125,10 +125,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn.close()
         
         model_map = {
-            'mistral': 'cognitivecomputations/dolphin-3.0-mistral-24b:free',
-            'deepseek-r1t2': 'deepseek/deepseek-r1t2-chimera:free'
+            'mistral': 'nousresearch/hermes-3-llama-3.1-405b:free',
+            'deepseek-r1t2': 'deepseek/deepseek-r1:free'
         }
-        model_name = model_map.get(model_id, 'cognitivecomputations/dolphin-3.0-mistral-24b:free')
+        model_name = model_map.get(model_id, 'nousresearch/hermes-3-llama-3.1-405b:free')
         
         response = requests.post(
             'https://openrouter.ai/api/v1/chat/completions',
