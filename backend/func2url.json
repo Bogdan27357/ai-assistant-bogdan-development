@@ -1,7 +1,6 @@
 {
-  "video-gen": "https://functions.poehali.dev/49a6f065-a362-4b49-9bf4-799295201103",
+  "chat": "https://functions.poehali.dev/2de7375b-0cb3-42d8-9542-1ad0bd90ad35",
   "auth": "https://functions.poehali.dev/3ad80b22-8cf3-4be9-9e9a-6f36d45e5700",
-  "chat": "https://functions.poehali.dev/d6af8e44-8748-4611-a1ff-2f819acf245c",
   "save-api-key": "https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437",
   "get-api-keys": "https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa"
 }
