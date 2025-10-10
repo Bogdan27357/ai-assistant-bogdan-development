@@ -19,17 +19,12 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [showKey, setShowKey] = useState<Record<string, boolean>>({});
-  const getKeysUrl = 'https://functions.poehali.dev/ab69f8ed-fcb3-4e6e-b3c5-f5aeb6cb02f8';
-  const saveKeyUrl = 'https://functions.poehali.dev/fd5aa99c-6c5c-41ad-a55a-96eb4f8bc75d';
+  const getKeysUrl = 'https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa';
+  const saveKeyUrl = 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437';
 
   const modelNames: Record<string, string> = {
-    mistral: 'Mistral 7B Instruct',
-    gemini: 'Google Gemini 2.0 Flash',
-    llama: 'Meta Llama 3.3 70B',
-    qwen: 'Qwen 2.5 72B',
-    deepseek: 'DeepSeek',
-    gigachat: 'GigaChat',
-    imagerouter: 'Image Router'
+    mistral: 'Mistral 3 24B',
+    'deepseek-r1t2': 'DeepSeek R1T2 Chimera'
   };
 
   useEffect(() => {
@@ -41,8 +36,7 @@ const AdminPanel = () => {
       const response = await fetch(getKeysUrl);
       const data = await response.json();
       if (data.api_keys) {
-        const mistralModel = data.api_keys.filter((k: ApiKey) => k.model_id === 'mistral');
-        setApiKeys(mistralModel);
+        setApiKeys(data.api_keys);
       }
     } catch (error) {
       toast.error('Не удалось загрузить API ключи');
