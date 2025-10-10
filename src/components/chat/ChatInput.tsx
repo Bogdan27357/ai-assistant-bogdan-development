@@ -35,11 +35,11 @@ const ChatInput = ({
   onFileButtonClick,
 }: ChatInputProps) => {
   return (
-    <div className="p-6 border-t border-slate-700/50 bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-sm">
+    <div className="p-3 md:p-6 border-t border-slate-700/50 bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-sm">
       {uploadedFiles.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-3 md:mb-4 flex flex-wrap gap-1.5 md:gap-2">
           {uploadedFiles.map((file, idx) => (
-            <div key={idx} className="flex items-center gap-2 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-gray-300">
+            <div key={idx} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs md:text-sm text-gray-300">
               <Icon name="FileText" size={16} />
               <span>{file.name}</span>
               <span className="text-gray-500">({(file.size / 1024).toFixed(1)}KB)</span>
@@ -50,7 +50,7 @@ const ChatInput = ({
           ))}
         </div>
       )}
-      <div className="flex gap-3">
+      <div className="flex gap-2 md:gap-3">
         <input
           ref={fileInputRef}
           type="file"
@@ -63,9 +63,9 @@ const ChatInput = ({
           onClick={onFileButtonClick}
           variant="outline"
           disabled={isLoading}
-          className="border-slate-600 text-gray-300 hover:bg-slate-700 shrink-0 h-[60px]"
+          className="border-slate-600 text-gray-300 hover:bg-slate-700 shrink-0 h-12 md:h-[60px] w-12 md:w-auto"
         >
-          <Icon name="Paperclip" size={20} />
+          <Icon name="Paperclip" size={18} className="md:w-5 md:h-5" />
         </Button>
         <Textarea
           value={input}
@@ -77,16 +77,16 @@ const ChatInput = ({
             }
           }}
           placeholder={placeholder}
-          className="bg-slate-900/50 border-slate-600 text-white placeholder:text-gray-500 min-h-[60px] resize-none focus:border-indigo-500 transition-colors"
+          className="bg-slate-900/50 border-slate-600 text-white placeholder:text-gray-500 min-h-12 md:min-h-[60px] text-sm md:text-base resize-none focus:border-indigo-500 transition-colors"
           disabled={isLoading}
           rows={2}
         />
         <Button
           onClick={onSend}
           disabled={isLoading || (!input.trim() && uploadedFiles.length === 0)}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shrink-0 h-[60px] shadow-lg hover:shadow-xl transition-all"
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shrink-0 h-12 md:h-[60px] w-12 md:w-auto shadow-lg hover:shadow-xl transition-all"
         >
-          <Icon name="Send" size={20} />
+          <Icon name="Send" size={18} className="md:w-5 md:h-5" />
         </Button>
       </div>
     </div>

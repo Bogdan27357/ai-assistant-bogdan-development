@@ -7,6 +7,7 @@ import { useChatLogic } from '@/components/chat/useChatLogic';
 import ChatHeader from '@/components/chat/ChatHeader';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
+import { toast } from 'sonner';
 
 interface ChatInterfaceProps {
   onNavigateToAdmin?: () => void;
@@ -17,6 +18,14 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   const [activeModel, setActiveModel] = useState('auto');
   const { voiceEnabled, speak, toggleVoice } = useVoice();
   const t = getTranslations(language).chat;
+
+  const handleModelChange = (modelId: string) => {
+    setActiveModel(modelId);
+    const model = availableModels.find(m => m.id === modelId);
+    if (model) {
+      toast.success(`Выбрана модель: ${model.name}`, { duration: 2000 });
+    }
+  };
 
   const availableModels = [
     { id: 'auto', name: '🤖 Умный режим', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ автоматически выберет лучшую модель для вашей задачи', category: 'main' },
@@ -58,20 +67,20 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   } = useChatLogic(activeModel, voiceEnabled, speak, t);
 
   return (
-    <div className="pt-24 pb-12 px-6 min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950/30 to-slate-950">
-      <div className="container mx-auto max-w-5xl space-y-4">
+    <div className="pt-20 md:pt-24 pb-6 md:pb-12 px-3 md:px-6 min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950/30 to-slate-950">
+      <div className="container mx-auto max-w-5xl space-y-3 md:space-y-4">
         {/* Информация о платформе */}
-        <Card className="glass-effect border-indigo-500/30 backdrop-blur-xl p-6 hover:border-indigo-500/50 transition-all duration-300">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/50">
-              <Icon name="Sparkles" size={24} className="text-white" />
+        <Card className="glass-effect border-indigo-500/30 backdrop-blur-xl p-4 md:p-6 hover:border-indigo-500/50 transition-all duration-300">
+          <div className="flex items-start gap-3 md:gap-4">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/50">
+              <Icon name="Sparkles" size={20} className="text-white md:w-6 md:h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-white mb-2">15 специализированных моделей</h3>
-              <p className="text-sm text-gray-300 mb-3">
+              <h3 className="text-base md:text-xl font-bold text-white mb-1 md:mb-2">15 специализированных моделей</h3>
+              <p className="text-xs md:text-sm text-gray-300 mb-2 md:mb-3">
                 Универсальная платформа для любых задач: диалоги, код, анализ фото, генерация изображений и видео
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-1.5 md:gap-2 text-xs">
                 <div className="flex items-center gap-2 text-gray-300">
                   <div className="w-2 h-2 rounded-full bg-green-400" />
                   <span>Умный автовыбор</span>
@@ -98,21 +107,21 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
         </Card>
 
         {/* Выбор AI модели */}
-        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl p-4">
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Icon name="Cpu" size={20} className="text-white" />
+        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl p-3 md:p-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-3 mb-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <Icon name="Cpu" size={18} className="text-white md:w-5 md:h-5" />
               </div>
               <div>
-                <h3 className="text-white font-semibold">Выбор режима работы</h3>
-                <p className="text-xs text-gray-400">Выберите специализацию или доверьтесь ИИ</p>
+                <h3 className="text-white font-semibold text-sm md:text-base">Выбор режима работы</h3>
+                <p className="text-xs text-gray-400 hidden md:block">Выберите специализацию или доверьтесь ИИ</p>
               </div>
             </div>
             {activeModel === 'auto' && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30">
-                <Icon name="Wand2" size={16} className="text-indigo-400" />
-                <span className="text-xs font-semibold text-indigo-300">Умный режим активен</span>
+              <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30">
+                <Icon name="Wand2" size={14} className="text-indigo-400 md:w-4 md:h-4" />
+                <span className="text-xs font-semibold text-indigo-300">Умный режим</span>
               </div>
             )}
           </div>
@@ -128,7 +137,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 {availableModels.filter(m => m.category === 'main').map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => setActiveModel(model.id)}
+                    onClick={() => handleModelChange(model.id)}
                     className={`p-3 rounded-xl border-2 transition-all ${
                       activeModel === model.id
                         ? 'border-indigo-500 bg-indigo-500/20'
@@ -159,11 +168,11 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <Icon name="MessageSquare" size={12} />
                 💬 Специализированные помощники
               </h4>
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2">
                 {availableModels.filter(m => m.category === 'text').map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => setActiveModel(model.id)}
+                    onClick={() => handleModelChange(model.id)}
                     className={`p-2.5 rounded-xl border-2 transition-all ${
                       activeModel === model.id
                         ? 'border-indigo-500 bg-indigo-500/20'
@@ -186,11 +195,11 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <Icon name="Eye" size={12} />
                 👁️ Визор-модели (анализ фото)
               </h4>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 md:gap-2">
                 {availableModels.filter(m => m.category === 'vision').map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => setActiveModel(model.id)}
+                    onClick={() => handleModelChange(model.id)}
                     className={`p-2.5 rounded-xl border-2 transition-all ${
                       activeModel === model.id
                         ? 'border-indigo-500 bg-indigo-500/20'
@@ -213,11 +222,11 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <Icon name="Palette" size={12} />
                 🎨 Художники (генерация картинок)
               </h4>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 md:gap-2">
                 {availableModels.filter(m => m.category === 'image-gen').map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => setActiveModel(model.id)}
+                    onClick={() => handleModelChange(model.id)}
                     className={`p-2.5 rounded-xl border-2 transition-all ${
                       activeModel === model.id
                         ? 'border-indigo-500 bg-indigo-500/20'
@@ -240,11 +249,11 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <Icon name="Video" size={12} />
                 🎬 Режиссёры (генерация видео)
               </h4>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 md:gap-2">
                 {availableModels.filter(m => m.category === 'video-gen').map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => setActiveModel(model.id)}
+                    onClick={() => handleModelChange(model.id)}
                     className={`p-2.5 rounded-xl border-2 transition-all ${
                       activeModel === model.id
                         ? 'border-indigo-500 bg-indigo-500/20'

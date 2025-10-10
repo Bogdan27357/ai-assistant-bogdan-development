@@ -61,18 +61,18 @@ const ChatHeader = ({
   const t = translations;
 
   return (
-    <div className="p-6 border-b border-slate-700/50 bg-gradient-to-r from-indigo-900/20 to-purple-900/20">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-            <Icon name="MessageCircle" size={24} className="text-white" />
+    <div className="p-3 md:p-6 border-b border-slate-700/50 bg-gradient-to-r from-indigo-900/20 to-purple-900/20">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <Icon name="MessageCircle" size={20} className="text-white md:w-6 md:h-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">{title}</h2>
-            <p className="text-sm text-gray-400">{subtitle}</p>
+            <h2 className="text-lg md:text-2xl font-bold text-white">{title}</h2>
+            <p className="text-xs md:text-sm text-gray-400">{subtitle}</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-1.5 md:gap-2 w-full md:w-auto">
           <Dialog>
             <DialogTrigger asChild>
               <Button

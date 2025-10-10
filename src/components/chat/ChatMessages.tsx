@@ -36,18 +36,18 @@ const ChatMessages = ({
   ];
 
   return (
-    <div className="h-[600px] overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-transparent to-slate-900/20 scroll-smooth">
+    <div className="h-[400px] md:h-[600px] overflow-y-auto p-3 md:p-6 space-y-3 md:space-y-4 bg-gradient-to-b from-transparent to-slate-900/20 scroll-smooth">
       {messages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-center">
-          <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-2xl animate-scale-in">
+          <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4 md:mb-6 shadow-2xl animate-scale-in">
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 animate-pulse opacity-50"></div>
-            <Icon name="Sparkles" size={48} className="text-white relative z-10" />
+            <Icon name="Sparkles" size={32} className="text-white relative z-10 md:w-12 md:h-12" />
           </div>
-          <h3 className="text-3xl font-bold text-white mb-3">{t.startConversation}</h3>
-          <p className="text-gray-400 max-w-md text-lg">
+          <h3 className="text-xl md:text-3xl font-bold text-white mb-2 md:mb-3">{t.startConversation}</h3>
+          <p className="text-gray-400 max-w-md text-sm md:text-lg">
             {t.inputPlaceholder.includes('message') ? 'Ask me anything! I\'m here to help.' : 'Задайте любой вопрос! Я готов помочь.'}
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-3 max-w-md">
+          <div className="mt-4 md:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 max-w-md w-full px-4">
             {quickPrompts.map((prompt, idx) => (
               <Button
                 key={idx}
@@ -68,7 +68,7 @@ const ChatMessages = ({
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl p-4 shadow-lg transition-all duration-300 hover:shadow-2xl ${
+              className={`max-w-[85%] md:max-w-[80%] rounded-2xl p-3 md:p-4 shadow-lg transition-all duration-300 hover:shadow-2xl ${
                 message.role === 'user'
                   ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500'
                   : 'glass-effect text-gray-100'
@@ -81,16 +81,6 @@ const ChatMessages = ({
               )}
               {message.role === 'assistant' && message.content && (
                 <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700/50">
-                  {message.content.includes('API ключи') && onNavigateToAdmin && (
-                    <Button
-                      size="sm"
-                      onClick={onNavigateToAdmin}
-                      className="text-xs bg-amber-500 hover:bg-amber-600 text-white"
-                    >
-                      <Icon name="Settings" size={14} className="mr-1" />
-                      {t.inputPlaceholder.includes('message') ? 'Setup API' : 'Настроить'}
-                    </Button>
-                  )}
                   <Button
                     size="sm"
                     variant="ghost"
