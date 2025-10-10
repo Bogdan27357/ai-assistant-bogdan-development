@@ -5,7 +5,7 @@ import os
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Chat with free AI models via OpenRouter
+    Business: Chat with AI models via Groq (free tier)
     Args: event with httpMethod, body (message, model_id)
     Returns: HTTP response with AI response
     '''
@@ -49,23 +49,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     model_map = {
-        'qwen': 'qwen/qwen-2.5-72b-instruct',
-        'deepseek': 'deepseek/deepseek-r1-distill-qwen-32b',
-        'llama': 'meta-llama/llama-3.3-70b-instruct',
-        'gemini': 'google/gemma-2-27b-it'
+        'qwen': 'llama-3.3-70b-versatile',
+        'deepseek': 'llama-3.1-70b-versatile', 
+        'llama': 'llama-3.3-70b-versatile',
+        'gemini': 'gemma2-9b-it'
     }
     
     model_name = model_map.get(model_id, model_map['qwen'])
-    api_key = os.environ.get('OPENROUTER_API_KEY', '')
+    api_key = os.environ.get('GROQ_API_KEY', '')
     
     try:
         response = requests.post(
-            'https://openrouter.ai/api/v1/chat/completions',
+            'https://api.groq.com/openai/v1/chat/completions',
             headers={
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}',
-                'HTTP-Referer': 'https://poehali.dev',
-                'X-Title': 'Poehali AI Test'
+                'Authorization': f'Bearer {api_key}'
             },
             json={
                 'model': model_name,
