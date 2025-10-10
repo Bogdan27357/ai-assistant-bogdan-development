@@ -44,15 +44,14 @@ export const useChatLogic = (
       
       setSessionId(currentSessionId);
       
-      // Временно отключена загрузка истории из БД
-      // const history = await getChatHistory(currentSessionId);
-      // if (history.length > 0) {
-      //   setMessages(history.map(msg => ({
-      //     role: msg.role,
-      //     content: msg.content,
-      //     timestamp: new Date()
-      //   })));
-      // }
+      const history = await getChatHistory(currentSessionId);
+      if (history.length > 0) {
+        setMessages(history.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date()
+        })));
+      }
     };
     
     initSession();
@@ -132,8 +131,7 @@ export const useChatLogic = (
     setMessages(prev => [...prev, emptyAiMessage]);
 
     try {
-      // Временно отключено сохранение в БД для отладки
-      // await saveMessageToDB(sessionId, activeModel, 'user', messageContent);
+      await saveMessageToDB(sessionId, activeModel, 'user', messageContent);
       
       const conversationHistory = messages.slice(-10).map(msg => ({
         role: msg.role,
@@ -165,7 +163,7 @@ export const useChatLogic = (
       // Умный режим - без уведомлений о выборе модели
       // Пользователь просто получает ответ без информации о технических деталях
 
-      // await saveMessageToDB(sessionId, result.usedModel, 'assistant', result.response);
+      await saveMessageToDB(sessionId, result.usedModel, 'assistant', result.response);
       
       if (voiceEnabled) {
         await speak(result.response);

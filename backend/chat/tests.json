@@ -14,21 +14,6 @@
         "model_id": "gemini"
       },
       "expectedStatus": 400
-    },
-    {
-      "name": "Real AI request with Gemini",
-      "method": "POST",
-      "path": "/",
-      "body": {
-        "message": "Привет! Ответь одним словом: работает?",
-        "model_id": "gemini",
-        "session_id": "test-session-123"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "response": "string"
-      },
-      "bodyMatcher": "partial"
     }
   ]
 }

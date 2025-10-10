@@ -5,9 +5,9 @@ import requests
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Universal chat function using Google Gemini API
-    Args: event with httpMethod, body (message, model_id, session_id, conversation_history)
-    Returns: HTTP response with AI response
+    Business: Universal chat function for all AI models via OpenRouter
+    Args: event with httpMethod, body (message, model_id, session_id, conversation_history, stream)
+    Returns: HTTP response with AI response (streaming or complete)
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -35,7 +35,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     message = body_data.get('message', '')
     model_id = body_data.get('model_id', 'auto')
+    session_id = body_data.get('session_id', '')
     conversation_history = body_data.get('conversation_history', [])
+    stream = False
     
     if not message:
         return {
@@ -45,99 +47,98 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    # Get Google Gemini API key
-    api_key = os.environ.get('GOOGLE_GEMINI_API_KEY', '')
+    api_key = os.environ.get('OPENROUTER_API_KEY', '')
     
-    if not api_key:
-        return {
-            'statusCode': 500,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Google Gemini API key not configured'}),
-            'isBase64Encoded': False
-        }
+    def detect_task_type(message: str, files: list) -> tuple[str, str]:
+        msg_lower = message.lower()
+        
+        if files or any(word in msg_lower for word in ['фото', 'картинк', 'изображени', 'что на фото', 'опиши картинку']):
+            return 'google/gemini-2.5-flash-image-preview:free', 'Визор'
+        
+        if any(word in msg_lower for word in ['нарисуй', 'создай картинку', 'сгенерируй изображение']):
+            return 'black-forest-labs/flux-1.1-pro', 'Художник'
+        
+        if any(word in msg_lower for word in ['вычисли', 'посчитай', 'реши', 'уравнение', 'формула']):
+            return 'deepseek/deepseek-chat:free', 'Математик'
+        
+        if any(word in msg_lower for word in ['код', 'функци', 'программ', 'баг', 'ошибк', 'debug']):
+            return 'deepseek/deepseek-chat:free', 'Программист'
+        
+        if any(word in msg_lower for word in ['переведи', 'translate', 'на английский', 'на русский']):
+            return 'qwen/qwen-2.5-72b-instruct:free', 'Переводчик'
+        
+        if any(word in msg_lower for word in ['напиши статью', 'создай текст', 'сочини', 'рассказ']):
+            return 'anthropic/claude-3.5-sonnet:free', 'Писатель'
+        
+        if len(message) > 500:
+            return 'google/gemini-2.5-pro-experimental:free', 'Эксперт'
+        
+        return 'google/gemini-2.0-flash-thinking-exp:free', 'Ассистент'
     
-    # Map model IDs to Gemini models
     model_mapping = {
-        'auto': 'gemini-2.0-flash-exp',
-        'gemini': 'gemini-2.0-flash-exp',
-        'gemini-pro': 'gemini-1.5-pro',
-        'gemini-vision': 'gemini-1.5-flash',
-        'deepseek': 'gemini-2.0-flash-exp',
-        'llama': 'gemini-2.0-flash-exp',
-        'qwen': 'gemini-2.0-flash-exp',
-        'mistral': 'gemini-2.0-flash-exp',
-        'claude': 'gemini-1.5-pro',
+        'auto': None,
+        'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
+        'gemini-pro': 'google/gemini-2.5-pro-experimental:free',
+        'gemini-nano-banana': 'google/gemini-2.5-flash-image-preview:free',
+        'llama': 'meta-llama/llama-3.3-70b-instruct:free',
+        'deepseek': 'deepseek/deepseek-chat:free',
+        'qwen': 'qwen/qwen-2.5-72b-instruct:free',
+        'mistral': 'mistralai/mistral-large:free',
+        'claude': 'anthropic/claude-3.5-sonnet:free',
+        'gemini-vision': 'google/gemini-2.5-flash-image-preview:free',
+        'llama-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
+        'qwen-vision': 'qwen/qwen-2-vl-72b-instruct:free',
+        'flux': 'black-forest-labs/flux-1.1-pro',
+        'dalle': 'openai/dall-e-3'
     }
     
-    gemini_model = model_mapping.get(model_id, 'gemini-2.0-flash-exp')
+    files = body_data.get('files', [])
+    if model_id == 'auto':
+        openrouter_model, task_type = detect_task_type(message, files)
+    else:
+        openrouter_model = model_mapping.get(model_id, 'google/gemini-2.0-flash-thinking-exp:free')
+        task_type = None
     
-    # Build conversation contents for Gemini
-    contents = []
-    
-    # Add conversation history
+    messages = []
     for msg in conversation_history[-10:]:
-        role = 'user' if msg.get('role') == 'user' else 'model'
-        contents.append({
-            'role': role,
-            'parts': [{'text': msg.get('content', '')}]
+        messages.append({
+            'role': msg.get('role', 'user'),
+            'content': msg.get('content', '')
         })
+    messages.append({'role': 'user', 'content': message})
     
-    # Add current message
-    contents.append({
-        'role': 'user',
-        'parts': [{'text': message}]
-    })
-    
-    # Call Google Gemini API
     try:
-        print(f'=== GEMINI REQUEST ===')
-        print(f'Model: {gemini_model}')
-        print(f'Message length: {len(message)}')
-        print(f'History length: {len(conversation_history)}')
-        
-        url = f'https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={api_key}'
-        
         response = requests.post(
-            url,
-            headers={'Content-Type': 'application/json'},
-            json={
-                'contents': contents,
-                'generationConfig': {
-                    'temperature': 0.7,
-                    'maxOutputTokens': 8192,
-                }
+            'https://openrouter.ai/api/v1/chat/completions',
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {api_key}',
+                'HTTP-Referer': 'https://preview--ai-assistant-bogdan-development.poehali.dev',
+                'X-Title': 'AI Platform'
             },
-            timeout=60
+            json={
+                'model': openrouter_model,
+                'messages': messages,
+                'stream': stream,
+                'route': 'fallback'
+            },
+            stream=stream,
+            timeout=120
         )
         
-        print(f'Gemini response status: {response.status_code}')
-        
         if not response.ok:
-            error_text = response.text
-            print(f'ERROR: {error_text}')
+            error_data = response.json() if response.text else {}
             return {
                 'statusCode': response.status_code,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
                 'body': json.dumps({
-                    'error': f'Gemini API error: {error_text[:200]}'
+                    'error': error_data.get('error', {}).get('message', f'OpenRouter API error: {response.status_code}')
                 }),
                 'isBase64Encoded': False
             }
         
         result = response.json()
-        
-        # Extract response text
-        ai_response = ''
-        if 'candidates' in result and len(result['candidates']) > 0:
-            candidate = result['candidates'][0]
-            if 'content' in candidate and 'parts' in candidate['content']:
-                parts = candidate['content']['parts']
-                ai_response = ''.join([part.get('text', '') for part in parts])
-        
-        if not ai_response:
-            ai_response = 'Извините, не удалось получить ответ от ИИ.'
-        
-        print(f'SUCCESS: Response length: {len(ai_response)}')
+        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '')
         
         return {
             'statusCode': 200,
@@ -147,21 +148,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             },
             'body': json.dumps({
                 'response': ai_response,
-                'task_type': 'Gemini AI'
+                'task_type': task_type
             }),
             'isBase64Encoded': False
         }
     
     except requests.exceptions.Timeout:
-        print('Request timeout')
         return {
             'statusCode': 504,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Превышено время ожидания ответа от AI'}),
+            'body': json.dumps({'error': 'Превышено время ожидания ответа от AI. Попробуйте сократить запрос.'}),
+            'isBase64Encoded': False
+        }
+    except requests.exceptions.ConnectionError:
+        return {
+            'statusCode': 503,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'Не удалось подключиться к AI сервису. Проверьте интернет-соединение.'}),
             'isBase64Encoded': False
         }
     except Exception as e:
-        print(f'Unexpected error: {str(e)}')
         return {
             'statusCode': 500,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
