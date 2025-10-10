@@ -53,16 +53,16 @@ const ApiKeyCard = ({
 }: ApiKeyCardProps) => {
   return (
     <Card 
-      className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 animate-scale-in"
+      className="p-4 md:p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 animate-scale-in"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row items-start justify-between mb-4 md:mb-6 gap-4">
+        <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${model.color} flex items-center justify-center cursor-help`}>
-                  <Icon name={model.icon as any} size={28} className="text-white" />
+                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br ${model.color} flex items-center justify-center cursor-help flex-shrink-0`}>
+                  <Icon name={model.icon as any} size={24} className="text-white md:w-7 md:h-7" />
                 </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="bg-slate-800 border-slate-700 max-w-xs">
@@ -78,10 +78,10 @@ const ApiKeyCard = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <div>
-            <p className="text-xs text-gray-500 mb-1">{model.provider}</p>
-            <h3 className="text-xl font-bold text-white mb-1">{model.name}</h3>
-            <p className="text-gray-400 text-xs mb-2">{model.description}</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-500 mb-0.5">{model.provider}</p>
+            <h3 className="text-lg md:text-xl font-bold text-white mb-1 truncate">{model.name}</h3>
+            <p className="text-gray-400 text-xs mb-2 line-clamp-2">{model.description}</p>
             <div className="flex flex-wrap gap-2">
               {model.features.map((feature, idx) => (
                 <span key={idx} className="text-xs px-2 py-1 rounded-md bg-slate-800/50 text-gray-400">
@@ -92,7 +92,7 @@ const ApiKeyCard = ({
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex md:flex-col items-center md:items-end gap-3 md:gap-2 w-full md:w-auto justify-between md:justify-start">
           <div className="px-3 py-1 rounded-full text-xs font-semibold" style={{
             background: model.status === 'FREE' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(99, 102, 241, 0.1)',
             color: model.status === 'FREE' ? '#10b981' : '#6366f1'
@@ -112,11 +112,11 @@ const ApiKeyCard = ({
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-          <p className="text-sm text-indigo-300">
+      <div className="space-y-3 md:space-y-4">
+        <div className="p-2.5 md:p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+          <p className="text-xs md:text-sm text-indigo-300">
             <Icon name="Info" size={14} className="inline mr-1" />
-            Один ключ даёт доступ ко всем платным AI моделям на платформе
+            Один ключ для всех платных AI моделей
           </p>
         </div>
         
@@ -137,41 +137,43 @@ const ApiKeyCard = ({
               </a>
             )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3 w-full">
             <Input
               id={`api-${model.id}`}
               type="password"
               value={config.apiKey}
               onChange={(e) => onUpdateApiKey(model.id, e.target.value)}
               placeholder="Введите API ключ..."
-              className="bg-slate-800 border-slate-700 text-white"
+              className="bg-slate-800 border-slate-700 text-white text-sm w-full"
             />
-            <Button
-              onClick={() => onSaveKey(model.id)}
-              disabled={!config.apiKey}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              <Icon name="Save" size={18} className="mr-2" />
-              Сохранить
-            </Button>
-            <Button
-              onClick={() => onTestApi(model.id)}
-              disabled={!config.apiKey || testing}
-              variant="outline"
-              className="border-slate-600 text-gray-300 hover:bg-slate-800"
-            >
-              {testing ? (
-                <>
-                  <Icon name="Loader" size={18} className="mr-2 animate-spin" />
-                  Тестирую...
-                </>
-              ) : (
-                <>
-                  <Icon name="Play" size={18} className="mr-2" />
-                  Тест
-                </>
-              )}
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                onClick={() => onSaveKey(model.id)}
+                disabled={!config.apiKey}
+                className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-none text-sm"
+              >
+                <Icon name="Save" size={16} className="mr-1.5 md:mr-2" />
+                Сохранить
+              </Button>
+              <Button
+                onClick={() => onTestApi(model.id)}
+                disabled={!config.apiKey || testing}
+                variant="outline"
+                className="border-slate-600 text-gray-300 hover:bg-slate-800 flex-1 sm:flex-none text-sm"
+              >
+                {testing ? (
+                  <>
+                    <Icon name="Loader" size={16} className="mr-1.5 md:mr-2 animate-spin" />
+                    Тест...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Play" size={16} className="mr-1.5 md:mr-2" />
+                    Тест
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
 
