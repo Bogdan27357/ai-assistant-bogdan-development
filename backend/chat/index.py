@@ -17,7 +17,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -28,6 +28,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     dsn = os.environ.get('DATABASE_URL', '')
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
+    
+    params = event.get('queryStringParameters') or {}
+    action = params.get('action', '') if params else ''
+    
+    if action == 'knowledge':
+        if method == 'GET':
+            cur.execute("SELECT id, filename, uploaded_at FROM t_p68921797_ai_assistant_bogdan_.knowledge_base ORDER BY uploaded_at DESC")
+            rows = cur.fetchall()
+            files_list = [{'id': r[0], 'filename': r[1], 'uploaded_at': r[2].isoformat() if r[2] else None} for r in rows]
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'files': files_list}),
+                'isBase64Encoded': False
+            }
+        elif method == 'POST':
+            body_data = json.loads(event.get('body', '{}'))
+            filename = body_data.get('filename', '').replace("'", "''")
+            content = body_data.get('content', '').replace("'", "''")
+            if not filename or not content:
+                cur.close()
+                conn.close()
+                return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Filename and content required'}), 'isBase64Encoded': False}
+            query = f"INSERT INTO t_p68921797_ai_assistant_bogdan_.knowledge_base (filename, content) VALUES ('{filename}', '{content}') RETURNING id"
+            cur.execute(query)
+            file_id = cur.fetchone()[0]
+            conn.commit()
+            cur.close()
+            conn.close()
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'id': file_id, 'message': 'File uploaded successfully'}), 'isBase64Encoded': False}
+        elif method == 'DELETE':
+            file_id = params.get('id', '')
+            if not file_id:
+                cur.close()
+                conn.close()
+                return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'File ID required'}), 'isBase64Encoded': False}
+            query = f"DELETE FROM t_p68921797_ai_assistant_bogdan_.knowledge_base WHERE id = {int(file_id)}"
+            cur.execute(query)
+            conn.commit()
+            cur.close()
+            conn.close()
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'message': 'File deleted successfully'}), 'isBase64Encoded': False}
     
     if method == 'GET':
         cur.execute("SELECT model_id, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys")

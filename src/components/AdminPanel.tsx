@@ -31,7 +31,7 @@ const AdminPanel = () => {
   
   const getKeysUrl = 'https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa';
   const saveKeyUrl = 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437';
-  const knowledgeUrl = 'https://functions.poehali.dev/527e87c2-0d3f-4667-8c3f-302faeb8cdf6';
+  const knowledgeUrl = 'https://functions.poehali.dev/2de7375b-0cb3-42d8-9542-1ad0bd90ad35?action=knowledge';
 
   const modelNames: Record<string, string> = {
     mistral: 'Mistral Small 3 24B',
@@ -51,8 +51,8 @@ const AdminPanel = () => {
     try {
       const response = await fetch(getKeysUrl);
       const data = await response.json();
-      if (data.api_keys) {
-        setApiKeys(data.api_keys);
+      if (data.keys) {
+        setApiKeys(data.keys);
       }
     } catch (error) {
       toast.error('Не удалось загрузить API ключи');
@@ -182,6 +182,14 @@ const AdminPanel = () => {
             <TabsTrigger value="knowledge" className="data-[state=active]:bg-indigo-600">
               <Icon name="FileText" size={18} className="mr-2" />
               База знаний
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-indigo-600">
+              <Icon name="Sliders" size={18} className="mr-2" />
+              Настройки сайта
+            </TabsTrigger>
+            <TabsTrigger value="images" className="data-[state=active]:bg-indigo-600">
+              <Icon name="Image" size={18} className="mr-2" />
+              Генерация изображений
             </TabsTrigger>
           </TabsList>
 
@@ -320,6 +328,79 @@ const AdminPanel = () => {
                     ))}
                   </div>
                 )}
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card className="bg-slate-900/50 border-slate-700 p-6">
+              <h3 className="text-lg font-semibold text-white mb-6">Настройки сайта</h3>
+              <div className="space-y-6">
+                <div>
+                  <label className="text-white font-medium block mb-2">Название AI ассистента</label>
+                  <Input 
+                    value="Богдан" 
+                    className="bg-slate-800 border-slate-600 text-white"
+                    placeholder="Имя ассистента"
+                  />
+                  <p className="text-sm text-slate-400 mt-1">Это имя будет отображаться в чате и на главной странице</p>
+                </div>
+                
+                <div>
+                  <label className="text-white font-medium block mb-2">Описание на главной</label>
+                  <Input 
+                    value="Умный помощник для любых задач" 
+                    className="bg-slate-800 border-slate-600 text-white"
+                    placeholder="Краткое описание"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-white font-medium block mb-2">Приветственное сообщение в чате</label>
+                  <Input 
+                    value="Привет! Я Богдан, чем могу помочь?" 
+                    className="bg-slate-800 border-slate-600 text-white"
+                    placeholder="Первое сообщение"
+                  />
+                </div>
+
+                <div className="pt-4 border-t border-slate-700">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Icon name="Save" size={16} className="mr-2" />
+                    Сохранить настройки
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="images">
+            <Card className="bg-slate-900/50 border-slate-700 p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Генерация изображений</h3>
+              <p className="text-slate-300 mb-6">
+                Используйте AI для создания изображений. Доступна бесплатная модель Gemini 2.5 Flash Image Preview.
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-white font-medium block mb-2">Описание изображения</label>
+                  <Input 
+                    className="bg-slate-800 border-slate-600 text-white mb-2"
+                    placeholder="Например: красивый закат на пляже, реалистичный стиль"
+                  />
+                </div>
+
+                <Button className="bg-indigo-600 hover:bg-indigo-700">
+                  <Icon name="Sparkles" size={16} className="mr-2" />
+                  Генерировать изображение
+                </Button>
+
+                <div className="mt-6 p-4 bg-slate-800/50 rounded-lg">
+                  <p className="text-slate-400 text-sm">
+                    <Icon name="Info" size={16} className="inline mr-2" />
+                    Генерация изображений доступна через модель Gemini 2.5 Flash Image Preview. Убедитесь, что у вас настроен API ключ OpenRouter.
+                  </p>
+                </div>
               </div>
             </Card>
           </TabsContent>

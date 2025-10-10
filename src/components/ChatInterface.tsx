@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
@@ -153,41 +153,6 @@ const ChatInterface = ({ onNavigateAdmin }: ChatInterfaceProps) => {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-white">Богдан</h1>
           <div className="flex gap-3">
-            {enabledModels.length > 0 ? (
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger className="w-64 bg-slate-900 border-slate-700 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {enabledModels.map(model => (
-                    <SelectItem key={model.id} value={model.id}>
-                      <div className="flex items-center gap-2">
-                        <span>{model.name}</span>
-                        {model.free && (
-                          <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">Free</span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Button
-                onClick={onNavigateAdmin}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white"
-              >
-                <Icon name="Settings" size={20} className="mr-2" />
-                Настроить API ключ
-              </Button>
-            )}
-            <Button
-              onClick={onNavigateAdmin}
-              variant="outline"
-              className="bg-slate-900 border-slate-700 text-white hover:bg-slate-800"
-              title="Настройки"
-            >
-              <Icon name="Settings" size={20} />
-            </Button>
             <Button
               onClick={clearHistory}
               variant="outline"

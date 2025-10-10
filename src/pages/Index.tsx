@@ -79,20 +79,12 @@ const Index = () => {
             <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               Умный помощник для любых задач
             </p>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => setCurrentPage('chat')}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-              >
-                Начать общение
-              </button>
-              <button
-                onClick={() => setCurrentPage('admin')}
-                className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-              >
-                Админ-панель
-              </button>
-            </div>
+            <button
+              onClick={() => setCurrentPage('chat')}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+            >
+              Начать общение
+            </button>
           </div>
         </div>
       )}
