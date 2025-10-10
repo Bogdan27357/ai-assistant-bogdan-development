@@ -49,6 +49,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     api_key = os.environ.get('OPENROUTER_API_KEY', '')
     
+    if not api_key:
+        return {
+            'statusCode': 500,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'OpenRouter API key not configured'}),
+            'isBase64Encoded': False
+        }
+    
     def detect_task_type(message: str, files: list) -> tuple[str, str]:
         msg_lower = message.lower()
         
@@ -108,32 +116,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     messages.append({'role': 'user', 'content': message})
     
     try:
+        payload = {
+            'model': openrouter_model,
+            'messages': messages
+        }
+        
         response = requests.post(
             'https://openrouter.ai/api/v1/chat/completions',
             headers={
-                'Content-Type': 'application/json',
                 'Authorization': f'Bearer {api_key}',
-                'HTTP-Referer': 'https://preview--ai-assistant-bogdan-development.poehali.dev',
-                'X-Title': 'AI Platform'
+                'Content-Type': 'application/json'
             },
-            json={
-                'model': openrouter_model,
-                'messages': messages,
-                'stream': stream,
-                'route': 'fallback'
-            },
-            stream=stream,
-            timeout=120
+            json=payload,
+            timeout=60
         )
         
-        if not response.ok:
-            error_data = response.json() if response.text else {}
+        if response.status_code != 200:
+            error_text = response.text[:200]
             return {
-                'statusCode': response.status_code,
+                'statusCode': 500,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({
-                    'error': error_data.get('error', {}).get('message', f'OpenRouter API error: {response.status_code}')
-                }),
+                'body': json.dumps({'error': f'OpenRouter error {response.status_code}: {error_text}'}),
                 'isBase64Encoded': False
             }
         
