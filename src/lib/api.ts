@@ -73,6 +73,15 @@ export const sendMessageToAI = async (
   }
   
   // Отправка запроса к AI
+  const requestPayload = {
+    message: enhancedMessage,
+    session_id: sessionId,
+    model_id: model,
+    conversation_history: conversationHistory || [],
+    stream: !!onChunk
+  };
+  
+  console.log('Sending request to AI:', { url, model, messageLength: enhancedMessage.length });
   
   try {
     const response = await fetch(url, {
@@ -80,18 +89,13 @@ export const sendMessageToAI = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: enhancedMessage,
-        session_id: sessionId,
-        model_id: model,
-        conversation_history: conversationHistory || [],
-        stream: !!onChunk
-      })
+      body: JSON.stringify(requestPayload)
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Network error' }));
-      throw new Error(error.error || `HTTP ${response.status}`);
+      const error = await response.json().catch(() => ({ error: 'Ошибка сети' }));
+      console.error('Backend error:', response.status, error);
+      throw new Error(error.error || `Ошибка сервера: ${response.status}`);
     }
 
     // Если есть callback для streaming, обрабатываем поток
@@ -136,7 +140,8 @@ export const sendMessageToAI = async (
       usedModel: model,
       taskType: data.task_type
     };
-  } catch (error) {
+  } catch (error: any) {
+    console.error('API call failed:', error);
     throw error;
   }
 };

@@ -179,14 +179,13 @@ export const useChatLogic = (
           '• Попробуйте другую модель в меню сверху\n' +
           '• Подождите немного и повторите попытку';
         toast.error('Лимит запросов исчерпан');
-      } else if (errorMessage.includes('Failed to fetch')) {
+      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('Network')) {
         userFriendlyMessage = '⚠️ Не удалось связаться с сервером.\n\n' +
           '💡 Решения:\n' +
           '• Проверьте подключение к интернету\n' +
           '• Попробуйте перезагрузить страницу';
         toast.error('Ошибка подключения');
       } else if (errorMessage.includes('API key') || errorMessage.includes('configured')) {
-        // Скрываем техническую ошибку об API ключе от пользователя
         userFriendlyMessage = '⚠️ Временная ошибка сервиса. Пожалуйста, попробуйте еще раз через несколько секунд.';
         toast.error('Попробуйте еще раз');
       } else {
@@ -194,11 +193,15 @@ export const useChatLogic = (
         toast.error('Произошла ошибка');
       }
       
-      const fallbackMessage: Message = {
-        role: 'assistant',
-        content: userFriendlyMessage
-      };
-      setMessages(prev => [...prev, fallbackMessage]);
+      setMessages(prev => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        updated[lastIndex] = {
+          role: 'assistant',
+          content: userFriendlyMessage
+        };
+        return updated;
+      });
     } finally {
       setIsLoading(false);
     }
