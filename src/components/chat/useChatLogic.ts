@@ -169,7 +169,13 @@ export const useChatLogic = (
         await speak(result.response);
       }
     } catch (error: any) {
+      console.error('Full error object:', error);
+      console.error('Error name:', error?.name);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
+      
       const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка';
+      console.error('Processed error message:', errorMessage);
       
       let userFriendlyMessage = '';
       
