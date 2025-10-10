@@ -31,12 +31,14 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     { id: 'auto', name: '🤖 Умный режим', icon: 'Wand2', color: 'from-gradient-start to-gradient-end', description: 'ИИ автоматически выберет лучшую модель для вашей задачи', category: 'main' },
     
     { id: 'gemini', name: '⚡ Быстрый', icon: 'Zap', color: 'from-blue-500 to-cyan-500', description: 'Мгновенные ответы на простые вопросы', category: 'text' },
+    { id: 'gemini-pro', name: '🚀 Gemini Pro', icon: 'Sparkles', color: 'from-blue-600 to-cyan-600', description: 'Самая мощная модель Google для сложных задач', category: 'text' },
     { id: 'deepseek', name: '💻 Программист', icon: 'Code', color: 'from-violet-500 to-purple-500', description: 'Помощь с кодом, отладкой и разработкой', category: 'text' },
     { id: 'claude', name: '✍️ Творец', icon: 'Feather', color: 'from-amber-500 to-orange-500', description: 'Тексты, истории, креативное письмо', category: 'text' },
     { id: 'llama', name: '🧠 Логик', icon: 'Brain', color: 'from-purple-500 to-pink-500', description: 'Сложные рассуждения и анализ', category: 'text' },
     { id: 'qwen', name: '🌏 Полиглот', icon: 'Languages', color: 'from-orange-500 to-red-500', description: 'Переводы и многоязычная поддержка', category: 'text' },
     { id: 'mistral', name: '⚖️ Универсал', icon: 'Scale', color: 'from-cyan-500 to-blue-500', description: 'Баланс скорости и качества', category: 'text' },
     
+    { id: 'gemini-nano-banana', name: '🍌 Nano Banana', icon: 'Image', color: 'from-cyan-400 to-blue-500', description: 'Анализ и описание изображений с Gemini', category: 'vision' },
     { id: 'gemini-vision', name: '👁️ Визор-1', icon: 'Eye', color: 'from-blue-400 to-indigo-500', description: 'Анализ фото, описание изображений', category: 'vision' },
     { id: 'llama-vision', name: '📸 Визор-2', icon: 'Camera', color: 'from-purple-400 to-pink-500', description: 'Распознавание объектов на фото', category: 'vision' },
     { id: 'qwen-vision', name: '🔍 Визор-3', icon: 'ScanEye', color: 'from-orange-400 to-red-500', description: 'Детальный анализ картинок', category: 'vision' },
@@ -70,36 +72,36 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
     <div className="pt-20 md:pt-24 pb-6 md:pb-12 px-3 md:px-6 min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950/30 to-slate-950">
       <div className="container mx-auto max-w-5xl space-y-3 md:space-y-4">
         {/* Информация о платформе */}
-        <Card className="glass-effect border-indigo-500/30 backdrop-blur-xl p-4 md:p-6 hover:border-indigo-500/50 transition-all duration-300">
+        <Card className="glass-effect border-emerald-500/30 backdrop-blur-xl p-4 md:p-6 hover:border-emerald-500/50 transition-all duration-300">
           <div className="flex items-start gap-3 md:gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/50">
-              <Icon name="Sparkles" size={20} className="text-white md:w-6 md:h-6" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/50 animate-pulse">
+              <Icon name="CheckCircle" size={20} className="text-white md:w-6 md:h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base md:text-xl font-bold text-white mb-1 md:mb-2">15 специализированных моделей</h3>
+              <h3 className="text-base md:text-xl font-bold text-white mb-1 md:mb-2">✅ Система готова к работе</h3>
               <p className="text-xs md:text-sm text-gray-300 mb-2 md:mb-3">
-                Универсальная платформа для любых задач: диалоги, код, анализ фото, генерация изображений и видео
+                Автоматически выбирает лучшую модель для каждой задачи — от программирования до генерации изображений
               </p>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-1.5 md:gap-2 text-xs">
                 <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-green-400" />
-                  <span>Умный автовыбор</span>
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <span>Включен умный режим</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <div className="w-2 h-2 rounded-full bg-blue-400" />
-                  <span>6 текстовых</span>
+                  <span>Анализ контекста</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <div className="w-2 h-2 rounded-full bg-purple-400" />
-                  <span>3 визуальных</span>
+                  <span>Автовыбор моделей</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-green-400" />
-                  <span>2 художника</span>
+                  <div className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span>15 AI моделей</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 rounded-full bg-orange-400" />
-                  <span>3 режиссёра</span>
+                  <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span>Готов к работе</span>
                 </div>
               </div>
             </div>
@@ -168,7 +170,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <Icon name="MessageSquare" size={12} />
                 💬 Специализированные помощники
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-1.5 md:gap-2">
                 {availableModels.filter(m => m.category === 'text').map((model) => (
                   <button
                     key={model.id}
@@ -195,7 +197,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
                 <Icon name="Eye" size={12} />
                 👁️ Визор-модели (анализ фото)
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 md:gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 md:gap-2">
                 {availableModels.filter(m => m.category === 'vision').map((model) => (
                   <button
                     key={model.id}

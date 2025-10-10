@@ -161,10 +161,12 @@ export const useChatLogic = (
       );
 
       if (activeModel === 'auto' && result.taskType) {
-        toast.success(`🤖 Выбрана модель: ${result.taskType}`, { duration: 2000 });
+        toast.success(`🤖 ${result.taskType}`, { duration: 3000 });
       } else if (result.usedModel !== activeModel) {
         const modelNames: Record<string, string> = {
           gemini: 'Gemini Flash',
+          'gemini-pro': 'Gemini Pro',
+          'gemini-nano-banana': 'Gemini Nano Banana',
           llama: 'Llama 70B',
           deepseek: 'DeepSeek',
           qwen: 'Qwen 72B',

@@ -50,17 +50,66 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Get OpenRouter API key from environment
     api_key = os.environ.get('OPENROUTER_API_KEY', '')
     
-    if not api_key:
-        return {
-            'statusCode': 400,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'OpenRouter API key not configured. Please add OPENROUTER_API_KEY secret.'}),
-            'isBase64Encoded': False
-        }
+    # Умный выбор модели в зависимости от типа запроса
+    def detect_task_type(message: str, files: list) -> tuple[str, str]:
+        msg_lower = message.lower()
+        
+        # Анализ изображений
+        if files or any(word in msg_lower for word in ['фото', 'картинк', 'изображени', 'что на фото', 'опиши картинку', 'analyze image']):
+            return 'google/gemini-2.5-flash-image-preview:free', 'Визор (анализ изображений)'
+        
+        # Генерация изображений
+        if any(word in msg_lower for word in ['нарисуй', 'создай картинку', 'сгенерируй изображение', 'draw', 'create image']):
+            return 'black-forest-labs/flux-1.1-pro', 'Художник (генерация)'
+        
+        # Программирование
+        if any(word in msg_lower for word in ['код', 'функци', 'программ', 'баг', 'ошибк', 'debug', 'code', 'function', 'python', 'javascript']):
+            return 'deepseek/deepseek-chat:free', 'Программист'
+        
+        # Сложный анализ и рассуждения
+        if any(word in msg_lower for word in ['проанализируй', 'объясни', 'почему', 'как работает', 'reasoning', 'analyze', 'explain']):
+            return 'google/gemini-2.5-pro-experimental:free', 'Аналитик'
+        
+        # Переводы
+        if any(word in msg_lower for word in ['переведи', 'translate', 'на английский', 'на русский']):
+            return 'qwen/qwen-2.5-72b-instruct:free', 'Переводчик'
+        
+        # Творческие задачи
+        if any(word in msg_lower for word in ['напиши статью', 'создай текст', 'сочини', 'write', 'compose']):
+            return 'anthropic/claude-3.5-sonnet:free', 'Писатель'
+        
+        # Длинные сложные запросы
+        if len(message) > 500:
+            return 'google/gemini-2.5-pro-experimental:free', 'Аналитик (сложный запрос)'
+        
+        # По умолчанию - быстрая модель
+        return 'google/gemini-2.0-flash-thinking-exp:free', 'Универсал'
     
-    # Use OpenRouter's auto-routing to pick best available model
-    # OpenRouter will automatically select the best working free model
-    openrouter_model = 'openrouter/auto'
+    # Маппинг ID моделей на OpenRouter модели
+    model_mapping = {
+        'auto': None,  # Будет определено автоматически
+        'gemini': 'google/gemini-2.0-flash-thinking-exp:free',
+        'gemini-pro': 'google/gemini-2.5-pro-experimental:free',
+        'gemini-nano-banana': 'google/gemini-2.5-flash-image-preview:free',
+        'llama': 'meta-llama/llama-3.3-70b-instruct:free',
+        'deepseek': 'deepseek/deepseek-chat:free',
+        'qwen': 'qwen/qwen-2.5-72b-instruct:free',
+        'mistral': 'mistralai/mistral-large:free',
+        'claude': 'anthropic/claude-3.5-sonnet:free',
+        'gemini-vision': 'google/gemini-2.5-flash-image-preview:free',
+        'llama-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
+        'qwen-vision': 'qwen/qwen-2-vl-72b-instruct:free',
+        'flux': 'black-forest-labs/flux-1.1-pro',
+        'dalle': 'openai/dall-e-3'
+    }
+    
+    # Определяем модель
+    files = body_data.get('files', [])
+    if model_id == 'auto':
+        openrouter_model, task_type = detect_task_type(message, files)
+    else:
+        openrouter_model = model_mapping.get(model_id, 'google/gemini-2.0-flash-thinking-exp:free')
+        task_type = None
     
     # Build messages array
     messages = []
@@ -84,7 +133,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             json={
                 'model': openrouter_model,
                 'messages': messages,
-                'stream': stream
+                'stream': stream,
+                'route': 'fallback'
             },
             stream=stream,
             timeout=120
@@ -126,7 +176,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 },
                 'body': json.dumps({
                     'response': ai_response,
-                    'model': result.get('model', 'auto')
+                    'model': result.get('model', 'auto'),
+                    'task_type': task_type if model_id == 'auto' else None
                 }),
                 'isBase64Encoded': False
             }
