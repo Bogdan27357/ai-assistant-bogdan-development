@@ -2,10 +2,11 @@ import json
 from typing import Dict, Any
 import requests
 import os
+import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Chat with free AI models via OpenRouter
+    Business: Chat with free AI models via OpenRouter with DB-stored API keys
     Args: event with httpMethod, body (message, model_id)
     Returns: HTTP response with AI response
     '''
@@ -24,27 +25,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    dsn = os.environ.get('DATABASE_URL', '')
+    conn = psycopg2.connect(dsn)
+    cur = conn.cursor()
+    
     if method == 'GET':
+        cur.execute("SELECT model_id, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id IN ('gemini', 'llama', 'qwen')")
+        rows = cur.fetchall()
+        enabled_map = {row[0]: row[1] for row in rows}
+        
         models = [
             {
                 'id': 'gemini',
                 'name': 'Google Gemini 2.0 Flash',
                 'description': 'Fastest Google model, multimodal',
-                'free': True
+                'free': True,
+                'enabled': enabled_map.get('gemini', False)
             },
             {
                 'id': 'llama',
                 'name': 'Meta Llama 3.3 70B',
                 'description': 'Powerful open-source model',
-                'free': True
+                'free': True,
+                'enabled': enabled_map.get('llama', False)
             },
             {
                 'id': 'qwen',
                 'name': 'Qwen 2.5 72B',
                 'description': 'Advanced Chinese-English model',
-                'free': True
+                'free': True,
+                'enabled': enabled_map.get('qwen', False)
             }
         ]
+        
+        cur.close()
+        conn.close()
         
         return {
             'statusCode': 200,
@@ -62,6 +77,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         model_id: str = body_data.get('model_id', 'gemini')
         
         if not message:
+            cur.close()
+            conn.close()
             return {
                 'statusCode': 400,
                 'headers': {
@@ -72,6 +89,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        cur.execute("SELECT api_key, enabled FROM t_p68921797_ai_assistant_bogdan_.api_keys WHERE model_id = %s", (model_id,))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if not row or not row[1]:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'Model not enabled or API key not configured'}),
+                'isBase64Encoded': False
+            }
+        
+        api_key = row[0]
+        
         model_map = {
             'gemini': 'google/gemini-2.0-flash-exp:free',
             'llama': 'meta-llama/llama-3.3-70b-instruct:free',
@@ -79,7 +114,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
         model_name = model_map.get(model_id, model_map['gemini'])
-        api_key = os.environ.get('OPENROUTER_API_KEY', '')
         
         response = requests.post(
             'https://openrouter.ai/api/v1/chat/completions',

@@ -6,10 +6,11 @@ import Auth from '@/components/Auth';
 import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
 import ChatInterface from '@/components/ChatInterface';
+import AdminPanel from '@/components/AdminPanel';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'auth' | 'profile' | 'chat'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'auth' | 'profile' | 'chat' | 'admin'>('home');
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [darkMode, setDarkMode] = useState(true);
@@ -78,17 +79,26 @@ const Index = () => {
             <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               Google Gemini 2.0, Meta Llama 3.3 70B, Qwen 2.5 72B
             </p>
-            <button
-              onClick={() => setCurrentPage('chat')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Начать общение
-            </button>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => setCurrentPage('chat')}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+              >
+                Начать общение
+              </button>
+              <button
+                onClick={() => setCurrentPage('admin')}
+                className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+              >
+                Админ-панель
+              </button>
+            </div>
           </div>
         </div>
       )}
       
       {currentPage === 'chat' && <ChatInterface />}
+      {currentPage === 'admin' && <AdminPanel />}
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
       
