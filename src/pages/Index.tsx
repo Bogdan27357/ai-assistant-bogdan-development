@@ -97,7 +97,7 @@ const Index = () => {
         </div>
       )}
       
-      {currentPage === 'chat' && <ChatInterface />}
+      {currentPage === 'chat' && <ChatInterface onNavigateAdmin={() => setCurrentPage('admin')} />}
       {currentPage === 'admin' && <AdminPanel />}
       {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
       {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
