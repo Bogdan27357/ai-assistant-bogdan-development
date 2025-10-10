@@ -7,7 +7,10 @@ import { useChatLogic } from '@/components/chat/useChatLogic';
 import ChatHeader from '@/components/chat/ChatHeader';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
+import AICapabilities from '@/components/chat/AICapabilities';
+import PromptExamples from '@/components/chat/PromptExamples';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 interface ChatInterfaceProps {
   onNavigateToAdmin?: () => void;
@@ -16,6 +19,8 @@ interface ChatInterfaceProps {
 
 const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProps) => {
   const [activeModel, setActiveModel] = useState('auto');
+  const [showCapabilities, setShowCapabilities] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
   const { voiceEnabled, speak, toggleVoice } = useVoice();
   const t = getTranslations(language).chat;
 
@@ -68,16 +73,42 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
   return (
     <div className="pt-20 md:pt-24 pb-6 md:pb-12 px-3 md:px-6 min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950/30 to-slate-950">
       <div className="container mx-auto max-w-5xl space-y-3 md:space-y-4">
-        {/* Статус подключения */}
-        <div className="flex justify-end">
+        {/* Статус подключения и кнопка возможностей */}
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowCapabilities(!showCapabilities)}
+              variant="outline"
+              size="sm"
+              className="border-slate-600 text-gray-300 hover:bg-slate-700"
+            >
+              <Icon name={showCapabilities ? 'EyeOff' : 'Sparkles'} size={16} className="mr-2" />
+              {showCapabilities ? 'Скрыть' : 'Возможности'}
+            </Button>
+            <Button
+              onClick={() => setShowExamples(!showExamples)}
+              variant="outline"
+              size="sm"
+              className="border-slate-600 text-gray-300 hover:bg-slate-700"
+            >
+              <Icon name={showExamples ? 'EyeOff' : 'FileText'} size={16} className="mr-2" />
+              {showExamples ? 'Скрыть' : 'Примеры'}
+            </Button>
+          </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/50 border border-emerald-500/30">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-xs text-gray-300">В сети</span>
           </div>
         </div>
 
-        {/* Главный чат */}
-        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl p-3 md:p-4 hidden">
+        {/* Панель возможностей ИИ */}
+        {showCapabilities && <AICapabilities />}
+        
+        {/* Примеры промптов */}
+        {showExamples && <PromptExamples onSelectPrompt={setInput} />}
+
+        {/* Панель выбора специализаций */}
+        <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-xl p-3 md:p-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-3 mb-3">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
@@ -267,6 +298,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             onCopyMessage={copyMessage}
             onNavigateToAdmin={onNavigateToAdmin}
             messagesEndRef={messagesEndRef}
+            onPromptSelect={setInput}
           />
 
           <ChatInput
@@ -280,6 +312,7 @@ const ChatInterface = ({ onNavigateToAdmin, language = 'ru' }: ChatInterfaceProp
             onFileUpload={handleFileUpload}
             onFileRemove={removeFile}
             onFileButtonClick={() => fileInputRef.current?.click()}
+            voiceEnabled={voiceEnabled}
           />
         </Card>
       </div>

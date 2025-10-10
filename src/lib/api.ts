@@ -4,7 +4,7 @@ const API_URLS = {
   getHistory: 'https://functions.poehali.dev/aa1d79d8-9887-428e-87c1-cda250564de1',
   saveApiKey: 'https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437',
   getApiKeys: 'https://functions.poehali.dev/e03e0273-c62e-43a4-876d-1580d86866fa',
-  videoGen: 'https://functions.poehali.dev/84e36534-2b8c-40de-9ea1-1f4562b2fb6e'
+  videoGen: 'https://functions.poehali.dev/49a6f065-a362-4b49-9bf4-799295201103'
 };
 
 export interface ChatMessage {
