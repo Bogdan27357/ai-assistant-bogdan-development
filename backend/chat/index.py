@@ -5,7 +5,7 @@ import requests
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Universal chat function for all AI models via OpenRouter
+    Business: Universal chat function for all AI models via OpenRouter API
     Args: event with httpMethod, body (message, model_id, session_id, conversation_history, stream)
     Returns: HTTP response with AI response (streaming or complete)
     '''
