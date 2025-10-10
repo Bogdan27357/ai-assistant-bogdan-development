@@ -9,6 +9,7 @@ import KnowledgeBase from '@/components/admin/KnowledgeBase';
 import KnowledgeBaseGuide from '@/components/admin/KnowledgeBaseGuide';
 import SettingsTab from '@/components/admin/SettingsTab';
 import AnalyticsTab from '@/components/admin/AnalyticsTab';
+import AITestTab from '@/components/admin/AITestTab';
 import { useApiKeyManagement, models } from '@/components/admin/useApiKeyManagement';
 import { useKnowledgeBase } from '@/components/admin/useKnowledgeBase';
 import { toast } from 'sonner';
@@ -151,29 +152,38 @@ const AdminPanel = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="api-keys" className="space-y-4 md:space-y-6">
+        <Tabs defaultValue="test" className="space-y-4 md:space-y-6">
           <TabsList className="bg-slate-900 border border-slate-700 w-full flex-wrap h-auto gap-1 p-1">
-            <TabsTrigger value="api-keys" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[100px]">
+            <TabsTrigger value="test" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[80px]">
+              <Icon name="Sparkles" size={14} className="mr-1 md:mr-2 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Тест AI</span>
+              <span className="sm:hidden">AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="api-keys" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[80px]">
               <Icon name="Key" size={14} className="mr-1 md:mr-2 md:w-4 md:h-4" />
               <span className="hidden sm:inline">API Ключи</span>
               <span className="sm:hidden">API</span>
             </TabsTrigger>
-            <TabsTrigger value="knowledge" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[100px]">
+            <TabsTrigger value="knowledge" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[80px]">
               <Icon name="FileUp" size={14} className="mr-1 md:mr-2 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">База знаний</span>
+              <span className="hidden sm:inline">База</span>
               <span className="sm:hidden">База</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[100px]">
+            <TabsTrigger value="settings" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[80px]">
               <Icon name="Settings" size={14} className="mr-1 md:mr-2 md:w-4 md:h-4" />
               <span className="hidden sm:inline">Настройки</span>
               <span className="sm:hidden">Настр.</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[100px]">
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-indigo-600 flex-1 text-xs md:text-sm min-w-[80px]">
               <Icon name="BarChart3" size={14} className="mr-1 md:mr-2 md:w-4 md:h-4" />
               <span className="hidden sm:inline">Аналитика</span>
               <span className="sm:hidden">Стат.</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="test" className="space-y-6">
+            <AITestTab />
+          </TabsContent>
 
           <TabsContent value="api-keys" className="space-y-6">
             {models.map((model, index) => {
