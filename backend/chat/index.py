@@ -50,6 +50,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     # Get OpenRouter API key from environment
     api_key = os.environ.get('OPENROUTER_API_KEY', '')
+    print(f'API key present: {bool(api_key)}')
+    print(f'API key starts with: {api_key[:15] if api_key else "NONE"}...')
     
     # Умный выбор модели в зависимости от типа запроса
     def detect_task_type(message: str, files: list) -> tuple[str, str]:
