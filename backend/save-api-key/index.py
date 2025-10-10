@@ -54,39 +54,53 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    conn = psycopg2.connect(db_url)
-    cur = conn.cursor()
-    
-    # Get schema name
-    cur.execute("SELECT current_schema()")
-    schema_name = cur.fetchone()[0]
-    
-    # Escape strings for simple query protocol
-    model_id_escaped = model_id.replace("'", "''")
-    
-    if api_key is not None:
-        api_key_escaped = api_key.replace("'", "''")
-        enabled_val = 'TRUE' if enabled else 'FALSE'
+    try:
+        conn = psycopg2.connect(db_url)
+        cur = conn.cursor()
         
-        query = f"""
-        INSERT INTO {schema_name}.api_keys (model_id, api_key, enabled, updated_at) 
-        VALUES ('{model_id_escaped}', '{api_key_escaped}', {enabled_val}, CURRENT_TIMESTAMP) 
-        ON CONFLICT (model_id) DO UPDATE 
-        SET api_key = EXCLUDED.api_key, enabled = EXCLUDED.enabled, updated_at = CURRENT_TIMESTAMP
-        """
-        cur.execute(query)
-    else:
-        enabled_val = 'TRUE' if enabled else 'FALSE'
-        query = f"UPDATE {schema_name}.api_keys SET enabled = {enabled_val}, updated_at = CURRENT_TIMESTAMP WHERE model_id = '{model_id_escaped}'"
-        cur.execute(query)
-    
-    conn.commit()
-    cur.close()
-    conn.close()
-    
-    return {
-        'statusCode': 200,
-        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-        'body': json.dumps({'success': True}),
-        'isBase64Encoded': False
-    }
+        # Get schema name
+        cur.execute("SELECT current_schema()")
+        schema_name = cur.fetchone()[0]
+        
+        # Escape strings for simple query protocol
+        model_id_escaped = model_id.replace("'", "''")
+        
+        if api_key is not None:
+            api_key_escaped = api_key.replace("'", "''")
+            enabled_val = 'TRUE' if enabled else 'FALSE'
+            
+            query = f"""
+            INSERT INTO {schema_name}.api_keys (model_id, api_key, enabled, updated_at) 
+            VALUES ('{model_id_escaped}', '{api_key_escaped}', {enabled_val}, CURRENT_TIMESTAMP) 
+            ON CONFLICT (model_id) DO UPDATE 
+            SET api_key = EXCLUDED.api_key, enabled = EXCLUDED.enabled, updated_at = CURRENT_TIMESTAMP
+            """
+            cur.execute(query)
+        else:
+            enabled_val = 'TRUE' if enabled else 'FALSE'
+            query = f"UPDATE {schema_name}.api_keys SET enabled = {enabled_val}, updated_at = CURRENT_TIMESTAMP WHERE model_id = '{model_id_escaped}'"
+            cur.execute(query)
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({'success': True}),
+            'isBase64Encoded': False
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
+        }
