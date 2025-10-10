@@ -32,13 +32,13 @@ const ChatMessages = ({
 
   const quickPrompts = [
     { icon: 'Code', text: 'Напиши код', prompt: 'Напиши код на Python для...', color: 'from-violet-500 to-purple-500' },
-    { icon: 'FileText', text: 'Проанализируй', prompt: 'Проанализируй этот текст...', color: 'from-blue-500 to-cyan-500' },
     { icon: 'Languages', text: 'Переведи', prompt: 'Переведи на английский...', color: 'from-orange-500 to-red-500' },
-    { icon: 'Lightbulb', text: 'Идеи', prompt: 'Сгенерируй креативные идеи для...', color: 'from-amber-500 to-orange-500' },
-    { icon: 'Palette', text: 'Нарисуй', prompt: 'Нарисуй изображение: ', color: 'from-pink-500 to-rose-500' },
-    { icon: 'Video', text: 'Видео', prompt: 'Создай видео: ', color: 'from-rose-500 to-pink-600' },
-    { icon: 'Image', text: 'Опиши фото', prompt: 'Опиши что на этой картинке...', color: 'from-cyan-400 to-blue-500' },
+    { icon: 'Image', text: 'Опиши фото', prompt: 'Опиши что на этой картинке... (загрузи фото)', color: 'from-cyan-400 to-blue-500' },
+    { icon: 'Calculator', text: 'Посчитай', prompt: 'Вычисли и реши задачу...', color: 'from-blue-500 to-cyan-500' },
     { icon: 'BookOpen', text: 'Объясни', prompt: 'Объясни простыми словами...', color: 'from-green-500 to-emerald-500' },
+    { icon: 'FileText', text: 'Напиши текст', prompt: 'Напиши статью на тему...', color: 'from-pink-500 to-rose-500' },
+    { icon: 'Lightbulb', text: 'Идеи', prompt: 'Придумай креативные идеи для...', color: 'from-amber-500 to-orange-500' },
+    { icon: 'Briefcase', text: 'Бизнес-план', prompt: 'Помоги составить бизнес-план для...', color: 'from-indigo-500 to-purple-500' },
   ];
 
   return (
