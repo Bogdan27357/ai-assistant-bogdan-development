@@ -5,9 +5,9 @@ import requests
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Generate videos using ImageRouter API with various models
-    Args: event with httpMethod, body (prompt, model)
-    Returns: HTTP response with video URL
+    Business: Generate images and videos using free Pollinations AI or ImageRouter API
+    Args: event with httpMethod, body (prompt, type: 'image'|'video', model)
+    Returns: HTTP response with media URL
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -34,7 +34,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     body_data = json.loads(event.get('body', '{}'))
     prompt = body_data.get('prompt', '')
-    model = body_data.get('model', 'veo-3-fast')
+    media_type = body_data.get('type', 'video')
+    model = body_data.get('model', 'flux' if media_type == 'image' else 'veo-3-fast')
     
     if not prompt:
         return {
@@ -44,13 +45,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    # Get ImageRouter API key from environment
+    # Handle image generation with free Pollinations AI
+    if media_type == 'image':
+        image_models = {
+            'flux': 'flux',
+            'flux-realism': 'flux-realism',
+            'flux-anime': 'flux-anime',
+            'flux-3d': 'flux-3d',
+            'turbo': 'turbo',
+            'dall-e-3': 'openai'
+        }
+        
+        selected_model = image_models.get(model, 'flux')
+        encoded_prompt = requests.utils.quote(prompt)
+        
+        media_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&model={selected_model}&nologo=true&enhance=true"
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'media_url': media_url,
+                'type': 'image',
+                'model': selected_model,
+                'prompt': prompt
+            }),
+            'isBase64Encoded': False
+        }
+    
+    # Handle video generation with ImageRouter API (requires API key)
     api_key = os.environ.get('IMAGEROUTER_API_KEY', '')
     if not api_key:
         return {
             'statusCode': 500,
             'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'ImageRouter API key not configured'}),
+            'body': json.dumps({'error': 'ImageRouter API key not configured. Add it in admin panel.'}),
             'isBase64Encoded': False
         }
     

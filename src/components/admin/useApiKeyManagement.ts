@@ -9,101 +9,102 @@ interface ApiConfig {
 
 export const models = [
   { 
-    id: 'openrouter', 
-    name: 'OpenRouter API', 
-    provider: 'OpenRouter',
-    icon: 'Sparkles', 
-    color: 'from-indigo-500 to-purple-500',
-    description: 'Единый ключ для доступа ко всем AI моделям платформы',
-    status: 'REQUIRED',
-    features: ['12 AI моделей', 'Умный автовыбор', 'Генерация изображений', 'Анализ фото'],
-    apiDocsUrl: 'https://openrouter.ai/keys'
-  },
-  { 
     id: 'imagerouter', 
     name: 'ImageRouter API', 
     provider: 'ImageRouter',
     icon: 'Video', 
     color: 'from-pink-500 to-rose-500',
-    description: 'API для генерации и обработки видео с ИИ',
+    description: 'API для генерации видео (опционально)',
     status: 'OPTIONAL',
     features: ['11 видео-моделей', 'Veo 2/3', 'Kling v2.1', 'Hailuo-02'],
     apiDocsUrl: 'https://imagerouter.io'
   }
 ];
 
-export const freeModels = [
+export const freeImageModels = [
   {
-    id: 'gemini-pro',
-    name: 'Google Gemini 2.5 Pro',
-    model: 'google/gemini-2.5-pro-experimental:free',
-    icon: 'Sparkles',
-    color: 'from-blue-500 to-cyan-500',
-    description: 'Самая мощная модель Google с экспериментальными возможностями',
-    features: ['Глубокий анализ', 'Длинный контекст', 'Экспериментальные фичи']
+    id: 'flux',
+    name: 'FLUX.1 Schnell',
+    model: 'flux',
+    icon: 'Zap',
+    color: 'from-yellow-500 to-orange-500',
+    description: 'Быстрая генерация реалистичных изображений',
+    features: ['Фотореализм', 'Скорость', 'Качество']
   },
   {
-    id: 'gemini-nano-banana',
-    name: 'Google Gemini Nano Banana',
-    model: 'google/gemini-2.5-flash-image-preview:free',
-    icon: 'Image',
-    color: 'from-cyan-500 to-blue-500',
-    description: 'Gemini с поддержкой анализа изображений',
-    features: ['Анализ картинок', 'Описание фото', 'Визуальный поиск']
+    id: 'flux-realism',
+    name: 'FLUX Realism',
+    model: 'flux-realism',
+    icon: 'Camera',
+    color: 'from-blue-500 to-cyan-500',
+    description: 'Максимальный реализм и детализация',
+    features: ['Фотографическое качество', 'Детали', 'Освещение']
+  },
+  {
+    id: 'flux-anime',
+    name: 'FLUX Anime',
+    model: 'flux-anime',
+    icon: 'Sparkles',
+    color: 'from-pink-500 to-purple-500',
+    description: 'Аниме и манга стиль',
+    features: ['Аниме стиль', 'Персонажи', 'Яркие цвета']
+  },
+  {
+    id: 'flux-3d',
+    name: 'FLUX 3D',
+    model: 'flux-3d',
+    icon: 'Box',
+    color: 'from-purple-500 to-indigo-500',
+    description: '3D рендеринг и визуализация',
+    features: ['3D стиль', 'Рендеринг', 'Объём']
+  }
+];
+
+export const freeModels = [
+  {
+    id: 'qwen',
+    name: 'Qwen 2.5 72B',
+    model: 'qwen',
+    icon: 'Code',
+    color: 'from-orange-500 to-red-500',
+    description: 'Универсальная мощная модель',
+    features: ['Кодинг', 'Многоязычность', 'Длинный контекст']
+  },
+  {
+    id: 'deepseek',
+    name: 'DeepSeek R1',
+    model: 'deepseek',
+    icon: 'Brain',
+    color: 'from-violet-500 to-purple-500',
+    description: 'Продвинутая модель для сложных задач',
+    features: ['Reasoning', 'Математика', 'Анализ']
   },
   {
     id: 'llama',
     name: 'Meta Llama 3.3 70B',
-    model: 'meta-llama/llama-3.3-70b-instruct:free',
+    model: 'llama',
     icon: 'Cpu',
     color: 'from-purple-500 to-pink-500',
-    description: 'Мощная модель от Meta для аналитики',
+    description: 'Мощная модель от Meta',
     features: ['Глубокий анализ', 'Reasoning', 'Инструкции']
   },
   {
-    id: 'deepseek',
-    name: 'DeepSeek V3',
-    model: 'deepseek/deepseek-chat:free',
-    icon: 'Brain',
-    color: 'from-violet-500 to-purple-500',
-    description: 'Продвинутая модель для сложных задач',
-    features: ['Reasoning', 'Математика', 'Кодинг']
-  },
-  {
-    id: 'qwen',
-    name: 'Qwen 2.5 72B',
-    model: 'qwen/qwen-2.5-72b-instruct:free',
-    icon: 'Code',
-    color: 'from-orange-500 to-red-500',
-    description: 'Мощная модель с поддержкой кода',
-    features: ['Кодинг', 'Многоязычность', 'Длинный контекст']
-  },
-  {
-    id: 'mistral',
-    name: 'Mistral Large',
-    model: 'mistralai/mistral-large:free',
-    icon: 'Wind',
-    color: 'from-cyan-500 to-blue-500',
-    description: 'Европейская модель с балансом качества',
-    features: ['Баланс', 'Reasoning', 'Мультиязычность']
-  },
-  {
-    id: 'claude',
-    name: 'Claude 3.5 Sonnet',
-    model: 'anthropic/claude-3.5-sonnet:free',
-    icon: 'BookOpen',
-    color: 'from-amber-500 to-orange-500',
-    description: 'Качественный анализ и рассуждения',
-    features: ['Творчество', 'Анализ', 'Длинный контекст']
+    id: 'gemini',
+    name: 'Google Gemma 2',
+    model: 'gemini',
+    icon: 'Sparkles',
+    color: 'from-blue-500 to-cyan-500',
+    description: 'Модель Google с балансом качества',
+    features: ['Быстрые ответы', 'Точность', 'Эффективность']
   }
 ];
 
 export const useApiKeyManagement = () => {
   const [configs, setConfigs] = useState<Record<string, ApiConfig>>({
-    openrouter: { enabled: false, apiKey: '' },
     imagerouter: { enabled: false, apiKey: '' }
   });
-  const [selectedModel, setSelectedModel] = useState('gemini-pro');
+  const [selectedModel, setSelectedModel] = useState('qwen');
+  const [selectedImageModel, setSelectedImageModel] = useState('flux');
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string } | null>>({});
 
@@ -111,7 +112,6 @@ export const useApiKeyManagement = () => {
     try {
       const keys = await getApiKeys();
       const newConfigs: Record<string, ApiConfig> = {
-        openrouter: { enabled: false, apiKey: '' },
         imagerouter: { enabled: false, apiKey: '' }
       };
       
@@ -234,7 +234,9 @@ export const useApiKeyManagement = () => {
     testing,
     testResults,
     selectedModel,
+    selectedImageModel,
     setSelectedModel,
+    setSelectedImageModel,
     loadApiKeys,
     handleToggle,
     handleSaveKey,
