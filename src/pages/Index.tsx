@@ -8,6 +8,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
 import SimpleConsultant from '@/components/SimpleConsultant';
+import VoiceConsultant from '@/components/VoiceConsultant';
 import Icon from '@/components/ui/icon';
 import { Language } from '@/lib/i18n';
 
@@ -96,7 +97,7 @@ const Index = () => {
       
       <Footer />
       <ScrollToTop />
-      {showWidget && <SimpleConsultant isOpen={true} />}
+      {showWidget && <VoiceConsultant isOpen={true} />}
       <Toaster />
     </div>
   );
