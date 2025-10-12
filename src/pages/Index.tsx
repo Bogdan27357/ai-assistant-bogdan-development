@@ -44,10 +44,12 @@ const Index = () => {
       
       recognitionInstance.onresult = async (event: any) => {
         const transcript = event.results[0][0].transcript;
+        console.log('Распознанный текст:', transcript);
         setIsRecording(false);
         setIsProcessing(true);
         
         try {
+          console.log('Отправляю запрос к ElevenLabs API...');
           const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', {
             method: 'POST',
             headers: {
@@ -65,14 +67,21 @@ const Index = () => {
             })
           });
           
+          console.log('Статус ответа:', response.status);
+          
           if (response.ok) {
+            console.log('Аудио получено, воспроизвожу...');
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
-            audio.play();
+            await audio.play();
+            console.log('Воспроизведение началось');
+          } else {
+            const errorText = await response.text();
+            console.error('Ошибка API:', response.status, errorText);
           }
         } catch (error) {
-          console.error('Error:', error);
+          console.error('Ошибка запроса:', error);
         } finally {
           setIsProcessing(false);
         }
