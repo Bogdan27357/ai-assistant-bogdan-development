@@ -8,8 +8,12 @@ interface Message {
   text: string;
 }
 
-const SimpleConsultant = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface SimpleConsultantProps {
+  isOpen?: boolean;
+}
+
+const SimpleConsultant = ({ isOpen: initialOpen = false }: SimpleConsultantProps) => {
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [messages, setMessages] = useState<Message[]>([
     { type: 'bot', text: 'Здравствуйте! Выберите вопрос из списка:' }
   ]);

@@ -7,6 +7,8 @@ import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
+import SimpleConsultant from '@/components/SimpleConsultant';
+import Icon from '@/components/ui/icon';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
@@ -14,6 +16,7 @@ const Index = () => {
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [darkMode, setDarkMode] = useState(true);
+  const [showWidget, setShowWidget] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('language');
@@ -73,9 +76,15 @@ const Index = () => {
       {currentPage === 'home' && (
         <div className="container mx-auto px-4 py-20">
           <div className="text-center">
-            <h1 className={`text-5xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+            <h1 className={`text-5xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
               Богдан - Ваш помощник
             </h1>
+            <button
+              onClick={() => setShowWidget(true)}
+              className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center mx-auto hover:shadow-green-500/50"
+            >
+              <Icon name="Mic" size={36} />
+            </button>
           </div>
         </div>
       )}
@@ -87,6 +96,7 @@ const Index = () => {
       
       <Footer />
       <ScrollToTop />
+      {showWidget && <SimpleConsultant isOpen={true} />}
       <Toaster />
     </div>
   );
