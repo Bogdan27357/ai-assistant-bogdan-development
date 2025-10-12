@@ -256,6 +256,10 @@ elevenlabs-convai {
   --text-color: hsl(0, 0%, 100%) !important;
   --border-radius: 1rem !important;
   --shadow: 0 0 30px rgba(102, 126, 234, 0.3) !important;
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 9999 !important;
 }
 
 elevenlabs-convai::part(button) {
