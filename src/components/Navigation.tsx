@@ -22,7 +22,6 @@ const Navigation = ({ currentPage, onNavigate, language = 'ru', onLanguageChange
 
   const menuItems = [
     { id: 'home', icon: 'Home', label: t.navigation.home },
-    { id: 'chat', icon: 'MessageSquare', label: t.navigation.chat },
     { id: 'admin', icon: 'Settings', label: 'Админка' },
   ];
 

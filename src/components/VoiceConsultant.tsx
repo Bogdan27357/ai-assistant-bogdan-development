@@ -1,9 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { toast } from 'sonner';
 
 interface VoiceConsultantProps {
   isOpen?: boolean;
+}
+
+declare global {
+  interface Window {
+    ElevenLabsConversationalAI?: any;
+  }
 }
 
 const VoiceConsultant = ({ isOpen: initialOpen = false }: VoiceConsultantProps) => {
@@ -11,7 +18,10 @@ const VoiceConsultant = ({ isOpen: initialOpen = false }: VoiceConsultantProps) 
   const [position, setPosition] = useState({ x: window.innerWidth - 432, y: window.innerHeight - 600 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isConversationActive, setIsConversationActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const conversationRef = useRef<any>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.drag-handle')) {
@@ -46,6 +56,61 @@ const VoiceConsultant = ({ isOpen: initialOpen = false }: VoiceConsultantProps) 
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, dragOffset]);
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://elevenlabs.io/convai-widget/index.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+  const startConversation = async () => {
+    setIsLoading(true);
+    try {
+      if (!window.ElevenLabsConversationalAI) {
+        toast.error('Голосовой модуль загружается...');
+        return;
+      }
+
+      const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+      if (!apiKey) {
+        toast.error('API ключ не настроен');
+        return;
+      }
+
+      conversationRef.current = window.ElevenLabsConversationalAI(
+        'TkqT87nC0bSWFpZWEJ1t',
+        apiKey
+      );
+
+      await conversationRef.current.startSession();
+      setIsConversationActive(true);
+      toast.success('Разговор начался! Говорите...');
+    } catch (error) {
+      console.error('Voice error:', error);
+      toast.error('Ошибка запуска голосового помощника');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const endConversation = async () => {
+    if (conversationRef.current) {
+      try {
+        await conversationRef.current.endSession();
+        setIsConversationActive(false);
+        toast.info('Разговор завершён');
+      } catch (error) {
+        console.error('End conversation error:', error);
+      }
+    }
+  };
 
   if (!isOpen) {
     return null;
@@ -107,10 +172,36 @@ const VoiceConsultant = ({ isOpen: initialOpen = false }: VoiceConsultantProps) 
           </div>
 
           <div className="flex items-center justify-center gap-3 pt-2">
-            <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-full flex items-center gap-2 transition-all shadow-lg hover:shadow-green-500/50">
-              <Icon name="Mic" size={20} />
-              <span className="font-semibold">Начать разговор</span>
-            </button>
+            {!isConversationActive ? (
+              <button
+                onClick={startConversation}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-full flex items-center gap-2 transition-all shadow-lg hover:shadow-green-500/50 disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <Icon name="Loader2" size={20} className="animate-spin" />
+                ) : (
+                  <Icon name="Mic" size={20} />
+                )}
+                <span className="font-semibold">
+                  {isLoading ? 'Загрузка...' : 'Начать разговор'}
+                </span>
+              </button>
+            ) : (
+              <div className="flex flex-col items-center gap-3 w-full">
+                <div className="flex items-center gap-2 text-green-400">
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-sm font-semibold">Слушаю вас...</span>
+                </div>
+                <button
+                  onClick={endConversation}
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full flex items-center gap-2 transition-all shadow-lg"
+                >
+                  <Icon name="PhoneOff" size={20} />
+                  <span className="font-semibold">Завершить</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
