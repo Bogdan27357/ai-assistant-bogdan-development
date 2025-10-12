@@ -15,8 +15,9 @@ const Index = () => {
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [darkMode, setDarkMode] = useState(true);
-  const [isListening, setIsListening] = useState(false);
-  const [pulseAnimation, setPulseAnimation] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('language');
@@ -34,26 +35,55 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    const widgetElement = document.querySelector('elevenlabs-convai');
-    
-    if (widgetElement) {
-      const observer = new MutationObserver(() => {
-        const button = widgetElement.shadowRoot?.querySelector('button');
-        if (button) {
-          const ariaLabel = button.getAttribute('aria-label');
-          setIsListening(ariaLabel === 'Stop conversation');
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = 'ru-RU';
+      
+      recognitionInstance.onresult = async (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setIsRecording(false);
+        setIsProcessing(true);
+        
+        try {
+          const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', {
+            method: 'POST',
+            headers: {
+              'Accept': 'audio/mpeg',
+              'Content-Type': 'application/json',
+              'xi-api-key': 'sk_b7ee2eebc30257a8e7a5d07e30b1c905ec8e25fe104da351'
+            },
+            body: JSON.stringify({
+              text: `Вы сказали: ${transcript}. Это тестовый ответ.`,
+              model_id: 'eleven_monolingual_v1',
+              voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5
+              }
+            })
+          });
+          
+          if (response.ok) {
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        } finally {
+          setIsProcessing(false);
         }
-      });
-
-      if (widgetElement.shadowRoot) {
-        observer.observe(widgetElement.shadowRoot, {
-          attributes: true,
-          subtree: true,
-          attributeFilter: ['aria-label']
-        });
-      }
-
-      return () => observer.disconnect();
+      };
+      
+      recognitionInstance.onerror = () => {
+        setIsRecording(false);
+        setIsProcessing(false);
+      };
+      
+      setRecognition(recognitionInstance);
     }
   }, []);
 
@@ -79,13 +109,14 @@ const Index = () => {
   };
 
   const handleVoiceClick = () => {
-    const widgetElement = document.querySelector('elevenlabs-convai');
-    const button = widgetElement?.shadowRoot?.querySelector('button') as HTMLElement;
+    if (!recognition) return;
     
-    if (button) {
-      button.click();
-      setPulseAnimation(true);
-      setTimeout(() => setPulseAnimation(false), 600);
+    if (isRecording) {
+      recognition.stop();
+      setIsRecording(false);
+    } else {
+      recognition.start();
+      setIsRecording(true);
     }
   };
 
@@ -112,38 +143,25 @@ const Index = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="text-center">
             <h1 className={`text-5xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              Бесплатный Чат
+              Голосовой помощник
             </h1>
             <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Быстрая модель от Mistral
+              Нажмите на микрофон и начните говорить
             </p>
-            <div className="flex gap-4 justify-center mb-12">
-              <button
-                onClick={() => setCurrentPage('chat')}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-              >
-                Начать общение
-              </button>
-              <button
-                onClick={() => setCurrentPage('admin')}
-                className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-              >
-                Админ-панель
-              </button>
-            </div>
 
             <div className="flex justify-center mt-16">
               <button
                 onClick={handleVoiceClick}
                 className={`relative group w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 
                   hover:scale-110 transition-all duration-300 flex items-center justify-center
-                  ${pulseAnimation ? 'animate-pulse-ring' : ''}
-                  ${isListening ? 'animate-pulse-slow' : ''}`}
+                  ${isRecording ? 'animate-pulse-slow' : ''}
+                  ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
+                disabled={isProcessing}
               >
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 blur-2xl opacity-50 group-hover:opacity-75 transition-opacity" />
                 
                 <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent backdrop-blur-sm flex items-center justify-center">
-                  {isListening ? (
+                  {isRecording ? (
                     <div className="flex gap-1.5">
                       {[...Array(4)].map((_, i) => (
                         <div
@@ -161,7 +179,7 @@ const Index = () => {
                   )}
                 </div>
 
-                {isListening && (
+                {isRecording && (
                   <>
                     <div className="absolute inset-0 rounded-full border-4 border-white/30 animate-ping" />
                     <div className="absolute inset-0 rounded-full border-2 border-white/50 animate-ping" style={{ animationDelay: '0.3s' }} />
@@ -171,9 +189,9 @@ const Index = () => {
             </div>
 
             <p className={`mt-6 text-lg font-medium transition-colors duration-300 ${
-              isListening ? 'text-green-400 animate-pulse' : darkMode ? 'text-slate-400' : 'text-slate-600'
+              isRecording ? 'text-green-400 animate-pulse' : isProcessing ? 'text-yellow-400' : darkMode ? 'text-slate-400' : 'text-slate-600'
             }`}>
-              {isListening ? '🎙️ Слушаю...' : 'Голосовой помощник'}
+              {isRecording ? '🎙️ Слушаю...' : isProcessing ? '⏳ Обрабатываю...' : 'Нажмите для начала'}
             </p>
           </div>
         </div>
