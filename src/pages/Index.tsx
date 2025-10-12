@@ -97,7 +97,7 @@ const Index = () => {
       
       <Footer />
       <ScrollToTop />
-      {showWidget && <VoiceConsultant isOpen={true} />}
+      {showWidget && <VoiceConsultant isOpen={true} onClose={() => setShowWidget(false)} />}
       <Toaster />
     </div>
   );

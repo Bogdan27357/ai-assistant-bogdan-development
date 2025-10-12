@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 interface VoiceConsultantProps {
   isOpen?: boolean;
+  onClose?: () => void;
 }
 
 declare global {
@@ -13,7 +14,7 @@ declare global {
   }
 }
 
-const VoiceConsultant = ({ isOpen: initialOpen = false }: VoiceConsultantProps) => {
+const VoiceConsultant = ({ isOpen: initialOpen = false, onClose }: VoiceConsultantProps) => {
   const [isOpen, setIsOpen] = useState(initialOpen);
   const [position, setPosition] = useState({ x: window.innerWidth - 432, y: window.innerHeight - 600 });
   const [isDragging, setIsDragging] = useState(false);
@@ -134,7 +135,10 @@ const VoiceConsultant = ({ isOpen: initialOpen = false }: VoiceConsultantProps) 
             <h3 className="text-white font-bold">Голосовой помощник</h3>
           </div>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              onClose?.();
+            }}
             className="text-white hover:bg-white/20 rounded-full p-1 transition-colors"
           >
             <Icon name="X" size={20} />
