@@ -8,16 +8,12 @@ import ScrollToTop from '@/components/ScrollToTop';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
 import { Language } from '@/lib/i18n';
-import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<'home' | 'auth' | 'profile' | 'chat' | 'admin'>('home');
   const [language, setLanguage] = useState<Language>('ru');
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [darkMode, setDarkMode] = useState(true);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('language');
@@ -31,74 +27,6 @@ const Index = () => {
     const storedTheme = localStorage.getItem('darkMode');
     if (storedTheme !== null) {
       setDarkMode(storedTheme === 'true');
-    }
-  }, []);
-
-  useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
-      recognitionInstance.continuous = false;
-      recognitionInstance.interimResults = false;
-      recognitionInstance.lang = 'ru-RU';
-      
-      recognitionInstance.onresult = async (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        console.log('Распознанный текст:', transcript);
-        setIsRecording(false);
-        setIsProcessing(true);
-        
-        try {
-          console.log('Отправляю запрос к ElevenLabs API...');
-          const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', {
-            method: 'POST',
-            headers: {
-              'Accept': 'audio/mpeg',
-              'Content-Type': 'application/json',
-              'xi-api-key': 'sk_dea76fb9ccb3f82cb5c832e27b604339b54157c8b0827fee'
-            },
-            body: JSON.stringify({
-              text: `Вы сказали: ${transcript}. Это тестовый ответ.`,
-              model_id: 'eleven_monolingual_v1',
-              voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.5
-              }
-            })
-          });
-          
-          console.log('Статус ответа:', response.status);
-          
-          if (response.ok) {
-            console.log('Аудио получено, воспроизвожу...');
-            const audioBlob = await response.blob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            await audio.play();
-            console.log('Воспроизведение началось');
-          } else {
-            const errorText = await response.text();
-            console.error('Ошибка API:', response.status, errorText);
-          }
-        } catch (error) {
-          console.error('Ошибка запроса:', error);
-        } finally {
-          setIsProcessing(false);
-        }
-      };
-      
-      recognitionInstance.onerror = (event: any) => {
-        console.error('Ошибка распознавания:', event.error);
-        setIsRecording(false);
-        setIsProcessing(false);
-      };
-      
-      recognitionInstance.onend = () => {
-        console.log('Распознавание завершено');
-        setIsRecording(false);
-      };
-      
-      setRecognition(recognitionInstance);
     }
   }, []);
 
@@ -121,30 +49,6 @@ const Index = () => {
   const handleLogout = () => {
     setUser(null);
     setCurrentPage('home');
-  };
-
-  const handleVoiceClick = () => {
-    console.log('Кнопка нажата, recognition:', recognition);
-    
-    if (!recognition) {
-      console.error('Speech Recognition не доступен');
-      alert('Распознавание речи не поддерживается в вашем браузере');
-      return;
-    }
-    
-    if (isRecording) {
-      console.log('Останавливаю запись');
-      recognition.stop();
-      setIsRecording(false);
-    } else {
-      console.log('Начинаю запись');
-      try {
-        recognition.start();
-        setIsRecording(true);
-      } catch (error) {
-        console.error('Ошибка при старте:', error);
-      }
-    }
   };
 
   return (
@@ -170,56 +74,25 @@ const Index = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="text-center">
             <h1 className={`text-5xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              Голосовой помощник
+              Бесплатный Чат
             </h1>
             <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Нажмите на микрофон и начните говорить
+              Быстрая модель от Mistral
             </p>
-
-            <div className="flex justify-center mt-16">
+            <div className="flex gap-4 justify-center">
               <button
-                onClick={handleVoiceClick}
-                className={`relative group w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 
-                  hover:scale-110 transition-all duration-300 flex items-center justify-center
-                  ${isRecording ? 'animate-pulse-slow' : ''}
-                  ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
-                disabled={isProcessing}
+                onClick={() => setCurrentPage('chat')}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
               >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 blur-2xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                
-                <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent backdrop-blur-sm flex items-center justify-center">
-                  {isRecording ? (
-                    <div className="flex gap-1.5">
-                      {[...Array(4)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-1.5 bg-white rounded-full animate-wave"
-                          style={{
-                            height: '24px',
-                            animationDelay: `${i * 0.1}s`
-                          }}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <Icon name="Mic" size={40} className="text-white" />
-                  )}
-                </div>
-
-                {isRecording && (
-                  <>
-                    <div className="absolute inset-0 rounded-full border-4 border-white/30 animate-ping" />
-                    <div className="absolute inset-0 rounded-full border-2 border-white/50 animate-ping" style={{ animationDelay: '0.3s' }} />
-                  </>
-                )}
+                Начать общение
+              </button>
+              <button
+                onClick={() => setCurrentPage('admin')}
+                className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+              >
+                Админ-панель
               </button>
             </div>
-
-            <p className={`mt-6 text-lg font-medium transition-colors duration-300 ${
-              isRecording ? 'text-green-400 animate-pulse' : isProcessing ? 'text-yellow-400' : darkMode ? 'text-slate-400' : 'text-slate-600'
-            }`}>
-              {isRecording ? '🎙️ Слушаю...' : isProcessing ? '⏳ Обрабатываю...' : 'Нажмите для начала'}
-            </p>
           </div>
         </div>
       )}
@@ -232,40 +105,6 @@ const Index = () => {
       <Footer />
       <ScrollToTop />
       <Toaster />
-
-      <style>{`
-        @keyframes pulse-ring {
-          0% { transform: scale(1); opacity: 1; }
-          100% { transform: scale(1.3); opacity: 0; }
-        }
-
-        @keyframes pulse-slow {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-
-        @keyframes wave {
-          0%, 100% { height: 12px; }
-          50% { height: 32px; }
-        }
-
-        .animate-pulse-ring::after {
-          content: '';
-          position: absolute;
-          inset: -8px;
-          border-radius: 50%;
-          border: 3px solid white;
-          animation: pulse-ring 0.6s ease-out;
-        }
-
-        .animate-pulse-slow {
-          animation: pulse-slow 2s ease-in-out infinite;
-        }
-
-        .animate-wave {
-          animation: wave 0.8s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 };
