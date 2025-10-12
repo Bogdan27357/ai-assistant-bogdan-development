@@ -83,9 +83,7 @@ const Index = () => {
               <button
                 onClick={() => setCurrentPage('chat')}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-              >
-                Начать общение
-              </button>
+              ></button>
               <button
                 onClick={() => setCurrentPage('admin')}
                 className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
