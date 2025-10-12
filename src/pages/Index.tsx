@@ -87,9 +87,15 @@ const Index = () => {
         }
       };
       
-      recognitionInstance.onerror = () => {
+      recognitionInstance.onerror = (event: any) => {
+        console.error('Ошибка распознавания:', event.error);
         setIsRecording(false);
         setIsProcessing(false);
+      };
+      
+      recognitionInstance.onend = () => {
+        console.log('Распознавание завершено');
+        setIsRecording(false);
       };
       
       setRecognition(recognitionInstance);
@@ -118,14 +124,26 @@ const Index = () => {
   };
 
   const handleVoiceClick = () => {
-    if (!recognition) return;
+    console.log('Кнопка нажата, recognition:', recognition);
+    
+    if (!recognition) {
+      console.error('Speech Recognition не доступен');
+      alert('Распознавание речи не поддерживается в вашем браузере');
+      return;
+    }
     
     if (isRecording) {
+      console.log('Останавливаю запись');
       recognition.stop();
       setIsRecording(false);
     } else {
-      recognition.start();
-      setIsRecording(true);
+      console.log('Начинаю запись');
+      try {
+        recognition.start();
+        setIsRecording(true);
+      } catch (error) {
+        console.error('Ошибка при старте:', error);
+      }
     }
   };
 
