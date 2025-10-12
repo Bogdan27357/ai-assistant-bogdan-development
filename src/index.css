@@ -247,3 +247,33 @@
   background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
   box-shadow: 0 0 10px rgba(102, 126, 234, 0.4);
 }
+
+/* ElevenLabs Voice Agent Styling */
+elevenlabs-convai {
+  --primary-color: hsl(239, 84%, 67%) !important;
+  --secondary-color: hsl(167, 76%, 42%) !important;
+  --background-color: hsl(240, 10%, 15%) !important;
+  --text-color: hsl(0, 0%, 100%) !important;
+  --border-radius: 1rem !important;
+  --shadow: 0 0 30px rgba(102, 126, 234, 0.3) !important;
+}
+
+elevenlabs-convai::part(button) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+
+elevenlabs-convai::part(button):hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 0 40px rgba(102, 126, 234, 0.6) !important;
+  background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%) !important;
+}
+
+elevenlabs-convai::part(panel) {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  box-shadow: 0 0 50px rgba(102, 126, 234, 0.2) !important;
+}
