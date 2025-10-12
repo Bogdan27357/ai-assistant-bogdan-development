@@ -74,23 +74,8 @@ const Index = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="text-center">
             <h1 className={`text-5xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              Бесплатный Чат
+              Богдан - Ваш помощник
             </h1>
-            <p className={`text-xl mb-8 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Быстрая модель от Mistral
-            </p>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => setCurrentPage('chat')}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-              ></button>
-              <button
-                onClick={() => setCurrentPage('admin')}
-                className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-              >
-                Админ-панель
-              </button>
-            </div>
           </div>
         </div>
       )}
