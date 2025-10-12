@@ -55,7 +55,7 @@ const Index = () => {
             headers: {
               'Accept': 'audio/mpeg',
               'Content-Type': 'application/json',
-              'xi-api-key': 'sk_b7ee2eebc30257a8e7a5d07e30b1c905ec8e25fe104da351'
+              'xi-api-key': 'sk_dea76fb9ccb3f82cb5c832e27b604339b54157c8b0827fee'
             },
             body: JSON.stringify({
               text: `Вы сказали: ${transcript}. Это тестовый ответ.`,
