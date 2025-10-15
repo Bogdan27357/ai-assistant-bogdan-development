@@ -10,6 +10,7 @@ import VoiceSettings from '@/components/admin/VoiceSettings';
 import ContactSettings from '@/components/admin/ContactSettings';
 import AppearanceSettings from '@/components/admin/AppearanceSettings';
 import ApiSettings from '@/components/admin/ApiSettings';
+import AdminManagement from '@/components/admin/AdminManagement';
 
 const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -160,6 +161,10 @@ const AdminPanel = () => {
               <Icon name="Key" size={16} className="mr-2" />
               API Ключи
             </TabsTrigger>
+            <TabsTrigger value="admins" className="data-[state=active]:bg-indigo-600">
+              <Icon name="Users" size={16} className="mr-2" />
+              Администраторы
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-6">
@@ -204,6 +209,10 @@ const AdminPanel = () => {
 
           <TabsContent value="api" className="space-y-6">
             <ApiSettings />
+          </TabsContent>
+
+          <TabsContent value="admins" className="space-y-6">
+            <AdminManagement />
           </TabsContent>
         </Tabs>
       </div>

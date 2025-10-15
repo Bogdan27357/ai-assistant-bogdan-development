@@ -163,6 +163,106 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }),
                     'isBase64Encoded': False
                 }
+            
+            elif action == 'create_admin':
+                email = body_data.get('email', '').strip()
+                password = body_data.get('password', '')
+                name = body_data.get('name', '').strip()
+                
+                if not email or not password or not name:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Все поля обязательны'}),
+                        'isBase64Encoded': False
+                    }
+                
+                if len(password) < 6:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Пароль должен быть не менее 6 символов'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute(
+                    "SELECT id FROM t_p68921797_ai_assistant_bogdan_.users WHERE email = %s",
+                    (email,)
+                )
+                if cur.fetchone():
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Администратор с таким email уже существует'}),
+                        'isBase64Encoded': False
+                    }
+                
+                password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                
+                cur.execute(
+                    """INSERT INTO t_p68921797_ai_assistant_bogdan_.users 
+                    (email, password_hash, name, is_admin) 
+                    VALUES (%s, %s, %s, true) 
+                    RETURNING id, email, name, is_admin""",
+                    (email, password_hash, name)
+                )
+                new_admin = cur.fetchone()
+                conn.commit()
+                
+                return {
+                    'statusCode': 201,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'admin': {
+                            'id': new_admin['id'],
+                            'email': new_admin['email'],
+                            'name': new_admin['name']
+                        }
+                    }),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'list_admins':
+                cur.execute(
+                    """SELECT id, email, name, created_at 
+                    FROM t_p68921797_ai_assistant_bogdan_.users 
+                    WHERE is_admin = true 
+                    ORDER BY created_at DESC"""
+                )
+                admins = cur.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'admins': [dict(admin) for admin in admins]
+                    }, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'delete_admin':
+                admin_id = body_data.get('admin_id')
+                
+                if not admin_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'ID администратора обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute(
+                    "DELETE FROM t_p68921797_ai_assistant_bogdan_.users WHERE id = %s AND is_admin = true",
+                    (admin_id,)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
         
         return {
             'statusCode': 405,
