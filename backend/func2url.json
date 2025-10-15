@@ -1,7 +1,5 @@
 {
+  "elevenlabs-config": "https://functions.poehali.dev/65118fed-e2ff-445d-a81e-395ef4c07974",
   "elevenlabs-agent": "https://functions.poehali.dev/b5485ecd-0f31-41f0-a8fe-94e3da9a7c8d",
-  "auth": "https://functions.poehali.dev/c19987e7-4131-461a-b588-ffe95460e8de",
-  "chat-history": "https://functions.poehali.dev/199fa287-f2b3-4190-b276-d4a8f4ff80b3",
-  "chat": "https://functions.poehali.dev/2de7375b-0cb3-42d8-9542-1ad0bd90ad35",
-  "save-api-key": "https://functions.poehali.dev/b0e342c5-4500-4f08-b50e-c4ce3a3e4437"
+  "auth": "https://functions.poehali.dev/c19987e7-4131-461a-b588-ffe95460e8de"
 }

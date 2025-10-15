@@ -17,9 +17,9 @@ interface Message {
   timestamp: Date;
 }
 
-const ELEVENLABS_API_KEY = 'sk_1e608b539cd4469d0eafdc4a2090cdf5e3f39967e83a76aa';
-
 const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedded = false, onOpen }: VoiceAssistantProps) => {
+  const [apiKey, setApiKey] = useState('');
+  const [isLoadingKey, setIsLoadingKey] = useState(true);
   const [isOpen, setIsOpen] = useState(embedded);
   const [conversationStarted, setConversationStarted] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -36,7 +36,22 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
     if (embedded) {
       setIsOpen(true);
     }
+    fetchApiKey();
   }, [embedded]);
+
+  const fetchApiKey = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/65118fed-e2ff-445d-a81e-395ef4c07974');
+      if (response.ok) {
+        const data = await response.json();
+        setApiKey(data.api_key || '');
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки API ключа:', error);
+    } finally {
+      setIsLoadingKey(false);
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -47,9 +62,15 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
       setConversationStarted(true);
       setStatusMessage('Подключаюсь к помощнику...');
 
+      if (!apiKey) {
+        setStatusMessage('API ключ не настроен');
+        setConversationStarted(false);
+        return;
+      }
+
       const conversation = await Conversation.startSession({
         agentId: agentId,
-        apiKey: ELEVENLABS_API_KEY,
+        apiKey: apiKey,
         onConnect: () => {
           console.log('✅ Подключено к ElevenLabs');
           setStatusMessage('Подключено!');
@@ -220,7 +241,18 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
         </div>
 
         <div className="p-6 bg-white/95 min-h-[400px] flex flex-col">
-          {!conversationStarted ? (
+          {isLoadingKey ? (
+            <div className="text-center space-y-4 flex-1 flex flex-col items-center justify-center">
+              <Icon name="Loader" size={48} className="text-blue-500 animate-spin" />
+              <p className="text-slate-600">Загрузка...</p>
+            </div>
+          ) : !apiKey ? (
+            <div className="text-center space-y-4 flex-1 flex flex-col items-center justify-center">
+              <Icon name="AlertCircle" size={48} className="text-red-500" />
+              <p className="text-slate-700 font-semibold">API ключ не настроен</p>
+              <p className="text-slate-500 text-sm">Обратитесь к администратору</p>
+            </div>
+          ) : !conversationStarted ? (
             <div className="text-center space-y-6 flex-1 flex flex-col items-center justify-center">
               <div className="relative inline-block">
                 <div 

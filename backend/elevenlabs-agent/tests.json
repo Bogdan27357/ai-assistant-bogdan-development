@@ -1,6 +1,16 @@
 {
   "tests": [
     {
+      "name": "Get all agents",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "agents": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
       "name": "Create default agent",
       "method": "POST",
       "body": {
