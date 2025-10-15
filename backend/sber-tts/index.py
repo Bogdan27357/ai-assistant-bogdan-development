@@ -2,7 +2,10 @@ import json
 import os
 import base64
 import requests
+import urllib3
 from typing import Dict, Any
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -78,7 +81,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 headers=headers,
                 params=params,
                 data=text.encode('utf-8'),
-                timeout=30
+                timeout=30,
+                verify=False
             )
             
             if response.status_code == 200:

@@ -24,8 +24,9 @@
       "body": {
         "text": "Привет"
       },
-      "expectedStatus": 500,
+      "expectedStatus": 401,
       "expectedBody": {
+        "success": false,
         "error": "string"
       },
       "bodyMatcher": "partial"
