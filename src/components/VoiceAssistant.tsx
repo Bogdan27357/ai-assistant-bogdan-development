@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { Conversation } from '@11labs/client';
 
 interface VoiceAssistantProps {
   agentId?: string;
@@ -18,11 +19,7 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   
-  const wsRef = useRef<WebSocket | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null);
-  const audioQueueRef = useRef<HTMLAudioElement[]>([]);
-  const isPlayingRef = useRef(false);
+  const conversationRef = useRef<Conversation | null>(null);
 
   useEffect(() => {
     if (embedded) {
@@ -30,147 +27,43 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
     }
   }, [embedded]);
 
-  const playNextAudio = async () => {
-    if (isPlayingRef.current || audioQueueRef.current.length === 0) return;
-    
-    isPlayingRef.current = true;
-    const audio = audioQueueRef.current.shift()!;
-    
-    setIsSpeaking(true);
-    setIsListening(false);
-    
-    audio.onended = () => {
-      isPlayingRef.current = false;
-      if (audioQueueRef.current.length > 0) {
-        playNextAudio();
-      } else {
-        setIsSpeaking(false);
-        setIsListening(true);
-      }
-    };
-    
-    try {
-      await audio.play();
-    } catch (e) {
-      console.error('Error playing audio:', e);
-      isPlayingRef.current = false;
-      setIsSpeaking(false);
-      setIsListening(true);
-    }
-  };
-
   const startConversation = async () => {
     try {
       setConversationStarted(true);
-      setStatusMessage('Запрашиваю доступ к микрофону...');
-
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 16000
-        } 
-      });
-      mediaStreamRef.current = stream;
       setStatusMessage('Подключаюсь к помощнику...');
 
-      const ws = new WebSocket(
-        `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`
-      );
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        console.log('✅ WebSocket connected successfully');
-        
-        ws.send(JSON.stringify({
-          type: 'conversation_initiation_client_data',
-          conversation_config_override: {
-            agent: {
-              language: 'ru'
-            },
-            tts: {
-              output_format: 'mp3_44100_128'
-            }
-          },
-          custom_llm_extra_body: {
-            xi_api_key: ELEVENLABS_API_KEY
-          }
-        }));
-        
-        setStatusMessage('Подключено! Говорите...');
-        setIsListening(true);
-        
-        audioContextRef.current = new AudioContext({ sampleRate: 16000 });
-        const source = audioContextRef.current.createMediaStreamSource(stream);
-        const processor = audioContextRef.current.createScriptProcessor(4096, 1, 1);
-
-        source.connect(processor);
-        processor.connect(audioContextRef.current.destination);
-
-        processor.onaudioprocess = (e) => {
-          if (ws.readyState === WebSocket.OPEN && !isSpeaking) {
-            const inputData = e.inputBuffer.getChannelData(0);
-            const pcm16 = new Int16Array(inputData.length);
-            
-            for (let i = 0; i < inputData.length; i++) {
-              const s = Math.max(-1, Math.min(1, inputData[i]));
-              pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-            }
-            
-            const base64Audio = btoa(String.fromCharCode(...new Uint8Array(pcm16.buffer)));
-            ws.send(JSON.stringify({
-              user_audio_chunk: base64Audio
-            }));
-          }
-        };
-      };
-
-      ws.onmessage = async (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('Received message:', data.type);
-          
-          if (data.type === 'audio' && data.audio_event?.audio_base_64) {
-            const audioBase64 = data.audio_event.audio_base_64;
-            const binaryString = atob(audioBase64);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            
-            const audioBlob = new Blob([bytes.buffer], { type: 'audio/mp3' });
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            
-            audio.onerror = (e) => {
-              console.error('Audio playback error:', e);
-              URL.revokeObjectURL(audioUrl);
-            };
-            
-            audioQueueRef.current.push(audio);
-            playNextAudio();
-          }
-          
-          if (data.type === 'interruption') {
-            audioQueueRef.current = [];
-            isPlayingRef.current = false;
-            setIsListening(true);
+      const conversation = await Conversation.startSession({
+        agentId: agentId,
+        apiKey: ELEVENLABS_API_KEY,
+        onConnect: () => {
+          console.log('✅ Connected to ElevenLabs');
+          setStatusMessage('Подключено! Говорите...');
+          setIsListening(true);
+        },
+        onDisconnect: () => {
+          console.log('Disconnected');
+          setStatusMessage('Соединение закрыто');
+          setConversationStarted(false);
+          setIsListening(false);
+          setIsSpeaking(false);
+        },
+        onError: (error) => {
+          console.error('Conversation error:', error);
+          setStatusMessage('Ошибка: ' + error.message);
+        },
+        onModeChange: (mode) => {
+          console.log('Mode changed:', mode.mode);
+          if (mode.mode === 'speaking') {
+            setIsSpeaking(true);
+            setIsListening(false);
+          } else if (mode.mode === 'listening') {
             setIsSpeaking(false);
+            setIsListening(true);
           }
-        } catch (e) {
-          console.error('Error processing message:', e);
-        }
-      };
+        },
+      });
 
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setStatusMessage('Ошибка подключения');
-      };
-
-      ws.onclose = (event) => {
-        console.log('WebSocket closed:', event.code, event.reason);
-        setStatusMessage('Соединение закрыто');
-      };
+      conversationRef.current = conversation;
 
     } catch (error) {
       console.error('Error starting conversation:', error);
@@ -179,24 +72,11 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
     }
   };
 
-  const stopConversation = () => {
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
+  const stopConversation = async () => {
+    if (conversationRef.current) {
+      await conversationRef.current.endSession();
+      conversationRef.current = null;
     }
-
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
-      mediaStreamRef.current = null;
-    }
-
-    audioQueueRef.current = [];
-    isPlayingRef.current = false;
 
     setConversationStarted(false);
     setIsListening(false);
@@ -206,7 +86,9 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
 
   useEffect(() => {
     return () => {
-      stopConversation();
+      if (conversationRef.current) {
+        conversationRef.current.endSession();
+      }
     };
   }, []);
 
