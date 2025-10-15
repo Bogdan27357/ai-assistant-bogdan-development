@@ -1,5 +1,5 @@
 {
-  "elevenlabs-config": "https://functions.poehali.dev/65118fed-e2ff-445d-a81e-395ef4c07974",
-  "elevenlabs-agent": "https://functions.poehali.dev/b5485ecd-0f31-41f0-a8fe-94e3da9a7c8d",
+  "yandex-speech-synthesize": "https://functions.poehali.dev/4d515303-ee4e-424b-b220-ca432f3379a1",
+  "yandex-speech-recognize": "https://functions.poehali.dev/51113e35-683f-4746-ad24-22a2726b7c2d",
   "auth": "https://functions.poehali.dev/c19987e7-4131-461a-b588-ffe95460e8de"
 }

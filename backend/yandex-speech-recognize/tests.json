@@ -1,0 +1,9 @@
+{
+  "tests": [
+    {
+      "name": "Handle OPTIONS",
+      "method": "OPTIONS",
+      "expectedStatus": 200
+    }
+  ]
+}
