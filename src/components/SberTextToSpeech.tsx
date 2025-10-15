@@ -14,17 +14,17 @@ import {
 
 const SberTextToSpeech = () => {
   const [text, setText] = useState('');
-  const [voice, setVoice] = useState('Natalia');
+  const [voice, setVoice] = useState('Nec_24000');
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const voices = [
-    { value: 'Natalia', label: 'Наталья (женский)' },
-    { value: 'Boris', label: 'Борис (мужской)' },
-    { value: 'Marfa', label: 'Марфа (женский)' },
-    { value: 'Taras', label: 'Тарас (мужской)' },
-    { value: 'Alexandra', label: 'Александра (женский)' },
-    { value: 'Sergey', label: 'Сергей (мужской)' },
+    { value: 'Nec_24000', label: 'Наталья (женский, 24kHz)' },
+    { value: 'Bys_24000', label: 'Борис (мужской, 24kHz)' },
+    { value: 'May_24000', label: 'Майя (женский, 24kHz)' },
+    { value: 'Tur_24000', label: 'Тарас (мужской, 24kHz)' },
+    { value: 'Ost_24000', label: 'Александра (женский, 24kHz)' },
+    { value: 'Pon_24000', label: 'Сергей (мужской, 24kHz)' },
   ];
 
   const generateSpeech = async () => {

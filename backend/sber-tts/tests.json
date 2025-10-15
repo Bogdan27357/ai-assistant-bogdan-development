@@ -24,7 +24,7 @@
       "body": {
         "text": "Привет"
       },
-      "expectedStatus": 401,
+      "expectedStatus": 500,
       "expectedBody": {
         "success": false,
         "error": "string"

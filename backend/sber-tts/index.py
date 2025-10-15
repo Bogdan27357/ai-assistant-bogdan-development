@@ -7,6 +7,35 @@ from typing import Dict, Any
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def get_access_token(client_id: str, client_secret: str) -> str:
+    '''Get OAuth 2.0 access token from Sber'''
+    auth_url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
+    
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+        'RqUID': client_id
+    }
+    
+    data = {
+        'scope': 'SALUTE_SPEECH_PERS'
+    }
+    
+    response = requests.post(
+        auth_url,
+        headers=headers,
+        data=data,
+        auth=(client_id, client_secret),
+        verify=False,
+        timeout=10
+    )
+    
+    if response.status_code == 200:
+        result = response.json()
+        return result.get('access_token', '')
+    else:
+        raise Exception(f'Failed to get token: {response.status_code} - {response.text}')
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: SberSpeech text-to-speech synthesis
@@ -39,7 +68,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body_data = {}
         
         text = body_data.get('text', '')
-        voice = body_data.get('voice', 'Natalia')
+        voice = body_data.get('voice', 'Nec_24000')
         
         if not text:
             return {
@@ -52,8 +81,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Text is required'})
             }
         
-        token = os.environ.get('SBER_SALUTE_SPEECH_TOKEN')
-        if not token:
+        client_id = os.environ.get('SBER_CLIENT_ID')
+        client_secret = os.environ.get('SBER_CLIENT_SECRET')
+        
+        if not client_id or not client_secret:
             return {
                 'statusCode': 500,
                 'headers': {
@@ -61,19 +92,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'SberSpeech token not configured'})
+                'body': json.dumps({'error': 'SberSpeech credentials not configured'})
             }
         
         try:
+            access_token = get_access_token(client_id, client_secret)
+            
             headers = {
-                'Authorization': f'Bearer {token}',
+                'Authorization': f'Bearer {access_token}',
                 'Content-Type': 'application/text'
             }
             
             params = {
                 'voice': voice,
-                'format': 'opus',
-                'sample_rate': 48000
+                'format': 'opus48000',
             }
             
             response = requests.post(
