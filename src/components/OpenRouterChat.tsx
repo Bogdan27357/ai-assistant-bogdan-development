@@ -8,15 +8,14 @@ import Icon from '@/components/ui/icon';
 
 const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
-  const [model, setModel] = useState('meta-llama/llama-3.1-8b-instruct');
+  const [model, setModel] = useState('anthropic/claude-3.5-sonnet');
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const models = [
-    { value: 'meta-llama/llama-3.1-8b-instruct', label: 'Llama 3.1 8B' },
-    { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
+    { value: 'anthropic/claude-3.5-sonnet', label: 'Богдан ИИ' },
   ];
 
   useEffect(() => {
@@ -74,7 +73,7 @@ const OpenRouterChat = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
           <Icon name="MessageSquare" size={24} />
-          AI Чат (OpenRouter)
+          Чат с Богданом
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
@@ -85,7 +84,7 @@ const OpenRouterChat = () => {
           {chatHistory.length === 0 ? (
             <div className="text-center text-slate-500 dark:text-slate-400 py-8">
               <Icon name="Sparkles" size={48} className="mx-auto mb-4 opacity-50" />
-              <p>Начните диалог с AI</p>
+              <p>Начните диалог с Богданом</p>
             </div>
           ) : (
             <>
@@ -99,7 +98,7 @@ const OpenRouterChat = () => {
                   }`}
                 >
                   <div className="font-semibold text-xs mb-1 opacity-75">
-                    {msg.role === 'user' ? 'Вы' : 'AI'}
+                    {msg.role === 'user' ? 'Вы' : 'Богдан'}
                   </div>
                   <div className="whitespace-pre-wrap">{msg.content}</div>
                 </div>

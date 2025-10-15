@@ -48,10 +48,10 @@ const Index = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h1 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              AI Ассистент
+              Богдан ИИ
             </h1>
             <p className={`text-xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Общайтесь с различными AI моделями через OpenRouter
+              Умный помощник для общения и решения задач
             </p>
           </div>
           
