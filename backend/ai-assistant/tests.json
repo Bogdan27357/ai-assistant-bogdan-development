@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Handle OPTIONS",
+      "method": "OPTIONS",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Reject empty question",
+      "method": "POST",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

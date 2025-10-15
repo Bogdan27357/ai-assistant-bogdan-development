@@ -1,4 +1,5 @@
 {
+  "ai-assistant": "https://functions.poehali.dev/d8dc549c-d543-420f-a8af-ebc7a81b30ef",
   "yandex-speech-synthesize": "https://functions.poehali.dev/4d515303-ee4e-424b-b220-ca432f3379a1",
   "yandex-speech-recognize": "https://functions.poehali.dev/51113e35-683f-4746-ad24-22a2726b7c2d",
   "auth": "https://functions.poehali.dev/c19987e7-4131-461a-b588-ffe95460e8de"
