@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
+import SberSpeechRecorder from '@/components/SberSpeechRecorder';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
@@ -44,13 +45,16 @@ const Index = () => {
       />
       
       <div className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-            SberSpeech Integration
-          </h1>
-          <p className={`text-xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-            Готов к интеграции SberSpeech API
-          </p>
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+              SberSpeech
+            </h1>
+            <p className={`text-xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+              Распознавание речи от Сбербанка
+            </p>
+          </div>
+          <SberSpeechRecorder />
         </div>
       </div>
       
