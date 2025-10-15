@@ -3,6 +3,7 @@ import os
 import base64
 import requests
 import urllib3
+import uuid
 from typing import Dict, Any
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -14,20 +15,27 @@ def get_access_token(client_id: str, client_secret: str) -> str:
     credentials = f'{client_id}:{client_secret}'
     auth_header = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
     
+    request_id = str(uuid.uuid4())
+    
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
         'Authorization': f'Basic {auth_header}',
-        'RqUID': client_id
+        'RqUID': request_id
     }
     
-    data = 'scope=SALUTE_SPEECH_PERS'
+    payload = {
+        'scope': 'SALUTE_SPEECH_PERS'
+    }
     
     try:
+        print(f'Trying OAuth with RqUID: {request_id}')
+        print(f'Auth header: Basic {auth_header[:20]}...')
+        
         response = requests.post(
             auth_url,
             headers=headers,
-            data=data,
+            data=payload,
             verify=False,
             timeout=10
         )
