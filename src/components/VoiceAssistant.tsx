@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -11,8 +11,9 @@ interface VoiceAssistantProps {
 
 const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedded = false, onOpen }: VoiceAssistantProps) => {
   const [isOpen, setIsOpen] = useState(embedded);
-  const [isRecording, setIsRecording] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
+  const widgetRef = useRef<HTMLElement | null>(null);
+  const scriptLoadedRef = useRef(false);
 
   useEffect(() => {
     if (embedded) {
@@ -21,42 +22,49 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
   }, [embedded]);
 
   useEffect(() => {
-    if ((isOpen || embedded) && !conversationStarted) {
-      const script = document.createElement('script');
-      script.src = 'https://elevenlabs.io/convai-widget/index.js';
-      script.async = true;
-      document.body.appendChild(script);
-
-      return () => {
-        const existingScript = document.querySelector('script[src="https://elevenlabs.io/convai-widget/index.js"]');
-        if (existingScript) {
-          existingScript.remove();
-        }
-      };
+    if (!scriptLoadedRef.current) {
+      const existingScript = document.querySelector('script[src="https://elevenlabs.io/convai-widget/index.js"]');
+      
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.src = 'https://elevenlabs.io/convai-widget/index.js';
+        script.async = true;
+        document.head.appendChild(script);
+        scriptLoadedRef.current = true;
+      }
     }
-  }, [isOpen, conversationStarted]);
+  }, []);
 
   const handleStartConversation = () => {
     setConversationStarted(true);
-    setIsRecording(true);
     
-    const widget = document.querySelector('elevenlabs-convai');
-    if (!widget && (window as any).ElevenLabs) {
-      const newWidget = document.createElement('elevenlabs-convai');
-      newWidget.setAttribute('agent-id', agentId);
-      document.body.appendChild(newWidget);
-    }
+    setTimeout(() => {
+      if (!widgetRef.current) {
+        const widget = document.createElement('elevenlabs-convai') as HTMLElement;
+        widget.setAttribute('agent-id', agentId);
+        document.body.appendChild(widget);
+        widgetRef.current = widget;
+      }
+    }, 100);
   };
 
   const handleStopConversation = () => {
-    setIsRecording(false);
     setConversationStarted(false);
     
-    const widget = document.querySelector('elevenlabs-convai');
-    if (widget) {
-      widget.remove();
+    if (widgetRef.current) {
+      widgetRef.current.remove();
+      widgetRef.current = null;
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (widgetRef.current) {
+        widgetRef.current.remove();
+        widgetRef.current = null;
+      }
+    };
+  }, []);
 
   if (!isOpen && !embedded) {
     return (
@@ -83,15 +91,17 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
         <div className="bg-white/10 backdrop-blur-sm p-6 rounded-t-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-white font-bold text-xl">Ваш помощник Полёт</h3>
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                handleStopConversation();
-              }}
-              className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
-            >
-              <Icon name="X" size={20} />
-            </button>
+            {!embedded && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  handleStopConversation();
+                }}
+                className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+              >
+                <Icon name="X" size={20} />
+              </button>
+            )}
           </div>
           <p className="text-white/90 text-sm">Голосовой ассистент аэропорта</p>
         </div>
@@ -100,29 +110,21 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
           {!conversationStarted ? (
             <div className="text-center space-y-6">
               <div className="relative inline-block">
-                <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-green-500/50 transition-shadow">
+                <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-green-500/50 transition-shadow cursor-pointer"
+                     onClick={handleStartConversation}>
                   <Icon name="Mic" size={64} className="text-white" />
                 </div>
-                <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20"></div>
+                <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20 pointer-events-none"></div>
               </div>
               
               <p className="text-slate-700 text-base max-w-sm">
-                Нажмите на микрофон и говорите
+                Нажмите на микрофон для начала разговора
               </p>
 
               <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded text-left max-w-sm">
                 <p className="text-slate-700 text-sm">
                   Добро пожаловать! Спросите о парковках, транспорте или услугах аэропорта Пулково.
                 </p>
-              </div>
-
-              <div className="flex gap-4 justify-center">
-                <Button
-                  onClick={handleStartConversation}
-                  className="bg-green-500 hover:bg-green-600 text-white px-8 py-6 text-lg font-semibold shadow-lg"
-                >
-                  Начать запись
-                </Button>
               </div>
 
               <div className="grid grid-cols-2 gap-3 pt-4 max-w-sm mx-auto">
@@ -145,21 +147,13 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
               </div>
             </div>
           ) : (
-            <div className="text-center space-y-6">
-              <div className="relative inline-block">
-                <div className={`w-32 h-32 rounded-full flex items-center justify-center shadow-lg transition-all ${
-                  isRecording ? 'bg-red-500 animate-pulse' : 'bg-green-500'
-                }`}>
-                  <Icon name={isRecording ? "Radio" : "Mic"} size={64} className="text-white" />
-                </div>
-              </div>
-
+            <div className="text-center space-y-6 w-full">
               <div className="space-y-3">
                 <p className="text-slate-700 text-lg font-semibold">
-                  {isRecording ? 'Слушаю...' : 'Готов к разговору'}
+                  Говорите в микрофон
                 </p>
                 <p className="text-slate-600 text-sm">
-                  Говорите чётко в микрофон
+                  Виджет голосового помощника активирован
                 </p>
               </div>
 
@@ -169,11 +163,10 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
                   variant="outline"
                   className="border-slate-300 text-slate-700 hover:bg-slate-100 px-6"
                 >
-                  Стоп
+                  <Icon name="X" size={16} className="mr-2" />
+                  Завершить разговор
                 </Button>
               </div>
-
-              <div id="elevenlabs-widget-container" className="w-full"></div>
             </div>
           )}
         </div>
