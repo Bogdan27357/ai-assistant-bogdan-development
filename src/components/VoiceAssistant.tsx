@@ -31,8 +31,9 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
-  const processorRef = useRef<ScriptProcessorNode | null>(null);
+  const audioWorkletRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recordingIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (embedded) {
@@ -93,30 +94,7 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
         
         if (isVoiceMode && mediaStreamRef.current) {
           setIsListening(true);
-          audioContextRef.current = new AudioContext({ sampleRate: 16000 });
-          const source = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
-          const processor = audioContextRef.current.createScriptProcessor(2048, 1, 1);
-          processorRef.current = processor;
-
-          source.connect(processor);
-          processor.connect(audioContextRef.current.destination);
-
-          processor.onaudioprocess = (e) => {
-            if (ws.readyState === WebSocket.OPEN && isListening) {
-              const inputData = e.inputBuffer.getChannelData(0);
-              const pcm16 = new Int16Array(inputData.length);
-              
-              for (let i = 0; i < inputData.length; i++) {
-                const s = Math.max(-1, Math.min(1, inputData[i]));
-                pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-              }
-              
-              const base64Audio = btoa(String.fromCharCode(...new Uint8Array(pcm16.buffer)));
-              ws.send(JSON.stringify({
-                user_audio_chunk: base64Audio
-              }));
-            }
-          };
+          startAudioCapture(ws);
         }
       };
 
@@ -211,15 +189,59 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
     setInputText('');
   };
 
+  const startAudioCapture = async (ws: WebSocket) => {
+    if (!mediaStreamRef.current) return;
+
+    try {
+      audioContextRef.current = new AudioContext({ sampleRate: 16000 });
+      const source = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
+      audioWorkletRef.current = source;
+
+      const mediaRecorder = new MediaRecorder(mediaStreamRef.current, {
+        mimeType: 'audio/webm',
+      });
+
+      mediaRecorder.ondataavailable = async (event) => {
+        if (event.data.size > 0 && ws.readyState === WebSocket.OPEN && isListening) {
+          const arrayBuffer = await event.data.arrayBuffer();
+          const audioContext = new AudioContext({ sampleRate: 16000 });
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          const channelData = audioBuffer.getChannelData(0);
+          
+          const pcm16 = new Int16Array(channelData.length);
+          for (let i = 0; i < channelData.length; i++) {
+            const s = Math.max(-1, Math.min(1, channelData[i]));
+            pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          }
+          
+          const base64Audio = btoa(String.fromCharCode(...new Uint8Array(pcm16.buffer)));
+          ws.send(JSON.stringify({
+            user_audio_chunk: base64Audio
+          }));
+        }
+      };
+
+      mediaRecorder.start(100);
+      recordingIntervalRef.current = mediaRecorder as any;
+    } catch (e) {
+      console.error('Ошибка захвата аудио:', e);
+    }
+  };
+
   const stopConversation = () => {
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
 
-    if (processorRef.current) {
-      processorRef.current.disconnect();
-      processorRef.current = null;
+    if (recordingIntervalRef.current) {
+      (recordingIntervalRef.current as any).stop?.();
+      recordingIntervalRef.current = null;
+    }
+
+    if (audioWorkletRef.current) {
+      audioWorkletRef.current.disconnect();
+      audioWorkletRef.current = null;
     }
 
     if (audioContextRef.current) {
