@@ -4,6 +4,7 @@
     "": {
       "name": "vite_react_shadcn_ts",
       "dependencies": {
+        "@11labs/client": "^0.2.0",
         "@elevenlabs/react": "^0.8.0",
         "@hookform/resolvers": "^3.9.0",
         "@radix-ui/react-accordion": "^1.2.0",
@@ -93,6 +94,8 @@
     "vite": "npm:rolldown-vite@7.1.13",
   },
   "packages": {
+    "@11labs/client": ["@11labs/client@0.2.0", "", { "dependencies": { "livekit-client": "^2.11.4" } }, "sha512-GBplAV4WDbcoThsIzdSDPN3xbcitK0ZZ4iJfJZKfltqvgvS6Uw8GZxHwVgiPwnQoA3uosYyY3L9TuPwmel18xQ=="],
+
     "@adobe/css-tools": ["@adobe/css-tools@4.4.4", "", {}, "sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg=="],
 
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
