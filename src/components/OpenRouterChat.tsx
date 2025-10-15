@@ -2,21 +2,18 @@ import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
+import KnowledgeBaseManager from './KnowledgeBaseManager';
 
 const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
-  const [model, setModel] = useState('anthropic/claude-3.5-sonnet');
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
+  const [systemPrompt, setSystemPrompt] = useState('Ты полезный ИИ-ассистент по имени Богдан.');
+  const [knowledgeBase, setKnowledgeBase] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-
-  const models = [
-    { value: 'anthropic/claude-3.5-sonnet', label: 'Богдан ИИ' },
-  ];
 
   useEffect(() => {
     if (chatHistory.length > 0) {
@@ -34,23 +31,24 @@ const OpenRouterChat = () => {
     setChatHistory(prev => [...prev, { role: 'user', content: message }]);
 
     try {
-      const response = await fetch('https://functions.poehali.dev/67edc815-4794-4df2-a27f-1112e55549b7', {
+      const response = await fetch('https://functions.poehali.dev/fe95d04c-888f-4cda-9351-5728f7b8641a', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message,
-          model,
+          history: chatHistory,
+          systemPrompt,
+          knowledgeBase,
         }),
       });
 
       const data = await response.json();
 
-      if (data.success) {
-        setChatHistory(prev => [...prev, { role: 'assistant', content: data.message }]);
+      if (data.response) {
+        setChatHistory(prev => [...prev, { role: 'assistant', content: data.response }]);
         setMessage('');
-        toast.success('Ответ получен');
       } else {
         toast.error(data.error || 'Ошибка при отправке');
       }
@@ -69,7 +67,15 @@ const OpenRouterChat = () => {
   };
 
   return (
-    <Card className="backdrop-blur-sm bg-white/90 dark:bg-slate-800/90 border-slate-200/50 dark:border-slate-700/50 shadow-xl h-[600px] flex flex-col">
+    <div className="space-y-4">
+      <KnowledgeBaseManager
+        onKnowledgeBaseChange={setKnowledgeBase}
+        onSystemPromptChange={setSystemPrompt}
+        knowledgeBase={knowledgeBase}
+        systemPrompt={systemPrompt}
+      />
+      
+      <Card className="backdrop-blur-sm bg-white/90 dark:bg-slate-800/90 border-slate-200/50 dark:border-slate-700/50 shadow-xl h-[600px] flex flex-col">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
           <Icon name="MessageSquare" size={24} />
@@ -109,19 +115,6 @@ const OpenRouterChat = () => {
         </div>
 
         <div className="space-y-3">
-          <Select value={model} onValueChange={setModel}>
-            <SelectTrigger className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-300 dark:border-slate-600">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {models.map((m) => (
-                <SelectItem key={m.value} value={m.value}>
-                  {m.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <Textarea
             placeholder="Введите ваше сообщение..."
             value={message}
@@ -167,6 +160,7 @@ const OpenRouterChat = () => {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };
 
