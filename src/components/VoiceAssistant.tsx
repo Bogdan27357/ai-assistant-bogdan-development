@@ -9,7 +9,7 @@ interface VoiceAssistantProps {
   onOpen?: () => void;
 }
 
-const VoiceAssistant = ({ agentId = 'TkqT87nC0bSWFpZWEJ1t', embedded = false, onOpen }: VoiceAssistantProps) => {
+const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedded = false, onOpen }: VoiceAssistantProps) => {
   const [isOpen, setIsOpen] = useState(embedded);
   const [isRecording, setIsRecording] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
