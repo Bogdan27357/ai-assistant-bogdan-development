@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +11,8 @@ const OpenRouterChat = () => {
   const [model, setModel] = useState('google/gemini-flash-1.5');
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const models = [
     { value: 'google/gemini-flash-1.5', label: 'Gemini Flash 1.5 (быстрая)' },
@@ -20,6 +22,14 @@ const OpenRouterChat = () => {
     { value: 'qwen/qwen-2-7b-instruct', label: 'Qwen 2 7B' },
     { value: 'mistralai/mistral-7b-instruct', label: 'Mistral 7B' },
   ];
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatHistory]);
 
   const handleSend = async () => {
     if (!message.trim()) {
@@ -73,29 +83,35 @@ const OpenRouterChat = () => {
           AI Чат (OpenRouter)
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col gap-4">
-        <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3">
+      <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3"
+        >
           {chatHistory.length === 0 ? (
             <div className="text-center text-slate-500 dark:text-slate-400 py-8">
               <Icon name="Sparkles" size={48} className="mx-auto mb-4 opacity-50" />
               <p>Начните диалог с AI</p>
             </div>
           ) : (
-            chatHistory.map((msg, index) => (
-              <div
-                key={index}
-                className={`p-3 rounded-lg ${
-                  msg.role === 'user'
-                    ? 'bg-indigo-500 text-white ml-12'
-                    : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white mr-12'
-                }`}
-              >
-                <div className="font-semibold text-xs mb-1 opacity-75">
-                  {msg.role === 'user' ? 'Вы' : 'AI'}
+            <>
+              {chatHistory.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-lg ${
+                    msg.role === 'user'
+                      ? 'bg-indigo-500 text-white ml-12'
+                      : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white mr-12'
+                  }`}
+                >
+                  <div className="font-semibold text-xs mb-1 opacity-75">
+                    {msg.role === 'user' ? 'Вы' : 'AI'}
+                  </div>
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
                 </div>
-                <div className="whitespace-pre-wrap">{msg.content}</div>
-              </div>
-            ))
+              ))}
+              <div ref={chatEndRef} />
+            </>
           )}
         </div>
 
