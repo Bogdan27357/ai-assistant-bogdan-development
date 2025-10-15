@@ -2,28 +2,16 @@ import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/sonner";
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import Auth from '@/components/Auth';
-import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
-import ChatInterface from '@/components/ChatInterface';
-import AdminPanel from '@/components/AdminPanel';
-import YandexGPTChat from '@/components/YandexGPTChat';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'auth' | 'profile' | 'chat' | 'admin'>('home');
   const [language, setLanguage] = useState<Language>('ru');
-  const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem('language');
     if (stored) setLanguage(stored as Language);
-    
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
 
     const storedTheme = localStorage.getItem('darkMode');
     if (storedTheme !== null) {
@@ -42,55 +30,29 @@ const Index = () => {
     localStorage.setItem('darkMode', String(newMode));
   };
 
-  const handleAuth = (newUser: { email: string; name: string }) => {
-    setUser(newUser);
-    setCurrentPage('home');
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setCurrentPage('home');
-  };
-
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       darkMode 
         ? 'bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900' 
         : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50'
     }`}>
-      {currentPage !== 'auth' && (
-        <Navigation 
-          currentPage={currentPage} 
-          onNavigate={setCurrentPage}
-          language={language}
-          onLanguageChange={handleLanguageChange}
-          user={user}
-          onAuthClick={() => setCurrentPage('auth')}
-          darkMode={darkMode}
-          onToggleDarkMode={toggleDarkMode}
-        />
-      )}
+      <Navigation 
+        language={language}
+        onLanguageChange={handleLanguageChange}
+        darkMode={darkMode}
+        onToggleDarkMode={toggleDarkMode}
+      />
       
-      {currentPage === 'home' && (
-        <div className="container mx-auto px-4 py-20">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                Yandex GPT
-              </h1>
-              <p className={`text-xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                Общайтесь с нейросетью на русском языке
-              </p>
-            </div>
-            <YandexGPTChat />
-          </div>
+      <div className="container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+            SberSpeech Integration
+          </h1>
+          <p className={`text-xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+            Готов к интеграции SberSpeech API
+          </p>
         </div>
-      )}
-      
-      {currentPage === 'chat' && <ChatInterface onNavigateAdmin={() => setCurrentPage('admin')} />}
-      {currentPage === 'admin' && <AdminPanel />}
-      {currentPage === 'auth' && <Auth onAuth={handleAuth} />}
-      {currentPage === 'profile' && user && <Profile user={user} onLogout={handleLogout} />}
+      </div>
       
       <Footer />
       <ScrollToTop />
