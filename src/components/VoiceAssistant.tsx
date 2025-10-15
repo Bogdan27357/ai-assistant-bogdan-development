@@ -99,7 +99,24 @@ const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
   };
 
   const getAIResponse = async (userText: string): Promise<string> => {
-    return `Вы сказали: ${userText}`;
+    try {
+      const aiResponse = await fetch('https://functions.poehali.dev/87ba29e0-1d44-4d47-9ba5-4d96798f382b', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: userText })
+      });
+      
+      const aiData = await aiResponse.json();
+      
+      if (aiData.success && aiData.answer) {
+        return aiData.answer;
+      } else {
+        return 'Извините, не удалось получить ответ. Обратитесь к стойке информации.';
+      }
+    } catch (error) {
+      console.error('Ошибка получения ответа от Yandex GPT:', error);
+      return 'Произошла ошибка. Пожалуйста, попробуйте снова или обратитесь к персоналу.';
+    }
   };
 
   const synthesizeSpeech = async (text: string) => {
