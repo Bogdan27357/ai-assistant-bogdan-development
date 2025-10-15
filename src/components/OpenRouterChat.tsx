@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
-import KnowledgeBaseManager from './KnowledgeBaseManager';
 
 const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
-  const [systemPrompt, setSystemPrompt] = useState('Ты полезный ИИ-ассистент по имени Богдан.');
-  const [knowledgeBase, setKnowledgeBase] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  const systemPrompt = localStorage.getItem('system-prompt') || 'Ты полезный ИИ-ассистент по имени Богдан.';
+  const knowledgeBase = localStorage.getItem('knowledge-base') || '';
 
   useEffect(() => {
     if (chatHistory.length > 0) {
@@ -67,15 +67,7 @@ const OpenRouterChat = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <KnowledgeBaseManager
-        onKnowledgeBaseChange={setKnowledgeBase}
-        onSystemPromptChange={setSystemPrompt}
-        knowledgeBase={knowledgeBase}
-        systemPrompt={systemPrompt}
-      />
-      
-      <Card className="backdrop-blur-sm bg-white/90 dark:bg-slate-800/90 border-slate-200/50 dark:border-slate-700/50 shadow-xl h-[600px] flex flex-col">
+    <Card className="backdrop-blur-sm bg-white/90 dark:bg-slate-800/90 border-slate-200/50 dark:border-slate-700/50 shadow-xl h-[600px] flex flex-col">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
           <Icon name="MessageSquare" size={24} />
@@ -160,7 +152,6 @@ const OpenRouterChat = () => {
         </div>
       </CardContent>
     </Card>
-    </div>
   );
 };
 

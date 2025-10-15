@@ -28,7 +28,7 @@ const Navigation = ({ language = 'ru', onLanguageChange, darkMode = true, onTogg
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-900 animate-pulse" />
             </div>
             <h1 className="text-xl font-black text-white hidden md:block tracking-tight">
-              SberSpeech
+              Богдан
             </h1>
           </div>
 
@@ -75,7 +75,14 @@ const Navigation = ({ language = 'ru', onLanguageChange, darkMode = true, onTogg
               </SheetTrigger>
               <SheetContent side="right" className="bg-slate-900/95 backdrop-blur-xl border-slate-700 w-64">
                 <div className="flex flex-col gap-2 mt-8">
-                  <p className="text-slate-400 text-sm px-2">SberSpeech Integration</p>
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start text-white hover:bg-slate-800"
+                    onClick={() => window.location.href = '/admin'}
+                  >
+                    <Icon name="Settings" size={16} className="mr-2" />
+                    Админ панель
+                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
