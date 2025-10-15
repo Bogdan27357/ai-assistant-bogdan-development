@@ -68,7 +68,7 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
         return;
       }
 
-      const conversation = await Conversation.startSession({
+      const sessionConfig: any = {
         agentId: agentId,
         apiKey: apiKey,
         onConnect: () => {
@@ -112,7 +112,13 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
             setIsListening(true);
           }
         },
-      });
+      };
+
+      if (mode === 'chat') {
+        sessionConfig.clientTools = { mute: true };
+      }
+
+      const conversation = await Conversation.startSession(sessionConfig);
 
       conversationRef.current = conversation;
 
@@ -126,8 +132,14 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
     }
   };
 
-  const sendTextMessage = async () => {
-    if (!inputText.trim() || !conversationRef.current) return;
+  const sendTextMessage = async (e?: any) => {
+    if (e) e.preventDefault();
+    if (!inputText.trim()) return;
+    
+    if (!conversationRef.current) {
+      await startConversation();
+      if (!conversationRef.current) return;
+    }
 
     setMessages(prev => [...prev, {
       role: 'user',
@@ -135,11 +147,18 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
       timestamp: new Date()
     }]);
 
+    const messageToSend = inputText;
+    setInputText('');
+
     try {
-      await conversationRef.current.sendTextInput(inputText);
-      setInputText('');
+      await conversationRef.current.sendTextInput(messageToSend);
     } catch (error) {
       console.error('Ошибка отправки сообщения:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Произошла ошибка при отправке сообщения',
+        timestamp: new Date()
+      }]);
     }
   };
 
@@ -252,20 +271,20 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
               <p className="text-slate-700 font-semibold">API ключ не настроен</p>
               <p className="text-slate-500 text-sm">Обратитесь к администратору</p>
             </div>
-          ) : !conversationStarted ? (
+          ) : !conversationStarted && mode === 'voice' ? (
             <div className="text-center space-y-6 flex-1 flex flex-col items-center justify-center">
               <div className="relative inline-block">
                 <div 
                   className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-green-500/50 transition-shadow cursor-pointer hover:scale-105"
                   onClick={startConversation}
                 >
-                  <Icon name={mode === 'voice' ? 'Mic' : 'MessageSquare'} size={64} className="text-white" />
+                  <Icon name="Mic" size={64} className="text-white" />
                 </div>
                 <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20 pointer-events-none"></div>
               </div>
               
               <p className="text-slate-700 text-base max-w-sm font-semibold">
-                {mode === 'voice' ? 'Нажмите для начала голосового разговора' : 'Нажмите для начала переписки'}
+                Нажмите для начала голосового разговора
               </p>
 
               <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded text-left max-w-sm">
@@ -293,7 +312,7 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
                 </div>
               </div>
             </div>
-          ) : mode === 'voice' ? (
+          ) : conversationStarted && mode === 'voice' ? (
             <div className="text-center space-y-6 flex-1 flex flex-col items-center justify-center">
               <div className="relative inline-block">
                 <div className={`w-32 h-32 rounded-full flex items-center justify-center shadow-lg transition-all ${
@@ -325,13 +344,13 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
                 </Button>
               </div>
             </div>
-          ) : (
+          ) : mode === 'chat' ? (
             <div className="flex flex-col h-full">
               <div className="flex-1 overflow-y-auto mb-4 space-y-3 max-h-[350px]">
                 {messages.length === 0 ? (
                   <div className="text-center text-slate-400 py-8">
                     <Icon name="MessageCircle" size={48} className="mx-auto mb-3 opacity-30" />
-                    <p>Начните переписку</p>
+                    <p>Напишите сообщение для начала</p>
                   </div>
                 ) : (
                   messages.map((msg, idx) => (
@@ -354,23 +373,28 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="flex gap-2">
+              <form onSubmit={sendTextMessage} className="flex gap-2">
                 <Input
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && sendTextMessage()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendTextMessage();
+                    }
+                  }}
                   placeholder="Напишите сообщение..."
                   className="flex-1"
                   disabled={isSpeaking}
                 />
                 <Button
-                  onClick={sendTextMessage}
+                  type="submit"
                   disabled={!inputText.trim() || isSpeaking}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Icon name="Send" size={18} />
                 </Button>
-              </div>
+              </form>
 
               {isSpeaking && (
                 <div className="mt-2 text-center text-sm text-blue-600 animate-pulse">
@@ -378,19 +402,21 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
                 </div>
               )}
 
-              <div className="mt-3 text-center">
-                <Button
-                  onClick={stopConversation}
-                  variant="outline"
-                  size="sm"
-                  className="border-red-300 text-red-700 hover:bg-red-50"
-                >
-                  <Icon name="X" size={14} className="mr-1" />
-                  Завершить
-                </Button>
-              </div>
+              {conversationStarted && (
+                <div className="mt-3 text-center">
+                  <Button
+                    onClick={stopConversation}
+                    variant="outline"
+                    size="sm"
+                    className="border-red-300 text-red-700 hover:bg-red-50"
+                  >
+                    <Icon name="X" size={14} className="mr-1" />
+                    Завершить
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
+          ) : null}
         </div>
       </Card>
     </div>
