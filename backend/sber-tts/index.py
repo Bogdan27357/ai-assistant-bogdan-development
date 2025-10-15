@@ -10,33 +10,34 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def get_access_token(client_id: str, client_secret: str) -> str:
     '''Get OAuth 2.0 access token from Sber'''
-    auth_url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
+    auth_url = 'https://salute.online.sberbank.ru:9443/api/v2/oauth'
+    
+    credentials = f'{client_id}:{client_secret}'
+    auth_header = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
     
     request_id = str(uuid.uuid4())
     
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'RqUID': request_id
+        'Authorization': f'Basic {auth_header}',
+        'RqUID': request_id,
+        'Content-Type': 'application/x-www-form-urlencoded'
     }
     
-    payload = {
-        'scope': 'SALUTE_SPEECH_PERS'
-    }
+    data = 'scope=SBER_SPEECH'
     
     try:
-        print(f'Trying OAuth with client_id: {client_id[:20]}...')
+        print(f'Trying OAuth with RqUID: {request_id}')
         
         response = requests.post(
             auth_url,
             headers=headers,
-            auth=(client_id, client_secret),
-            data=payload,
+            data=data,
             verify=False,
             timeout=10
         )
         
         print(f'OAuth response status: {response.status_code}')
-        print(f'OAuth response: {response.text}')
+        print(f'OAuth response: {response.text[:200]}...')
         
         if response.status_code == 200:
             result = response.json()
