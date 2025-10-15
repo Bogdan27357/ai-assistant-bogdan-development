@@ -23,12 +23,10 @@ const OpenRouterChat = () => {
     { value: 'mistralai/mistral-7b-instruct', label: 'Mistral 7B' },
   ];
 
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    if (chatHistory.length > 0) {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [chatHistory]);
 
   const handleSend = async () => {
@@ -139,6 +137,7 @@ const OpenRouterChat = () => {
                 handleSend();
               }
             }}
+            onFocus={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
             className="min-h-[100px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-300 dark:border-slate-600"
             disabled={isLoading}
           />
