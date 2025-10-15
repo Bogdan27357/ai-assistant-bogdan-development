@@ -4,6 +4,7 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import SberSpeechRecorder from '@/components/SberSpeechRecorder';
+import SberTextToSpeech from '@/components/SberTextToSpeech';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
@@ -45,16 +46,20 @@ const Index = () => {
       />
       
       <div className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h1 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
               SberSpeech
             </h1>
             <p className={`text-xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              Распознавание речи от Сбербанка
+              Распознавание и синтез речи от Сбербанка
             </p>
           </div>
-          <SberSpeechRecorder />
+          
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <SberSpeechRecorder />
+            <SberTextToSpeech />
+          </div>
         </div>
       </div>
       
