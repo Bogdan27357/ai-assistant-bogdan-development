@@ -12,15 +12,10 @@ def get_access_token(client_id: str, client_secret: str) -> str:
     '''Get OAuth 2.0 access token from Sber'''
     auth_url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
     
-    credentials = f'{client_id}:{client_secret}'
-    auth_header = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
-    
     request_id = str(uuid.uuid4())
     
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'Authorization': f'Basic {auth_header}',
         'RqUID': request_id
     }
     
@@ -29,12 +24,12 @@ def get_access_token(client_id: str, client_secret: str) -> str:
     }
     
     try:
-        print(f'Trying OAuth with RqUID: {request_id}')
-        print(f'Auth header: Basic {auth_header[:20]}...')
+        print(f'Trying OAuth with client_id: {client_id[:20]}...')
         
         response = requests.post(
             auth_url,
             headers=headers,
+            auth=(client_id, client_secret),
             data=payload,
             verify=False,
             timeout=10
