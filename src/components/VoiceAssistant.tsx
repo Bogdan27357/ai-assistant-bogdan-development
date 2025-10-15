@@ -5,9 +5,11 @@ import Icon from '@/components/ui/icon';
 
 interface VoiceAssistantProps {
   agentId?: string;
+  embedded?: boolean;
+  onOpen?: () => void;
 }
 
-const VoiceAssistant = ({ agentId = 'TkqT87nC0bSWFpZWEJ1t' }: VoiceAssistantProps) => {
+const VoiceAssistant = ({ agentId = 'TkqT87nC0bSWFpZWEJ1t', embedded = false, onOpen }: VoiceAssistantProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
@@ -50,10 +52,13 @@ const VoiceAssistant = ({ agentId = 'TkqT87nC0bSWFpZWEJ1t' }: VoiceAssistantProp
     }
   };
 
-  if (!isOpen) {
+  if (!isOpen && !embedded) {
     return (
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+          onOpen?.();
+        }}
         className="fixed bottom-8 right-8 z-50 w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center hover:shadow-green-500/50 animate-pulse"
         title="Голосовой помощник"
       >
@@ -62,8 +67,12 @@ const VoiceAssistant = ({ agentId = 'TkqT87nC0bSWFpZWEJ1t' }: VoiceAssistantProp
     );
   }
 
+  if (!isOpen && embedded) {
+    return null;
+  }
+
   return (
-    <div className="fixed bottom-8 right-8 z-50 w-[420px]">
+    <div className={embedded ? 'w-full' : 'fixed bottom-8 right-8 z-50 w-[420px]'}>
       <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-0 shadow-2xl overflow-hidden">
         <div className="bg-white/10 backdrop-blur-sm p-6 rounded-t-lg">
           <div className="flex items-center justify-between mb-4">
