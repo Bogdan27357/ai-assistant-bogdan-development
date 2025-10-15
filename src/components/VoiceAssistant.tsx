@@ -84,17 +84,6 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
         setStatusMessage('Подключено! Говорите...');
         setIsListening(true);
         
-        ws.send(JSON.stringify({
-          type: 'conversation_initiation_client_data',
-          conversation_config_override: {
-            agent: {
-              prompt: {
-                prompt: 'Вы - помощник аэропорта Пулково. Отвечайте кратко и по делу на русском языке.'
-              }
-            }
-          }
-        }));
-        
         audioContextRef.current = new AudioContext({ sampleRate: 16000 });
         const source = audioContextRef.current.createMediaStreamSource(stream);
         const processor = audioContextRef.current.createScriptProcessor(4096, 1, 1);
