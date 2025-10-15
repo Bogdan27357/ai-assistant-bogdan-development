@@ -12,8 +12,14 @@ interface VoiceAssistantProps {
 const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedded = false, onOpen }: VoiceAssistantProps) => {
   const [isOpen, setIsOpen] = useState(embedded);
   const [conversationStarted, setConversationStarted] = useState(false);
-  const widgetRef = useRef<HTMLElement | null>(null);
-  const scriptLoadedRef = useRef(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  
+  const wsRef = useRef<WebSocket | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioProcessorRef = useRef<ScriptProcessorNode | null>(null);
 
   useEffect(() => {
     if (embedded) {
@@ -21,48 +27,125 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
     }
   }, [embedded]);
 
-  useEffect(() => {
-    if (!scriptLoadedRef.current) {
-      const existingScript = document.querySelector('script[src="https://elevenlabs.io/convai-widget/index.js"]');
-      
-      if (!existingScript) {
-        const script = document.createElement('script');
-        script.src = 'https://elevenlabs.io/convai-widget/index.js';
-        script.async = true;
-        document.head.appendChild(script);
-        scriptLoadedRef.current = true;
-      }
-    }
-  }, []);
+  const startConversation = async () => {
+    try {
+      setConversationStarted(true);
+      setStatusMessage('Подключаюсь...');
 
-  const handleStartConversation = () => {
-    setConversationStarted(true);
-    
-    setTimeout(() => {
-      if (!widgetRef.current) {
-        const widget = document.createElement('elevenlabs-convai') as HTMLElement;
-        widget.setAttribute('agent-id', agentId);
-        document.body.appendChild(widget);
-        widgetRef.current = widget;
-      }
-    }, 100);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      audioContextRef.current = new AudioContext({ sampleRate: 16000 });
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      
+      const processor = audioContextRef.current.createScriptProcessor(2048, 1, 1);
+      audioProcessorRef.current = processor;
+
+      const ws = new WebSocket(`wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        setStatusMessage('Подключено! Говорите...');
+        setIsListening(true);
+        
+        source.connect(processor);
+        processor.connect(audioContextRef.current!.destination);
+
+        processor.onaudioprocess = (e) => {
+          if (ws.readyState === WebSocket.OPEN) {
+            const inputData = e.inputBuffer.getChannelData(0);
+            const pcm16 = new Int16Array(inputData.length);
+            
+            for (let i = 0; i < inputData.length; i++) {
+              const s = Math.max(-1, Math.min(1, inputData[i]));
+              pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+            
+            ws.send(JSON.stringify({
+              user_audio_chunk: btoa(String.fromCharCode(...new Uint8Array(pcm16.buffer)))
+            }));
+          }
+        };
+      };
+
+      ws.onmessage = async (event) => {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'audio') {
+          setIsSpeaking(true);
+          setIsListening(false);
+          
+          const audioData = atob(data.audio);
+          const audioArray = new Uint8Array(audioData.length);
+          for (let i = 0; i < audioData.length; i++) {
+            audioArray[i] = audioData.charCodeAt(i);
+          }
+          
+          const audioBlob = new Blob([audioArray], { type: 'audio/mpeg' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          
+          audio.onended = () => {
+            setIsSpeaking(false);
+            setIsListening(true);
+          };
+          
+          await audio.play();
+        }
+        
+        if (data.type === 'interruption') {
+          setIsListening(true);
+          setIsSpeaking(false);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setStatusMessage('Ошибка подключения');
+      };
+
+      ws.onclose = () => {
+        setStatusMessage('Соединение закрыто');
+        stopConversation();
+      };
+
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      setStatusMessage('Ошибка доступа к микрофону');
+      setConversationStarted(false);
+    }
   };
 
-  const handleStopConversation = () => {
-    setConversationStarted(false);
-    
-    if (widgetRef.current) {
-      widgetRef.current.remove();
-      widgetRef.current = null;
+  const stopConversation = () => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
     }
+
+    if (audioProcessorRef.current) {
+      audioProcessorRef.current.disconnect();
+      audioProcessorRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
+    }
+
+    setConversationStarted(false);
+    setIsListening(false);
+    setIsSpeaking(false);
+    setStatusMessage('');
   };
 
   useEffect(() => {
     return () => {
-      if (widgetRef.current) {
-        widgetRef.current.remove();
-        widgetRef.current = null;
-      }
+      stopConversation();
     };
   }, []);
 
@@ -95,7 +178,7 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
               <button
                 onClick={() => {
                   setIsOpen(false);
-                  handleStopConversation();
+                  stopConversation();
                 }}
                 className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
               >
@@ -110,8 +193,10 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
           {!conversationStarted ? (
             <div className="text-center space-y-6">
               <div className="relative inline-block">
-                <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-green-500/50 transition-shadow cursor-pointer"
-                     onClick={handleStartConversation}>
+                <div 
+                  className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-green-500/50 transition-shadow cursor-pointer"
+                  onClick={startConversation}
+                >
                   <Icon name="Mic" size={64} className="text-white" />
                 </div>
                 <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20 pointer-events-none"></div>
@@ -148,20 +233,30 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
             </div>
           ) : (
             <div className="text-center space-y-6 w-full">
+              <div className="relative inline-block">
+                <div className={`w-32 h-32 rounded-full flex items-center justify-center shadow-lg transition-all ${
+                  isSpeaking ? 'bg-blue-500 animate-pulse' : isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-400'
+                }`}>
+                  <Icon name={isSpeaking ? "Volume2" : isListening ? "Mic" : "MicOff"} size={64} className="text-white" />
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <p className="text-slate-700 text-lg font-semibold">
-                  Говорите в микрофон
+                  {isSpeaking ? 'Помощник говорит...' : isListening ? 'Слушаю вас...' : 'Обработка...'}
                 </p>
-                <p className="text-slate-600 text-sm">
-                  Виджет голосового помощника активирован
-                </p>
+                {statusMessage && (
+                  <p className="text-slate-600 text-sm">
+                    {statusMessage}
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-4 justify-center">
                 <Button
-                  onClick={handleStopConversation}
+                  onClick={stopConversation}
                   variant="outline"
-                  className="border-slate-300 text-slate-700 hover:bg-slate-100 px-6"
+                  className="border-red-300 text-red-700 hover:bg-red-50 px-6"
                 >
                   <Icon name="X" size={16} className="mr-2" />
                   Завершить разговор
