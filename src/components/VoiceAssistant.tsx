@@ -10,12 +10,18 @@ interface VoiceAssistantProps {
 }
 
 const VoiceAssistant = ({ agentId = 'TkqT87nC0bSWFpZWEJ1t', embedded = false, onOpen }: VoiceAssistantProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(embedded);
   const [isRecording, setIsRecording] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
 
   useEffect(() => {
-    if (isOpen && !conversationStarted) {
+    if (embedded) {
+      setIsOpen(true);
+    }
+  }, [embedded]);
+
+  useEffect(() => {
+    if ((isOpen || embedded) && !conversationStarted) {
       const script = document.createElement('script');
       script.src = 'https://elevenlabs.io/convai-widget/index.js';
       script.async = true;
