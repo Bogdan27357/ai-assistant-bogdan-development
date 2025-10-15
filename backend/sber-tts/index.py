@@ -9,44 +9,8 @@ from typing import Dict, Any
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def get_access_token(client_id: str, client_secret: str) -> str:
-    '''Get OAuth 2.0 access token from Sber'''
-    auth_url = 'https://salute.online.sberbank.ru:9443/api/v2/oauth'
-    
-    credentials = f'{client_id}:{client_secret}'
-    auth_header = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
-    
-    request_id = str(uuid.uuid4())
-    
-    headers = {
-        'Authorization': f'Basic {auth_header}',
-        'RqUID': request_id,
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    
-    data = 'scope=SBER_SPEECH'
-    
-    try:
-        print(f'Trying OAuth with RqUID: {request_id}')
-        
-        response = requests.post(
-            auth_url,
-            headers=headers,
-            data=data,
-            verify=False,
-            timeout=10
-        )
-        
-        print(f'OAuth response status: {response.status_code}')
-        print(f'OAuth response: {response.text[:200]}...')
-        
-        if response.status_code == 200:
-            result = response.json()
-            return result.get('access_token', '')
-        else:
-            raise Exception(f'Failed to get token: {response.status_code} - {response.text}')
-    except Exception as e:
-        print(f'OAuth error: {str(e)}')
-        raise
+    '''Get OAuth 2.0 access token from Sber - use Client Secret directly as token'''
+    return client_secret
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -108,12 +72,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         try:
-            access_token = get_access_token(client_id, client_secret)
-            
             headers = {
-                'Authorization': f'Bearer {access_token}',
+                'Authorization': f'Bearer {client_secret}',
+                'X-Client-Id': client_id,
                 'Content-Type': 'application/text'
             }
+            
+            print(f'Synthesis with Client-Id: {client_id} and token: {client_secret[:20]}...')
             
             params = {
                 'voice': voice,
