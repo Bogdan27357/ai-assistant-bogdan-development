@@ -75,12 +75,28 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
       setStatusMessage('Подключаюсь к помощнику...');
 
       const ws = new WebSocket(
-        `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}&xi-api-key=${ELEVENLABS_API_KEY}`
+        `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`
       );
       wsRef.current = ws;
 
       ws.onopen = () => {
         console.log('✅ WebSocket connected successfully');
+        
+        ws.send(JSON.stringify({
+          type: 'conversation_initiation_client_data',
+          conversation_config_override: {
+            agent: {
+              language: 'ru'
+            },
+            tts: {
+              output_format: 'mp3_44100_128'
+            }
+          },
+          custom_llm_extra_body: {
+            xi_api_key: ELEVENLABS_API_KEY
+          }
+        }));
+        
         setStatusMessage('Подключено! Говорите...');
         setIsListening(true);
         
@@ -116,15 +132,20 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
           
           if (data.type === 'audio' && data.audio_event?.audio_base_64) {
             const audioBase64 = data.audio_event.audio_base_64;
-            const audioData = atob(audioBase64);
-            const audioArray = new Uint8Array(audioData.length);
-            for (let i = 0; i < audioData.length; i++) {
-              audioArray[i] = audioData.charCodeAt(i);
+            const binaryString = atob(audioBase64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
             }
             
-            const audioBlob = new Blob([audioArray], { type: 'audio/mpeg' });
+            const audioBlob = new Blob([bytes.buffer], { type: 'audio/mp3' });
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
+            
+            audio.onerror = (e) => {
+              console.error('Audio playback error:', e);
+              URL.revokeObjectURL(audioUrl);
+            };
             
             audioQueueRef.current.push(audio);
             playNextAudio();
