@@ -99,24 +99,7 @@ const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
   };
 
   const getAIResponse = async (userText: string): Promise<string> => {
-    try {
-      const aiResponse = await fetch('https://functions.poehali.dev/d8dc549c-d543-420f-a8af-ebc7a81b30ef', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: userText })
-      });
-      
-      const aiData = await aiResponse.json();
-      
-      if (aiData.success && aiData.answer) {
-        return aiData.answer;
-      } else {
-        return 'Извините, не удалось получить ответ. Попробуйте переформулировать вопрос.';
-      }
-    } catch (error) {
-      console.error('Ошибка получения ответа от ИИ:', error);
-      return 'Произошла ошибка при обработке запроса. Пожалуйста, попробуйте снова.';
-    }
+    return `Вы сказали: ${userText}`;
   };
 
   const synthesizeSpeech = async (text: string) => {
