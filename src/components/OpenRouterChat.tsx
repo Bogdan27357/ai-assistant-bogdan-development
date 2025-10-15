@@ -8,19 +8,15 @@ import Icon from '@/components/ui/icon';
 
 const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
-  const [model, setModel] = useState('google/gemini-flash-1.5');
+  const [model, setModel] = useState('meta-llama/llama-3.1-8b-instruct');
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const models = [
-    { value: 'google/gemini-flash-1.5', label: 'Gemini Flash 1.5 (быстрая)' },
-    { value: 'google/gemini-pro-1.5', label: 'Gemini Pro 1.5 (мощная)' },
-    { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
     { value: 'meta-llama/llama-3.1-8b-instruct', label: 'Llama 3.1 8B' },
-    { value: 'qwen/qwen-2-7b-instruct', label: 'Qwen 2 7B' },
-    { value: 'mistralai/mistral-7b-instruct', label: 'Mistral 7B' },
+    { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
   ];
 
   useEffect(() => {
