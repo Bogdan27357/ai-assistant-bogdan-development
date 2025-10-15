@@ -15,43 +15,6 @@ const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminUser, setAdminUser] = useState<any>(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('adminUser');
-    const storedSession = localStorage.getItem('adminSession');
-    
-    if (storedUser && storedSession) {
-      const sessionTime = parseInt(storedSession);
-      const currentTime = Date.now();
-      const hourInMs = 60 * 60 * 1000;
-      
-      if (currentTime - sessionTime < 8 * hourInMs) {
-        setAdminUser(JSON.parse(storedUser));
-        setIsAuthenticated(true);
-      } else {
-        handleLogout();
-      }
-    }
-  }, []);
-
-  const handleLoginSuccess = () => {
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      setAdminUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('adminSession');
-    setAdminUser(null);
-    setIsAuthenticated(false);
-    toast.success('Вы вышли из системы');
-  };
-
-  if (!isAuthenticated) {
-    return <AdminLogin onSuccess={handleLoginSuccess} />;
-  }
   const [siteSettings, setSiteSettings] = useState({
     siteName: 'Богдан - Ваш помощник',
     tagline: 'Умный голосовой помощник для вашего бизнеса',
@@ -86,6 +49,40 @@ const AdminPanel = () => {
     address: 'Москва, Россия',
   });
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem('adminUser');
+    const storedSession = localStorage.getItem('adminSession');
+    
+    if (storedUser && storedSession) {
+      const sessionTime = parseInt(storedSession);
+      const currentTime = Date.now();
+      const hourInMs = 60 * 60 * 1000;
+      
+      if (currentTime - sessionTime < 8 * hourInMs) {
+        setAdminUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+      } else {
+        handleLogout();
+      }
+    }
+  }, []);
+
+  const handleLoginSuccess = () => {
+    const storedUser = localStorage.getItem('adminUser');
+    if (storedUser) {
+      setAdminUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminUser');
+    localStorage.removeItem('adminSession');
+    setAdminUser(null);
+    setIsAuthenticated(false);
+    toast.success('Вы вышли из системы');
+  };
+
   const handleSaveSiteSettings = () => {
     localStorage.setItem('siteSettings', JSON.stringify(siteSettings));
     toast.success('Настройки сайта сохранены');
@@ -105,6 +102,10 @@ const AdminPanel = () => {
     localStorage.setItem('contactInfo', JSON.stringify(contactInfo));
     toast.success('Контактная информация обновлена');
   };
+
+  if (!isAuthenticated) {
+    return <AdminLogin onSuccess={handleLoginSuccess} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-4 pt-24">
