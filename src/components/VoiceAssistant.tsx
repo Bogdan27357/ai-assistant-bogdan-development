@@ -30,6 +30,10 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
   const startConversation = async () => {
     try {
       setConversationStarted(true);
+      setStatusMessage('Запрашиваю доступ к микрофону...');
+
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      
       setStatusMessage('Подключаюсь к помощнику...');
 
       const conversation = await Conversation.startSession({
@@ -50,6 +54,9 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
         onError: (error) => {
           console.error('Conversation error:', error);
           setStatusMessage('Ошибка: ' + error.message);
+          setConversationStarted(false);
+          setIsListening(false);
+          setIsSpeaking(false);
         },
         onModeChange: (mode) => {
           console.log('Mode changed:', mode.mode);
@@ -67,8 +74,11 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
 
     } catch (error) {
       console.error('Error starting conversation:', error);
-      setStatusMessage('Ошибка: ' + (error as Error).message);
+      const errorMessage = (error as Error).message || 'Неизвестная ошибка';
+      setStatusMessage('Ошибка: ' + errorMessage);
       setConversationStarted(false);
+      setIsListening(false);
+      setIsSpeaking(false);
     }
   };
 
