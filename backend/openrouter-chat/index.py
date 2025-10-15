@@ -1,47 +1,14 @@
 import json
 import os
-import base64
 import requests
-import urllib3
 from typing import Dict, Any
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-def get_access_token(client_id: str, client_secret: str) -> str:
-    '''Get OAuth 2.0 access token from Sber'''
-    auth_url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
-    
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'RqUID': client_id
-    }
-    
-    data = {
-        'scope': 'SALUTE_SPEECH_PERS'
-    }
-    
-    response = requests.post(
-        auth_url,
-        headers=headers,
-        data=data,
-        auth=(client_id, client_secret),
-        verify=False,
-        timeout=10
-    )
-    
-    if response.status_code == 200:
-        result = response.json()
-        return result.get('access_token', '')
-    else:
-        raise Exception(f'Failed to get token: {response.status_code} - {response.text}')
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: SberSpeech API integration for speech recognition
-    Args: event with httpMethod, body (audio in base64), queryStringParameters
+    Business: OpenRouter AI chat - send messages to various AI models
+    Args: event with httpMethod, body (message, model)
           context with request_id
-    Returns: HTTP response with recognized text
+    Returns: HTTP response with AI model response
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -67,9 +34,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         except json.JSONDecodeError:
             body_data = {}
         
-        audio_base64 = body_data.get('audio')
+        message = body_data.get('message', '')
+        model = body_data.get('model', 'google/gemini-flash-1.5')
         
-        if not audio_base64:
+        if not message:
             return {
                 'statusCode': 400,
                 'headers': {
@@ -77,13 +45,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Audio data is required'})
+                'body': json.dumps({'error': 'Message is required'})
             }
         
-        client_id = os.environ.get('SBER_CLIENT_ID')
-        client_secret = os.environ.get('SBER_CLIENT_SECRET')
+        api_key = os.environ.get('OPENROUTER_API_KEY')
         
-        if not client_id or not client_secret:
+        if not api_key:
             return {
                 'statusCode': 500,
                 'headers': {
@@ -91,28 +58,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'SberSpeech credentials not configured'})
+                'body': json.dumps({'error': 'OpenRouter API key not configured'})
             }
         
         try:
-            access_token = get_access_token(client_id, client_secret)
-            audio_data = base64.b64decode(audio_base64)
-            
             headers = {
-                'Authorization': f'Bearer {access_token}'
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'https://poehali.dev',
+                'X-Title': 'AI Assistant'
+            }
+            
+            payload = {
+                'model': model,
+                'messages': [
+                    {'role': 'user', 'content': message}
+                ]
             }
             
             response = requests.post(
-                'https://smartspeech.sber.ru/rest/v1/speech:recognize',
+                'https://openrouter.ai/api/v1/chat/completions',
                 headers=headers,
-                data=audio_data,
-                timeout=30,
-                verify=False
+                json=payload,
+                timeout=30
             )
             
             if response.status_code == 200:
                 result = response.json()
-                text = result.get('result', [''])[0] if result.get('result') else ''
+                ai_message = result['choices'][0]['message']['content']
                 
                 return {
                     'statusCode': 200,
@@ -123,8 +96,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False,
                     'body': json.dumps({
                         'success': True,
-                        'text': text,
-                        'full_response': result
+                        'message': ai_message,
+                        'model': model
                     })
                 }
             else:
@@ -137,7 +110,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False,
                     'body': json.dumps({
                         'success': False,
-                        'error': f'SberSpeech API error: {response.text}'
+                        'error': f'OpenRouter API error: {response.text}'
                     })
                 }
                 
@@ -151,7 +124,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False,
                 'body': json.dumps({
                     'success': False,
-                    'error': f'Recognition failed: {str(e)}'
+                    'error': f'Request failed: {str(e)}'
                 })
             }
     

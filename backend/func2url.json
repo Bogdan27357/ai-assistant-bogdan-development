@@ -1,5 +1,4 @@
 {
-  "sber-tts": "https://functions.poehali.dev/635b67d6-9fa9-48be-9773-7f015d8d7ad1",
-  "sber-speech": "https://functions.poehali.dev/d018a504-6787-4f71-a330-3a07d40d05c3",
+  "openrouter-chat": "https://functions.poehali.dev/67edc815-4794-4df2-a27f-1112e55549b7",
   "auth": "https://functions.poehali.dev/c19987e7-4131-461a-b588-ffe95460e8de"
 }

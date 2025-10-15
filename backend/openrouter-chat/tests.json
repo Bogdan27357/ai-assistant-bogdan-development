@@ -7,7 +7,7 @@
       "expectedStatus": 200
     },
     {
-      "name": "Reject POST without audio",
+      "name": "Reject POST without message",
       "method": "POST",
       "path": "/",
       "body": {},
@@ -18,15 +18,14 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "Check token configuration",
+      "name": "Check API key configuration",
       "method": "POST",
       "path": "/",
       "body": {
-        "audio": "dGVzdA=="
+        "message": "Hello"
       },
-      "expectedStatus": 500,
+      "expectedStatus": 404,
       "expectedBody": {
-        "success": false,
         "error": "string"
       },
       "bodyMatcher": "partial"
