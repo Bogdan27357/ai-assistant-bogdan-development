@@ -75,15 +75,25 @@ const VoiceAssistant = ({ agentId = 'agent_0801k7c6w3tne7atwjrk3xc066s3', embedd
       setStatusMessage('Подключаюсь к помощнику...');
 
       const ws = new WebSocket(
-        `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`,
-        ['api-key', ELEVENLABS_API_KEY]
+        `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}&xi-api-key=${ELEVENLABS_API_KEY}`
       );
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('✅ WebSocket connected successfully');
         setStatusMessage('Подключено! Говорите...');
         setIsListening(true);
+        
+        ws.send(JSON.stringify({
+          type: 'conversation_initiation_client_data',
+          conversation_config_override: {
+            agent: {
+              prompt: {
+                prompt: 'Вы - помощник аэропорта Пулково. Отвечайте кратко и по делу на русском языке.'
+              }
+            }
+          }
+        }));
         
         audioContextRef.current = new AudioContext({ sampleRate: 16000 });
         const source = audioContextRef.current.createMediaStreamSource(stream);
