@@ -7,7 +7,7 @@ import Profile from '@/components/Profile';
 import ScrollToTop from '@/components/ScrollToTop';
 import ChatInterface from '@/components/ChatInterface';
 import AdminPanel from '@/components/AdminPanel';
-import SimpleConsultant from '@/components/SimpleConsultant';
+import VoiceAssistant from '@/components/VoiceAssistant';
 import Icon from '@/components/ui/icon';
 import { Language } from '@/lib/i18n';
 
@@ -89,6 +89,7 @@ const Index = () => {
       
       <Footer />
       <ScrollToTop />
+      <VoiceAssistant />
       <Toaster />
     </div>
   );
