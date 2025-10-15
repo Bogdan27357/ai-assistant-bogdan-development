@@ -7,8 +7,8 @@ import requests
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: Распознавание речи через Yandex SpeechKit
-    Args: event с httpMethod POST, body с audio (base64) или audio_url
-    Returns: Распознанный текст
+    Args: event с httpMethod POST, body с audio в base64
+    Returns: JSON с распознанным текстом
     '''
     method: str = event.get('httpMethod', 'POST')
     
@@ -66,45 +66,58 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     audio_data = base64.b64decode(audio_base64)
     
-    response = requests.post(
-        'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize',
-        headers={
-            'Authorization': f'Api-Key {api_key}',
-        },
-        params={
-            'folderId': folder_id,
-            'lang': 'ru-RU'
-        },
-        data=audio_data,
-        timeout=30
-    )
-    
-    if response.status_code == 200:
-        result = response.json()
-        text = result.get('result', '')
+    try:
+        response = requests.post(
+            f'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?folderId={folder_id}&lang=ru-RU',
+            headers={
+                'Authorization': f'Api-Key {api_key}',
+                'Transfer-Encoding': 'chunked'
+            },
+            data=audio_data,
+            timeout=30,
+            verify=True
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            text = result.get('result', '')
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    'text': text,
+                    'success': True
+                }),
+                'isBase64Encoded': False
+            }
         
         return {
-            'statusCode': 200,
+            'statusCode': response.status_code,
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
             'body': json.dumps({
-                'text': text,
-                'success': True
+                'error': f'Yandex API error: {response.text}',
+                'success': False
             }),
             'isBase64Encoded': False
         }
-    
-    return {
-        'statusCode': response.status_code,
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
-        'body': json.dumps({
-            'error': response.text,
-            'success': False
-        }),
-        'isBase64Encoded': False
-    }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'error': f'Recognition error: {str(e)}',
+                'success': False
+            }),
+            'isBase64Encoded': False
+        }

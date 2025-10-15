@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface VoiceAssistantProps {
@@ -8,93 +7,81 @@ interface VoiceAssistantProps {
   onOpen?: () => void;
 }
 
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
   const [isOpen, setIsOpen] = useState(embedded);
-  const [isRecording, setIsRecording] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [transcript, setTranscript] = useState('');
   
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (embedded) {
       setIsOpen(true);
     }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ru-RU';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setStatusMessage('Слушаю вас...');
+      };
+
+      recognition.onresult = async (event: any) => {
+        const text = event.results[0][0].transcript;
+        setTranscript(text);
+        setStatusMessage(`Вы сказали: ${text}`);
+        setIsListening(false);
+        setIsProcessing(true);
+        
+        const response = await getAIResponse(text);
+        await synthesizeSpeech(response);
+      };
+
+      recognition.onerror = () => {
+        setIsListening(false);
+        setStatusMessage('Ошибка распознавания. Попробуйте снова');
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, [embedded]);
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      
-      audioChunksRef.current = [];
-      
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-      
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        await processAudio(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorder.start();
-      mediaRecorderRef.current = mediaRecorder;
-      setIsRecording(true);
-      setStatusMessage('Говорите...');
-      
-    } catch (error) {
-      console.error('Ошибка доступа к микрофону:', error);
-      setStatusMessage('Ошибка доступа к микрофону');
+  const startListening = () => {
+    if (recognitionRef.current && !isListening && !isProcessing && !isSpeaking) {
+      setTranscript('');
+      recognitionRef.current.start();
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setIsProcessing(true);
-      setStatusMessage('Обрабатываю...');
-    }
-  };
-
-  const processAudio = async (audioBlob: Blob) => {
-    try {
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      
-      reader.onloadend = async () => {
-        const base64Audio = (reader.result as string).split(',')[1];
-        
-        const recognizeResponse = await fetch('https://functions.poehali.dev/51113e35-683f-4746-ad24-22a2726b7c2d', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ audio: base64Audio })
-        });
-        
-        const recognizeData = await recognizeResponse.json();
-        
-        if (recognizeData.success && recognizeData.text) {
-          setStatusMessage(`Вы сказали: ${recognizeData.text}`);
-          
-          const responseText = await getAIResponse(recognizeData.text);
-          await synthesizeSpeech(responseText);
-        } else {
-          setStatusMessage('Не удалось распознать речь');
-          setIsProcessing(false);
-        }
-      };
-      
-    } catch (error) {
-      console.error('Ошибка обработки аудио:', error);
-      setStatusMessage('Ошибка обработки');
-      setIsProcessing(false);
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
     }
   };
 
@@ -165,10 +152,10 @@ const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
   };
 
   const handleMicClick = () => {
-    if (isRecording) {
-      stopRecording();
+    if (isListening) {
+      stopListening();
     } else if (!isProcessing && !isSpeaking) {
-      startRecording();
+      startListening();
     }
   };
 
@@ -206,7 +193,7 @@ const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
               </button>
             )}
           </div>
-          <p className="text-white/90 text-sm">Yandex SpeechKit · Аэропорт Пулково</p>
+          <p className="text-white/90 text-sm">Yandex GPT · Аэропорт Пулково</p>
         </div>
 
         <div className="p-6 bg-white/95 min-h-[400px] flex flex-col items-center justify-center">
@@ -216,7 +203,7 @@ const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
                 onClick={handleMicClick}
                 disabled={isProcessing || isSpeaking}
                 className={`w-32 h-32 rounded-full flex items-center justify-center shadow-lg transition-all ${
-                  isRecording 
+                  isListening 
                     ? 'bg-red-500 animate-pulse' 
                     : isProcessing 
                     ? 'bg-yellow-500' 
@@ -227,7 +214,7 @@ const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
               >
                 <Icon 
                   name={
-                    isRecording ? 'Mic' : 
+                    isListening ? 'Mic' : 
                     isProcessing ? 'Loader' : 
                     isSpeaking ? 'Volume2' : 
                     'Mic'
@@ -236,13 +223,13 @@ const VoiceAssistant = ({ embedded = false, onOpen }: VoiceAssistantProps) => {
                   className={`text-white ${isProcessing ? 'animate-spin' : ''}`} 
                 />
               </button>
-              {!isRecording && !isProcessing && !isSpeaking && (
+              {!isListening && !isProcessing && !isSpeaking && (
                 <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20 pointer-events-none"></div>
               )}
             </div>
             
             <p className="text-slate-700 text-lg font-semibold">
-              {isRecording ? '🎤 Слушаю вас...' : 
+              {isListening ? '🎤 Слушаю вас...' : 
                isProcessing ? '⏳ Обрабатываю...' : 
                isSpeaking ? '🔊 Отвечаю...' : 
                'Нажмите для начала разговора'}
