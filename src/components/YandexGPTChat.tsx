@@ -12,6 +12,7 @@ const YandexGPTChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -22,21 +23,51 @@ const YandexGPTChat = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const response = await fetch(`https://functions.poehali.dev/7f3d9916-e4cb-4579-b5f1-d28431c090d8?session_id=${sessionId}`);
+        const data = await response.json();
+        if (data.messages && Array.isArray(data.messages)) {
+          setMessages(data.messages);
+        }
+      } catch (error) {
+        console.error('Failed to load history:', error);
+      }
+    };
+    loadHistory();
+  }, [sessionId]);
+
+  const saveMessage = async (role: 'user' | 'assistant', content: string) => {
+    try {
+      await fetch('https://functions.poehali.dev/7f3d9916-e4cb-4579-b5f1-d28431c090d8', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId, role, content })
+      });
+    } catch (error) {
+      console.error('Failed to save message:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
+    const userInput = input;
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+
+    await saveMessage('user', userInput);
 
     try {
       const response = await fetch('https://functions.poehali.dev/4c0c2f7f-b788-495b-a312-49068e93cea6', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ message: userInput })
       });
 
       const data = await response.json();
@@ -44,12 +75,14 @@ const YandexGPTChat = () => {
       if (data.success && data.response) {
         const assistantMessage: Message = { role: 'assistant', content: data.response };
         setMessages(prev => [...prev, assistantMessage]);
+        await saveMessage('assistant', data.response);
       } else {
         const errorMessage: Message = { 
           role: 'assistant', 
           content: 'Извините, произошла ошибка. Попробуйте снова.' 
         };
         setMessages(prev => [...prev, errorMessage]);
+        await saveMessage('assistant', errorMessage.content);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -58,6 +91,7 @@ const YandexGPTChat = () => {
         content: 'Ошибка соединения. Проверьте настройки API.' 
       };
       setMessages(prev => [...prev, errorMessage]);
+      await saveMessage('assistant', errorMessage.content);
     } finally {
       setIsLoading(false);
     }

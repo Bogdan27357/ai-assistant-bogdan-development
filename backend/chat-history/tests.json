@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Handle OPTIONS",
+      "method": "OPTIONS",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get messages without session_id",
+      "method": "GET",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Save message",
+      "method": "POST",
+      "body": {
+        "session_id": "test-session-123",
+        "role": "user",
+        "content": "Test message"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
