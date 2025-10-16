@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
@@ -263,14 +265,39 @@ const OpenRouterChat = () => {
                   <div className="font-semibold text-xs mb-1 opacity-75">
                     {msg.role === 'user' ? 'Вы' : 'Богдан'}
                   </div>
-                  <div className="whitespace-pre-wrap">
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
                     {typeof msg.content === 'string' ? (
-                      msg.content
+                      msg.role === 'assistant' ? (
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            img: ({node, ...props}) => (
+                              <img 
+                                {...props} 
+                                className="max-w-full rounded-lg my-2" 
+                                loading="lazy"
+                              />
+                            ),
+                            a: ({node, ...props}) => (
+                              <a 
+                                {...props} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-blue-600 dark:text-blue-400 hover:underline"
+                              />
+                            )
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      ) : (
+                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                      )
                     ) : (
                       <div className="space-y-2">
                         {msg.content.map((item, idx) => (
                           <div key={idx}>
-                            {item.type === 'text' && item.text}
+                            {item.type === 'text' && <div className="whitespace-pre-wrap">{item.text}</div>}
                             {item.type === 'image_url' && item.image_url && (
                               <img 
                                 src={item.image_url.url} 
