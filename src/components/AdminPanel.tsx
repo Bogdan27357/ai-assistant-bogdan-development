@@ -153,7 +153,7 @@ const AdminPanel = () => {
   };
 
   if (!isAuthenticated) {
-    return <AdminLogin onLoginSuccess={handleLoginSuccess} />;
+    return <AdminLogin onSuccess={handleLoginSuccess} />;
   }
 
   return (
