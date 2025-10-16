@@ -34,7 +34,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     body_data = json.loads(event.get('body', '{}'))
-    user_message: str = body_data.get('message', '')
+    user_message: Union[str, List[Dict[str, Any]]] = body_data.get('message', '')
     chat_history: List[Dict[str, Any]] = body_data.get('history', [])
     system_prompt: str = body_data.get('systemPrompt', '')
     knowledge_base: str = body_data.get('knowledgeBase', '')

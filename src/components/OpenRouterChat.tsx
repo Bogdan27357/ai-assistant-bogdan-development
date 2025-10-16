@@ -194,7 +194,8 @@ const OpenRouterChat = () => {
       userContent = messageToSend;
     }
 
-    setChatHistory(prev => [...prev, { role: 'user', content: userContent }]);
+    const newHistory = [...chatHistory, { role: 'user', content: userContent }];
+    setChatHistory(newHistory);
 
     try {
       const response = await fetch('https://functions.poehali.dev/fe95d04c-888f-4cda-9351-5728f7b8641a', {
@@ -203,7 +204,7 @@ const OpenRouterChat = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: messageToSend,
+          message: userContent,
           history: chatHistory,
           systemPrompt,
           knowledgeBase,
