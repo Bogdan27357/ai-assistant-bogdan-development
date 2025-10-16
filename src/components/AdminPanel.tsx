@@ -15,6 +15,7 @@ const AdminPanel = () => {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [knowledgeBase, setKnowledgeBase] = useState('');
   const [preset, setPreset] = useState('default');
+  const [selectedModel, setSelectedModel] = useState('anthropic/claude-3.5-sonnet');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -53,6 +54,7 @@ const AdminPanel = () => {
       setSystemPrompt(data.system_prompt || '');
       setKnowledgeBase(data.knowledge_base || '');
       setPreset(data.preset || 'default');
+      setSelectedModel(data.selected_model || 'anthropic/claude-3.5-sonnet');
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
       toast.error('Не удалось загрузить настройки');
@@ -62,13 +64,14 @@ const AdminPanel = () => {
   };
 
   const saveSettings = async () => {
-    console.log('saveSettings called with:', { systemPrompt, knowledgeBase, preset });
+    console.log('saveSettings called with:', { systemPrompt, knowledgeBase, preset, selectedModel });
     try {
       setIsSaving(true);
       const payload = {
         system_prompt: systemPrompt,
         knowledge_base: knowledgeBase,
-        preset: preset
+        preset: preset,
+        selected_model: selectedModel
       };
       console.log('Sending to API:', payload);
       
@@ -161,33 +164,80 @@ const AdminPanel = () => {
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="preset" className="text-slate-300">
-                    <Icon name="Bot" size={16} className="inline mr-2" />
-                    Модель ИИ
+                    <Icon name="Sparkles" size={16} className="inline mr-2" />
+                    Пресет
                   </Label>
                   <Select value={preset} onValueChange={setPreset}>
                     <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                      <SelectValue placeholder="Выберите модель" />
+                      <SelectValue placeholder="Выберите пресет" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                      <SelectItem value="default" className="text-white">
-                        Claude 3.5 Sonnet
+                      <SelectItem value="default" className="text-white">По умолчанию</SelectItem>
+                      <SelectItem value="creative" className="text-white">Креативный</SelectItem>
+                      <SelectItem value="precise" className="text-white">Точный</SelectItem>
+                      <SelectItem value="friendly" className="text-white">Дружелюбный</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="model" className="text-slate-300">
+                    <Icon name="Bot" size={16} className="inline mr-2" />
+                    Модель ИИ
+                  </Label>
+                  <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                      <SelectItem value="anthropic/claude-3.5-sonnet" className="text-white">
+                        Anthropic: Claude 3.5 Sonnet
                       </SelectItem>
-                      <SelectItem value="creative" className="text-white">
-                        Claude 3 Opus (креативный)
+                      <SelectItem value="anthropic/claude-3-opus" className="text-white">
+                        Anthropic: Claude 3 Opus
                       </SelectItem>
-                      <SelectItem value="precise" className="text-white">
-                        Gemini Flash 1.5 (быстрый)
+                      <SelectItem value="anthropic/claude-3-haiku" className="text-white">
+                        Anthropic: Claude 3 Haiku
                       </SelectItem>
-                      <SelectItem value="audio" className="text-white">
-                        🎤 GPT-4o Audio (голос)
+                      <SelectItem value="openai/gpt-4o" className="text-white">
+                        OpenAI: GPT-4o
+                      </SelectItem>
+                      <SelectItem value="openai/gpt-4o-mini" className="text-white">
+                        OpenAI: GPT-4o Mini
+                      </SelectItem>
+                      <SelectItem value="openai/gpt-4o-audio-preview" className="text-white">
+                        🎤 OpenAI: GPT-4o Audio Preview
+                      </SelectItem>
+                      <SelectItem value="openai/o1-preview" className="text-white">
+                        OpenAI: o1-preview
+                      </SelectItem>
+                      <SelectItem value="openai/o1-mini" className="text-white">
+                        OpenAI: o1-mini
+                      </SelectItem>
+                      <SelectItem value="google/gemini-flash-1.5" className="text-white">
+                        Google: Gemini Flash 1.5
+                      </SelectItem>
+                      <SelectItem value="google/gemini-pro-1.5" className="text-white">
+                        Google: Gemini Pro 1.5
+                      </SelectItem>
+                      <SelectItem value="meta-llama/llama-3.1-405b-instruct" className="text-white">
+                        Meta: Llama 3.1 405B
+                      </SelectItem>
+                      <SelectItem value="meta-llama/llama-3.1-70b-instruct" className="text-white">
+                        Meta: Llama 3.1 70B
+                      </SelectItem>
+                      <SelectItem value="mistralai/mistral-large" className="text-white">
+                        Mistral: Mistral Large
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-slate-400 mt-1">
-                    {preset === 'audio' && '🎤 Эта модель понимает голосовые сообщения'}
-                    {preset === 'default' && 'Рекомендуется для большинства задач'}
-                    {preset === 'creative' && 'Лучший выбор для творческих задач'}
-                    {preset === 'precise' && 'Оптимален для быстрых ответов'}
+                    {selectedModel.includes('audio') && '🎤 Поддерживает голосовые сообщения'}
+                    {selectedModel.includes('claude') && 'Высокое качество ответов'}
+                    {selectedModel.includes('gpt-4o') && 'Универсальная модель OpenAI'}
+                    {selectedModel.includes('gemini') && 'Быстрая модель Google'}
+                    {selectedModel.includes('llama') && 'Открытая модель Meta'}
+                    {selectedModel.includes('o1') && 'Модель с улучшенным рассуждением'}
                   </p>
                 </div>
 

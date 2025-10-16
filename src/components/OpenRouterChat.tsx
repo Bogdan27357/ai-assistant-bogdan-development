@@ -13,6 +13,7 @@ const OpenRouterChat = () => {
   const [systemPrompt, setSystemPrompt] = useState('Ты полезный ИИ-ассистент по имени Богдан.');
   const [knowledgeBase, setKnowledgeBase] = useState('');
   const [preset, setPreset] = useState('default');
+  const [selectedModel, setSelectedModel] = useState('anthropic/claude-3.5-sonnet');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedAudios, setUploadedAudios] = useState<Array<{ data: string; format: string; name: string }>>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -42,6 +43,7 @@ const OpenRouterChat = () => {
       setSystemPrompt(data.system_prompt || 'Ты полезный ИИ-ассистент по имени Богдан.');
       setKnowledgeBase(data.knowledge_base || '');
       setPreset(data.preset || 'default');
+      setSelectedModel(data.selected_model || 'anthropic/claude-3.5-sonnet');
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
     }
@@ -200,6 +202,7 @@ const OpenRouterChat = () => {
           systemPrompt,
           knowledgeBase,
           preset,
+          selectedModel,
         }),
       });
 

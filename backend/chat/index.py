@@ -39,6 +39,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     system_prompt: str = body_data.get('systemPrompt', '')
     knowledge_base: str = body_data.get('knowledgeBase', '')
     preset: str = body_data.get('preset', 'default')
+    selected_model: str = body_data.get('selectedModel', '')
     
 
     
@@ -52,14 +53,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    model_map = {
-        'default': 'anthropic/claude-3.5-sonnet',
-        'creative': 'anthropic/claude-3-opus',
-        'precise': 'google/gemini-flash-1.5',
-        'audio': 'openai/gpt-4o-audio-preview'
-    }
-    
-    selected_model = model_map.get(preset, 'anthropic/claude-3.5-sonnet')
+    if selected_model:
+        model_to_use = selected_model
+    else:
+        model_map = {
+            'default': 'anthropic/claude-3.5-sonnet',
+            'creative': 'anthropic/claude-3-opus',
+            'precise': 'google/gemini-flash-1.5',
+            'audio': 'openai/gpt-4o-audio-preview'
+        }
+        model_to_use = model_map.get(preset, 'anthropic/claude-3.5-sonnet')
     
     system_message = system_prompt if system_prompt else "Ты полезный ИИ-ассистент по имени Богдан."
     
@@ -83,7 +86,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'HTTP-Referer': 'https://bogdan-ai.poehali.dev',
             },
             json={
-                'model': selected_model,
+                'model': model_to_use,
                 'messages': messages,
             },
             timeout=60
