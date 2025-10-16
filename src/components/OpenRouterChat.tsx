@@ -334,14 +334,7 @@ const OpenRouterChat = () => {
               onChange={handleImageUpload}
               className="hidden"
             />
-            <Input
-              ref={audioInputRef}
-              type="file"
-              accept="audio/*"
-              multiple
-              onChange={handleAudioUpload}
-              className="hidden"
-            />
+
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
