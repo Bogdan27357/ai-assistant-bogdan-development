@@ -54,7 +54,7 @@ const AdminPanel = () => {
       setSystemPrompt(data.system_prompt || '');
       setKnowledgeBase(data.knowledge_base || '');
       setPreset(data.preset || 'default');
-      setSelectedModel(data.selected_model || 'anthropic/claude-3.5-sonnet');
+      setSelectedModel(data.model || 'anthropic/claude-3.5-sonnet');
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
       toast.error('Не удалось загрузить настройки');
