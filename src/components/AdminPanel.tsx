@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,6 +18,8 @@ const AdminPanel = () => {
   const [selectedModel, setSelectedModel] = useState('anthropic/claude-3.5-sonnet');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<Array<{url: string, name: string}>>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const SETTINGS_API = 'https://functions.poehali.dev/c3585817-7caf-46b1-94b7-1c722a6f5748';
 
@@ -112,6 +114,51 @@ const AdminPanel = () => {
     setAdminUser(null);
     setIsAuthenticated(false);
     toast.success('Вы вышли из системы');
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    toast.loading('Загружаем картинки...');
+
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} не является изображением`);
+        continue;
+      }
+
+      try {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const base64 = event.target?.result as string;
+          
+          setUploadedImages(prev => [...prev, {
+            url: base64,
+            name: file.name
+          }]);
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error(`Не удалось загрузить ${file.name}`);
+      }
+    }
+
+    toast.success('Картинки загружены!');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const copyImageUrl = (url: string) => {
+    navigator.clipboard.writeText(url);
+    toast.success('URL скопирован! Вставьте в базу знаний как ![описание](URL)');
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    toast.success('Картинка удалена');
   };
 
   if (!isAuthenticated) {
@@ -270,6 +317,66 @@ const AdminPanel = () => {
                     className="bg-slate-800 border-slate-700 text-white min-h-[200px]"
                     placeholder="Введите контекст и дополнительные знания для ИИ..."
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-slate-300">
+                    <Icon name="Image" size={16} className="inline mr-2" />
+                    Картинки для базы знаний
+                  </Label>
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="w-full border-slate-700 text-slate-300"
+                  >
+                    <Icon name="Upload" size={16} className="mr-2" />
+                    Загрузить картинки
+                  </Button>
+                  
+                  {uploadedImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 mt-3">
+                      {uploadedImages.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img 
+                            src={img.url} 
+                            alt={img.name}
+                            className="w-full h-24 object-cover rounded border border-slate-700"
+                          />
+                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyImageUrl(img.url)}
+                              className="text-white"
+                            >
+                              <Icon name="Copy" size={14} />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeImage(idx)}
+                              className="text-red-400"
+                            >
+                              <Icon name="Trash2" size={14} />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1 truncate">{img.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-400">
+                    Загрузите картинки, скопируйте их URL и добавьте в базу знаний с описанием
+                  </p>
                 </div>
 
                 <Button
