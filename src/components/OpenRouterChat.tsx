@@ -166,6 +166,11 @@ const OpenRouterChat = () => {
       return;
     }
 
+    if (selectedModel.includes('audio') && uploadedAudios.length === 0) {
+      toast.error('Эта модель работает только с аудио. Загрузите аудиофайл или запишите голосовое сообщение.');
+      return;
+    }
+
     setIsLoading(true);
 
     let userContent: string | Array<{ type: string; text?: string; image_url?: { url: string }; input_audio?: { data: string; format: string } }>;
