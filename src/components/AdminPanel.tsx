@@ -181,64 +181,67 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="model" className="text-slate-300">
-                    <Icon name="Bot" size={16} className="inline mr-2" />
+                  <Label className="text-slate-300 flex items-center gap-2">
+                    <Icon name="Bot" size={16} />
                     Модель ИИ
                   </Label>
                   <Select value={selectedModel} onValueChange={setSelectedModel}>
                     <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                      <SelectValue />
+                      <SelectValue placeholder="Выберите модель" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                      <SelectItem value="anthropic/claude-3.5-sonnet" className="text-white">
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      <SelectItem value="anthropic/claude-3.5-sonnet">
                         Anthropic: Claude 3.5 Sonnet
                       </SelectItem>
-                      <SelectItem value="anthropic/claude-3-opus" className="text-white">
+                      <SelectItem value="anthropic/claude-3-opus">
                         Anthropic: Claude 3 Opus
                       </SelectItem>
-                      <SelectItem value="anthropic/claude-3-haiku" className="text-white">
+                      <SelectItem value="anthropic/claude-3-haiku">
                         Anthropic: Claude 3 Haiku
                       </SelectItem>
-                      <SelectItem value="openai/gpt-4o" className="text-white">
+                      <SelectItem value="openai/gpt-4o">
                         OpenAI: GPT-4o
                       </SelectItem>
-                      <SelectItem value="openai/gpt-4o-mini" className="text-white">
+                      <SelectItem value="openai/gpt-4o-mini">
                         OpenAI: GPT-4o Mini
                       </SelectItem>
-                      <SelectItem value="openai/gpt-4o-audio-preview" className="text-white">
+                      <SelectItem value="openai/gpt-4o-audio-preview">
                         🎤 OpenAI: GPT-4o Audio Preview
                       </SelectItem>
-                      <SelectItem value="openai/o1-preview" className="text-white">
+                      <SelectItem value="openai/o1-preview">
                         OpenAI: o1-preview
                       </SelectItem>
-                      <SelectItem value="openai/o1-mini" className="text-white">
+                      <SelectItem value="openai/o1-mini">
                         OpenAI: o1-mini
                       </SelectItem>
-                      <SelectItem value="google/gemini-flash-1.5" className="text-white">
+                      <SelectItem value="google/gemini-flash-1.5">
                         Google: Gemini Flash 1.5
                       </SelectItem>
-                      <SelectItem value="google/gemini-pro-1.5" className="text-white">
+                      <SelectItem value="google/gemini-pro-1.5">
                         Google: Gemini Pro 1.5
                       </SelectItem>
-                      <SelectItem value="meta-llama/llama-3.1-405b-instruct" className="text-white">
+                      <SelectItem value="meta-llama/llama-3.1-405b-instruct">
                         Meta: Llama 3.1 405B
                       </SelectItem>
-                      <SelectItem value="meta-llama/llama-3.1-70b-instruct" className="text-white">
+                      <SelectItem value="meta-llama/llama-3.1-70b-instruct">
                         Meta: Llama 3.1 70B
                       </SelectItem>
-                      <SelectItem value="mistralai/mistral-large" className="text-white">
+                      <SelectItem value="mistralai/mistral-large">
                         Mistral: Mistral Large
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {selectedModel.includes('audio') && '🎤 Поддерживает голосовые сообщения'}
-                    {selectedModel.includes('claude') && 'Высокое качество ответов'}
-                    {selectedModel.includes('gpt-4o') && 'Универсальная модель OpenAI'}
-                    {selectedModel.includes('gemini') && 'Быстрая модель Google'}
-                    {selectedModel.includes('llama') && 'Открытая модель Meta'}
-                    {selectedModel.includes('o1') && 'Модель с улучшенным рассуждением'}
-                  </p>
+                  {selectedModel && (
+                    <p className="text-xs text-slate-400">
+                      {selectedModel.includes('audio') && '🎤 Поддерживает голосовые сообщения'}
+                      {selectedModel.includes('claude') && !selectedModel.includes('audio') && 'Высокое качество ответов'}
+                      {selectedModel.includes('gpt-4o') && !selectedModel.includes('audio') && 'Универсальная модель OpenAI'}
+                      {selectedModel.includes('gemini') && 'Быстрая модель Google'}
+                      {selectedModel.includes('llama') && 'Открытая модель Meta'}
+                      {selectedModel.includes('o1') && 'Модель с улучшенным рассуждением'}
+                      {selectedModel.includes('mistral') && 'Мощная европейская модель'}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
