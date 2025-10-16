@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/sonner";
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -47,6 +50,23 @@ const Index = () => {
       <div className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
+            <div className="flex justify-end mb-4">
+              <Link to="/admin">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`${
+                    darkMode 
+                      ? 'border-slate-700 text-slate-300 hover:bg-slate-800' 
+                      : 'border-slate-300 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <Icon name="Settings" size={16} className="mr-2" />
+                  Админ панель
+                </Button>
+              </Link>
+            </div>
+            
             <h1 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
               Богдан ИИ
             </h1>
