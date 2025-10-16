@@ -168,30 +168,18 @@ const AdminPanel = () => {
                     <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
                       <SelectValue placeholder="Выберите модель" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
                       <SelectItem value="default" className="text-white">
-                        <div className="flex flex-col">
-                          <span className="font-medium">Claude 3.5 Sonnet</span>
-                          <span className="text-xs text-slate-400">Умный и быстрый (по умолчанию)</span>
-                        </div>
+                        Claude 3.5 Sonnet
                       </SelectItem>
                       <SelectItem value="creative" className="text-white">
-                        <div className="flex flex-col">
-                          <span className="font-medium">Claude 3 Opus</span>
-                          <span className="text-xs text-slate-400">Самый креативный</span>
-                        </div>
+                        Claude 3 Opus (креативный)
                       </SelectItem>
                       <SelectItem value="precise" className="text-white">
-                        <div className="flex flex-col">
-                          <span className="font-medium">Gemini Flash 1.5</span>
-                          <span className="text-xs text-slate-400">Быстрый и точный</span>
-                        </div>
+                        Gemini Flash 1.5 (быстрый)
                       </SelectItem>
                       <SelectItem value="audio" className="text-white">
-                        <div className="flex flex-col">
-                          <span className="font-medium">GPT-4o Audio Preview</span>
-                          <span className="text-xs text-slate-400">🎤 Поддержка голосовых сообщений</span>
-                        </div>
+                        🎤 GPT-4o Audio (голос)
                       </SelectItem>
                     </SelectContent>
                   </Select>
