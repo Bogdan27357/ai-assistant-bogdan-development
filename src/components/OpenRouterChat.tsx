@@ -9,17 +9,33 @@ const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
+  const [systemPrompt, setSystemPrompt] = useState('Ты полезный ИИ-ассистент по имени Богдан.');
+  const [knowledgeBase, setKnowledgeBase] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const systemPrompt = localStorage.getItem('system-prompt') || 'Ты полезный ИИ-ассистент по имени Богдан.';
-  const knowledgeBase = localStorage.getItem('knowledge-base') || '';
+  const SETTINGS_API = 'https://functions.poehali.dev/c3585817-7caf-46b1-94b7-1c722a6f5748';
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     if (chatHistory.length > 0 && chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
+
+  const loadSettings = async () => {
+    try {
+      const response = await fetch(SETTINGS_API);
+      const data = await response.json();
+      setSystemPrompt(data.system_prompt || 'Ты полезный ИИ-ассистент по имени Богдан.');
+      setKnowledgeBase(data.knowledge_base || '');
+    } catch (error) {
+      console.error('Ошибка загрузки настроек:', error);
+    }
+  };
 
   const handleSend = async () => {
     if (!message.trim()) {
