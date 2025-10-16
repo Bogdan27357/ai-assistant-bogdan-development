@@ -9,13 +9,16 @@ import { Input } from '@/components/ui/input';
 const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string | { type: string; text?: string; image_url?: { url: string } }[] }>>([]);
+  const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string | { type: string; text?: string; image_url?: { url: string }; input_audio?: { data: string; format: string } }[] }>>([]);
   const [systemPrompt, setSystemPrompt] = useState('Ты полезный ИИ-ассистент по имени Богдан.');
   const [knowledgeBase, setKnowledgeBase] = useState('');
+  const [preset, setPreset] = useState('default');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedAudios, setUploadedAudios] = useState<Array<{ data: string; format: string; name: string }>>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   const SETTINGS_API = 'https://functions.poehali.dev/c3585817-7caf-46b1-94b7-1c722a6f5748';
 
@@ -35,6 +38,7 @@ const OpenRouterChat = () => {
       const data = await response.json();
       setSystemPrompt(data.system_prompt || 'Ты полезный ИИ-ассистент по имени Богдан.');
       setKnowledgeBase(data.knowledge_base || '');
+      setPreset(data.preset || 'default');
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
     }
@@ -68,20 +72,56 @@ const OpenRouterChat = () => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('audio/')) {
+        toast.error('Можно загружать только аудиофайлы');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        const base64Data = base64.split(',')[1];
+        const format = file.type.split('/')[1] || 'mp3';
+        
+        setUploadedAudios(prev => [...prev, { 
+          data: base64Data, 
+          format: format,
+          name: file.name 
+        }]);
+        toast.success('Аудио загружено');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (audioInputRef.current) {
+      audioInputRef.current.value = '';
+    }
+  };
+
+  const removeAudio = (index: number) => {
+    setUploadedAudios(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSend = async () => {
-    if (!message.trim() && uploadedImages.length === 0) {
-      toast.error('Введите сообщение или загрузите изображение');
+    if (!message.trim() && uploadedImages.length === 0 && uploadedAudios.length === 0) {
+      toast.error('Введите сообщение, загрузите изображение или аудио');
       return;
     }
 
     setIsLoading(true);
 
-    let userContent: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
+    let userContent: string | Array<{ type: string; text?: string; image_url?: { url: string }; input_audio?: { data: string; format: string } }>;
     
-    if (uploadedImages.length > 0) {
+    if (uploadedImages.length > 0 || uploadedAudios.length > 0) {
       userContent = [
         ...(message.trim() ? [{ type: 'text', text: message }] : []),
-        ...uploadedImages.map(img => ({ type: 'image_url', image_url: { url: img } }))
+        ...uploadedImages.map(img => ({ type: 'image_url', image_url: { url: img } })),
+        ...uploadedAudios.map(audio => ({ type: 'input_audio', input_audio: { data: audio.data, format: audio.format } }))
       ];
     } else {
       userContent = message;
@@ -100,6 +140,7 @@ const OpenRouterChat = () => {
           history: chatHistory,
           systemPrompt,
           knowledgeBase,
+          preset,
         }),
       });
 
@@ -109,6 +150,7 @@ const OpenRouterChat = () => {
         setChatHistory(prev => [...prev, { role: 'assistant', content: data.response }]);
         setMessage('');
         setUploadedImages([]);
+        setUploadedAudios([]);
       } else {
         toast.error(data.error || 'Ошибка при отправке');
       }
@@ -124,6 +166,7 @@ const OpenRouterChat = () => {
     setChatHistory([]);
     setMessage('');
     setUploadedImages([]);
+    setUploadedAudios([]);
     toast.success('История очищена');
   };
 
@@ -174,6 +217,12 @@ const OpenRouterChat = () => {
                                 className="max-w-xs rounded-lg border border-white/20"
                               />
                             )}
+                            {item.type === 'input_audio' && item.input_audio && (
+                              <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded">
+                                <Icon name="Music" size={16} />
+                                <span className="text-xs">Аудио ({item.input_audio.format})</span>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -187,10 +236,10 @@ const OpenRouterChat = () => {
         </div>
 
         <div className="space-y-3">
-          {uploadedImages.length > 0 && (
+          {(uploadedImages.length > 0 || uploadedAudios.length > 0) && (
             <div className="flex flex-wrap gap-2">
               {uploadedImages.map((img, idx) => (
-                <div key={idx} className="relative group">
+                <div key={`img-${idx}`} className="relative group">
                   <img 
                     src={img} 
                     alt={`Upload ${idx + 1}`} 
@@ -198,6 +247,20 @@ const OpenRouterChat = () => {
                   />
                   <button
                     onClick={() => removeImage(idx)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Icon name="X" size={12} />
+                  </button>
+                </div>
+              ))}
+              {uploadedAudios.map((audio, idx) => (
+                <div key={`audio-${idx}`} className="relative group">
+                  <div className="h-20 w-32 flex flex-col items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 p-2">
+                    <Icon name="Music" size={24} className="mb-1" />
+                    <span className="text-xs truncate w-full text-center">{audio.name}</span>
+                  </div>
+                  <button
+                    onClick={() => removeAudio(idx)}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <Icon name="X" size={12} />
@@ -230,6 +293,14 @@ const OpenRouterChat = () => {
               onChange={handleImageUpload}
               className="hidden"
             />
+            <Input
+              ref={audioInputRef}
+              type="file"
+              accept="audio/*"
+              multiple
+              onChange={handleAudioUpload}
+              className="hidden"
+            />
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
@@ -239,8 +310,16 @@ const OpenRouterChat = () => {
               <Icon name="Image" size={16} />
             </Button>
             <Button
+              onClick={() => audioInputRef.current?.click()}
+              variant="outline"
+              disabled={isLoading}
+              className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+            >
+              <Icon name="Music" size={16} />
+            </Button>
+            <Button
               onClick={handleSend}
-              disabled={isLoading || (!message.trim() && uploadedImages.length === 0)}
+              disabled={isLoading || (!message.trim() && uploadedImages.length === 0 && uploadedAudios.length === 0)}
               className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               {isLoading ? (

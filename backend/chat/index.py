@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 import requests
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -35,17 +35,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     body_data = json.loads(event.get('body', '{}'))
     user_message: str = body_data.get('message', '')
-    chat_history: List[Dict[str, str]] = body_data.get('history', [])
+    chat_history: List[Dict[str, Any]] = body_data.get('history', [])
     system_prompt: str = body_data.get('systemPrompt', '')
     knowledge_base: str = body_data.get('knowledgeBase', '')
+    preset: str = body_data.get('preset', 'default')
     
-    if not user_message:
-        return {
-            'statusCode': 400,
-            'headers': {'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Message is required'}),
-            'isBase64Encoded': False
-        }
+
     
     openrouter_key = os.environ.get('OPENROUTER_API_KEY', '')
     
@@ -57,6 +52,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    model_map = {
+        'default': 'anthropic/claude-3.5-sonnet',
+        'creative': 'anthropic/claude-3-opus',
+        'precise': 'google/gemini-flash-1.5',
+        'audio': 'openai/gpt-4o-audio-preview'
+    }
+    
+    selected_model = model_map.get(preset, 'anthropic/claude-3.5-sonnet')
+    
     system_message = system_prompt if system_prompt else "Ты полезный ИИ-ассистент по имени Богдан."
     
     if knowledge_base:
@@ -67,7 +71,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     for msg in chat_history[-10:]:
         messages.append({'role': msg['role'], 'content': msg['content']})
     
-    messages.append({'role': 'user', 'content': user_message})
+    if user_message:
+        messages.append({'role': 'user', 'content': user_message})
     
     try:
         response = requests.post(
@@ -78,7 +83,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'HTTP-Referer': 'https://bogdan-ai.poehali.dev',
             },
             json={
-                'model': 'anthropic/claude-3.5-sonnet',
+                'model': selected_model,
                 'messages': messages,
             },
             timeout=60

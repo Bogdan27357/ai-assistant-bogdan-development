@@ -172,6 +172,7 @@ const AdminPanel = () => {
                       <SelectItem value="default" className="text-white">По умолчанию</SelectItem>
                       <SelectItem value="creative" className="text-white">Креативный</SelectItem>
                       <SelectItem value="precise" className="text-white">Точный</SelectItem>
+                      <SelectItem value="audio" className="text-white">GPT-4o Audio (с аудио)</SelectItem>
                       <SelectItem value="friendly" className="text-white">Дружелюбный</SelectItem>
                     </SelectContent>
                   </Select>
