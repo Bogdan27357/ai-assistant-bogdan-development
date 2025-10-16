@@ -166,15 +166,24 @@ const OpenRouterChat = () => {
     setIsLoading(true);
 
     let userContent: string | Array<{ type: string; text?: string; image_url?: { url: string }; input_audio?: { data: string; format: string } }>;
+    let messageToSend = message.trim();
     
     if (uploadedImages.length > 0 || uploadedAudios.length > 0) {
-      userContent = [
-        ...(message.trim() ? [{ type: 'text', text: message }] : []),
-        ...uploadedImages.map(img => ({ type: 'image_url', image_url: { url: img } })),
-        ...uploadedAudios.map(audio => ({ type: 'input_audio', input_audio: { data: audio.data, format: audio.format } }))
-      ];
+      const contentParts = [];
+      
+      if (messageToSend) {
+        contentParts.push({ type: 'text', text: messageToSend });
+      } else if (uploadedAudios.length > 0) {
+        contentParts.push({ type: 'text', text: 'Послушай это аудио' });
+        messageToSend = 'Послушай это аудио';
+      }
+      
+      contentParts.push(...uploadedImages.map(img => ({ type: 'image_url', image_url: { url: img } })));
+      contentParts.push(...uploadedAudios.map(audio => ({ type: 'input_audio', input_audio: { data: audio.data, format: audio.format } })));
+      
+      userContent = contentParts;
     } else {
-      userContent = message;
+      userContent = messageToSend;
     }
 
     setChatHistory(prev => [...prev, { role: 'user', content: userContent }]);
@@ -186,7 +195,7 @@ const OpenRouterChat = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message,
+          message: messageToSend,
           history: chatHistory,
           systemPrompt,
           knowledgeBase,
