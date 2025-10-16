@@ -161,21 +161,46 @@ const AdminPanel = () => {
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="preset" className="text-slate-300">
-                    <Icon name="Sparkles" size={16} className="inline mr-2" />
-                    Пресет
+                    <Icon name="Bot" size={16} className="inline mr-2" />
+                    Модель ИИ
                   </Label>
                   <Select value={preset} onValueChange={setPreset}>
                     <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                      <SelectValue />
+                      <SelectValue placeholder="Выберите модель" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="default" className="text-white">По умолчанию</SelectItem>
-                      <SelectItem value="creative" className="text-white">Креативный</SelectItem>
-                      <SelectItem value="precise" className="text-white">Точный</SelectItem>
-                      <SelectItem value="audio" className="text-white">GPT-4o Audio (с аудио)</SelectItem>
-                      <SelectItem value="friendly" className="text-white">Дружелюбный</SelectItem>
+                      <SelectItem value="default" className="text-white">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Claude 3.5 Sonnet</span>
+                          <span className="text-xs text-slate-400">Умный и быстрый (по умолчанию)</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="creative" className="text-white">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Claude 3 Opus</span>
+                          <span className="text-xs text-slate-400">Самый креативный</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="precise" className="text-white">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Gemini Flash 1.5</span>
+                          <span className="text-xs text-slate-400">Быстрый и точный</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="audio" className="text-white">
+                        <div className="flex flex-col">
+                          <span className="font-medium">GPT-4o Audio Preview</span>
+                          <span className="text-xs text-slate-400">🎤 Поддержка голосовых сообщений</span>
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {preset === 'audio' && '🎤 Эта модель понимает голосовые сообщения'}
+                    {preset === 'default' && 'Рекомендуется для большинства задач'}
+                    {preset === 'creative' && 'Лучший выбор для творческих задач'}
+                    {preset === 'precise' && 'Оптимален для быстрых ответов'}
+                  </p>
                 </div>
 
                 <div className="space-y-2">

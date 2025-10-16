@@ -70,13 +70,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             for key, value in body_data.items():
                 print(f"Updating {key} = {value}")
-                cur.execute("""
+                escaped_key = key.replace("'", "''")
+                escaped_value = str(value).replace("'", "''")
+                
+                query = f"""
                     INSERT INTO t_p68921797_ai_assistant_bogdan_.user_settings 
                     (setting_key, setting_value, updated_at)
-                    VALUES (%s, %s, NOW())
+                    VALUES ('{escaped_key}', '{escaped_value}', NOW())
                     ON CONFLICT (setting_key) 
-                    DO UPDATE SET setting_value = %s, updated_at = NOW()
-                """, (key, str(value), str(value)))
+                    DO UPDATE SET setting_value = '{escaped_value}', updated_at = NOW()
+                """
+                cur.execute(query)
                 print(f"Updated {key} successfully")
             
             conn.commit()
