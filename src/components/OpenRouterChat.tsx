@@ -15,6 +15,9 @@ const OpenRouterChat = () => {
   const [preset, setPreset] = useState('default');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedAudios, setUploadedAudios] = useState<Array<{ data: string; format: string; name: string }>>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,6 +108,53 @@ const OpenRouterChat = () => {
 
   const removeAudio = (index: number) => {
     setUploadedAudios(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          const base64Data = base64.split(',')[1];
+          setUploadedAudios(prev => [...prev, {
+            data: base64Data,
+            format: 'webm',
+            name: `Запись ${new Date().toLocaleTimeString()}`
+          }]);
+          toast.success('Голосовое сообщение записано');
+        };
+        reader.readAsDataURL(audioBlob);
+        
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      toast.success('Запись началась...');
+    } catch (error) {
+      console.error('Ошибка доступа к микрофону:', error);
+      toast.error('Не удалось получить доступ к микрофону');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   const handleSend = async () => {
@@ -312,10 +362,20 @@ const OpenRouterChat = () => {
             <Button
               onClick={() => audioInputRef.current?.click()}
               variant="outline"
-              disabled={isLoading}
+              disabled={isLoading || isRecording}
               className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+              title="Загрузить аудиофайл"
             >
               <Icon name="Music" size={16} />
+            </Button>
+            <Button
+              onClick={isRecording ? stopRecording : startRecording}
+              variant={isRecording ? 'destructive' : 'outline'}
+              disabled={isLoading}
+              className={isRecording ? 'animate-pulse' : 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300'}
+              title={isRecording ? 'Остановить запись' : 'Записать голосовое сообщение'}
+            >
+              <Icon name={isRecording ? 'MicOff' : 'Mic'} size={16} />
             </Button>
             <Button
               onClick={handleSend}
