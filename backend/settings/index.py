@@ -66,8 +66,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
+            print(f"Received POST data: {body_data}")
             
             for key, value in body_data.items():
+                print(f"Updating {key} = {value}")
                 cur.execute("""
                     INSERT INTO t_p68921797_ai_assistant_bogdan_.user_settings 
                     (setting_key, setting_value, updated_at)
@@ -75,6 +77,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     ON CONFLICT (setting_key) 
                     DO UPDATE SET setting_value = %s, updated_at = NOW()
                 """, (key, str(value), str(value)))
+                print(f"Updated {key} successfully")
             
             conn.commit()
             cur.close()
