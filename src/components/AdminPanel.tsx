@@ -164,14 +164,24 @@ const AdminPanel = () => {
             <Icon name="Settings" size={32} />
             Админ панель
           </h1>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            className="border-slate-600 text-slate-300 hover:bg-slate-800"
-          >
-            <Icon name="LogOut" size={16} className="mr-2" />
-            Выйти
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => window.location.href = '/'}
+              variant="outline"
+              className="border-slate-600 text-slate-300 hover:bg-slate-800"
+            >
+              <Icon name="Home" size={16} className="mr-2" />
+              Главная
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="border-slate-600 text-slate-300 hover:bg-slate-800"
+            >
+              <Icon name="LogOut" size={16} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
