@@ -62,19 +62,26 @@ const AdminPanel = () => {
   };
 
   const saveSettings = async () => {
+    console.log('saveSettings called with:', { systemPrompt, knowledgeBase, preset });
     try {
       setIsSaving(true);
+      const payload = {
+        system_prompt: systemPrompt,
+        knowledge_base: knowledgeBase,
+        preset: preset
+      };
+      console.log('Sending to API:', payload);
+      
       const response = await fetch(SETTINGS_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_prompt: systemPrompt,
-          knowledge_base: knowledgeBase,
-          preset: preset
-        })
+        body: JSON.stringify(payload)
       });
       
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
+      
       if (data.success) {
         toast.success('Настройки сохранены');
       } else {
