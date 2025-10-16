@@ -369,6 +369,7 @@ const OpenRouterChat = () => {
               variant="outline"
               disabled={isLoading}
               className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+              title="Загрузить изображение"
             >
               <Icon name="Image" size={16} />
             </Button>
@@ -382,6 +383,17 @@ const OpenRouterChat = () => {
             >
               <Icon name={isRecording ? 'MicOff' : 'Mic'} size={16} />
             </Button>
+
+            <Button
+              onClick={clearChat}
+              variant="outline"
+              disabled={isLoading || chatHistory.length === 0}
+              className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+              title="Очистить историю"
+            >
+              <Icon name="Trash2" size={16} />
+            </Button>
+
             <Button
               onClick={handleSend}
               disabled={isLoading || (!message.trim() && uploadedImages.length === 0)}
