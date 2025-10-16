@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const OpenRouterChat = () => {
   const [message, setMessage] = useState('');
@@ -234,11 +235,34 @@ const OpenRouterChat = () => {
 
   return (
     <Card className="backdrop-blur-sm bg-white/90 dark:bg-slate-800/90 border-slate-200/50 dark:border-slate-700/50 shadow-xl h-[600px] flex flex-col">
-      <CardHeader>
+      <CardHeader className="space-y-3">
         <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
           <Icon name="MessageSquare" size={24} />
           Чат с Богданом
         </CardTitle>
+        <div className="flex items-center gap-2">
+          <Icon name="Bot" size={18} className="text-slate-600 dark:text-slate-400" />
+          <Select value={selectedModel} onValueChange={setSelectedModel}>
+            <SelectTrigger className="w-full bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white">
+              <SelectValue placeholder="Выберите модель" />
+            </SelectTrigger>
+            <SelectContent className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+              <SelectItem value="anthropic/claude-3.5-sonnet">Anthropic: Claude 3.5 Sonnet</SelectItem>
+              <SelectItem value="anthropic/claude-3-opus">Anthropic: Claude 3 Opus</SelectItem>
+              <SelectItem value="anthropic/claude-3-haiku">Anthropic: Claude 3 Haiku</SelectItem>
+              <SelectItem value="openai/gpt-4o">OpenAI: GPT-4o</SelectItem>
+              <SelectItem value="openai/gpt-4o-mini">OpenAI: GPT-4o Mini</SelectItem>
+              <SelectItem value="openai/gpt-4o-audio-preview">🎤 OpenAI: GPT-4o Audio</SelectItem>
+              <SelectItem value="openai/o1-preview">OpenAI: o1-preview</SelectItem>
+              <SelectItem value="openai/o1-mini">OpenAI: o1-mini</SelectItem>
+              <SelectItem value="google/gemini-flash-1.5">Google: Gemini Flash 1.5</SelectItem>
+              <SelectItem value="google/gemini-pro-1.5">Google: Gemini Pro 1.5</SelectItem>
+              <SelectItem value="meta-llama/llama-3.1-405b-instruct">Meta: Llama 3.1 405B</SelectItem>
+              <SelectItem value="meta-llama/llama-3.1-70b-instruct">Meta: Llama 3.1 70B</SelectItem>
+              <SelectItem value="mistralai/mistral-large">Mistral: Mistral Large</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
         <div 
