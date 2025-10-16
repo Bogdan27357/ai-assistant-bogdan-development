@@ -171,6 +171,8 @@ const OpenRouterChat = () => {
     const newHistory = [...chatHistory, { role: 'user', content: userContent }];
     setChatHistory(newHistory);
 
+    const limitedHistory = chatHistory.slice(-10);
+
     try {
       const response = await fetch('https://functions.poehali.dev/fe95d04c-888f-4cda-9351-5728f7b8641a', {
         method: 'POST',
@@ -179,7 +181,7 @@ const OpenRouterChat = () => {
         },
         body: JSON.stringify({
           message: userContent,
-          history: chatHistory,
+          history: limitedHistory,
           systemPrompt,
           knowledgeBase,
           preset,
