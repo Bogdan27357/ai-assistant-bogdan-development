@@ -16,7 +16,7 @@ const OpenRouterChat = () => {
   const [systemPrompt, setSystemPrompt] = useState('Ты полезный ИИ-ассистент по имени Богдан.');
   const [knowledgeBase, setKnowledgeBase] = useState('');
   const [preset, setPreset] = useState('default');
-  const [selectedModel, setSelectedModel] = useState('anthropic/claude-3.5-sonnet');
+  const [selectedModel, setSelectedModel] = useState('openai/gpt-4o');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -44,7 +44,7 @@ const OpenRouterChat = () => {
       setSystemPrompt(data.system_prompt || 'Ты полезный ИИ-ассистент по имени Богдан.');
       setKnowledgeBase(data.knowledge_base || '');
       setPreset(data.preset || 'default');
-      setSelectedModel(data.selected_model || 'anthropic/claude-3.5-sonnet');
+      setSelectedModel(data.selected_model || 'openai/gpt-4o');
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
     }
