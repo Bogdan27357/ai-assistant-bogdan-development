@@ -17,7 +17,7 @@ const HeroSection = ({ darkMode, onStartChat }: HeroSectionProps) => {
         </div>
         
         <h1 className={`text-5xl md:text-7xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-          Возможности <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">МашаGPT</span>
+          Возможности <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">БогданGPT</span>
         </h1>
         
         <p className={`text-xl md:text-2xl mb-10 ${darkMode ? 'text-slate-300' : 'text-slate-600'} max-w-3xl mx-auto`}>

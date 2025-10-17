@@ -19,7 +19,7 @@ const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat }: HeaderProp
             </div>
             <div>
               <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                МашаGPT
+                БогданGPT
               </h1>
             </div>
           </div>
