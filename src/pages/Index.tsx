@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import OpenRouterChat from '@/components/OpenRouterChat';
+import APIKeysPanel from '@/components/APIKeysPanel';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AIModelsSection from '@/components/AIModelsSection';
@@ -16,6 +17,7 @@ import { features } from '@/data/features';
 const Index = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [showChat, setShowChat] = useState(false);
+  const [showAPIKeys, setShowAPIKeys] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
@@ -50,9 +52,24 @@ const Index = () => {
         showChat={showChat} 
         toggleDarkMode={toggleDarkMode}
         onToggleChat={handleToggleChat}
+        onShowAPIKeys={() => setShowAPIKeys(!showAPIKeys)}
       />
 
-      {showChat ? (
+      {showAPIKeys ? (
+        <div>
+          <div className="container mx-auto px-4 py-8">
+            <Button
+              onClick={() => setShowAPIKeys(false)}
+              variant="ghost"
+              className={`mb-4 ${darkMode ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <Icon name="ArrowLeft" size={18} className="mr-2" />
+              Назад
+            </Button>
+          </div>
+          <APIKeysPanel darkMode={darkMode} />
+        </div>
+      ) : showChat ? (
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-5xl mx-auto">
             <Button

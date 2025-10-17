@@ -6,9 +6,10 @@ interface HeaderProps {
   showChat: boolean;
   toggleDarkMode: () => void;
   onToggleChat: () => void;
+  onShowAPIKeys?: () => void;
 }
 
-const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat }: HeaderProps) => {
+const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat, onShowAPIKeys }: HeaderProps) => {
   return (
     <header className={`border-b ${darkMode ? 'border-slate-800 bg-slate-950/50' : 'border-slate-200 bg-white/50'} backdrop-blur-lg sticky top-0 z-50`}>
       <div className="container mx-auto px-4 py-4">
@@ -25,6 +26,17 @@ const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat }: HeaderProp
           </div>
           
           <div className="flex items-center gap-3">
+            {onShowAPIKeys && (
+              <Button
+                onClick={onShowAPIKeys}
+                variant="ghost"
+                size="icon"
+                className={darkMode ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}
+                title="API ключи"
+              >
+                <Icon name="Key" size={20} />
+              </Button>
+            )}
             <Button
               onClick={toggleDarkMode}
               variant="ghost"
