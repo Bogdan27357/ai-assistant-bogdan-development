@@ -19,9 +19,10 @@ interface AIModelsSectionProps {
   aiModels: AIModel[];
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  onModelClick?: (model: AIModel) => void;
 }
 
-const AIModelsSection = ({ darkMode, aiModels, selectedCategory, onCategoryChange }: AIModelsSectionProps) => {
+const AIModelsSection = ({ darkMode, aiModels, selectedCategory, onCategoryChange, onModelClick }: AIModelsSectionProps) => {
   const categories = [
     { id: 'all', label: 'Все', icon: 'Grid3x3' },
     { id: 'text', label: 'Текст', icon: 'MessageSquare' },
@@ -66,6 +67,7 @@ const AIModelsSection = ({ darkMode, aiModels, selectedCategory, onCategoryChang
           .map((model) => (
             <Card
               key={model.id}
+              onClick={() => onModelClick?.(model)}
               className={`${
                 darkMode 
                   ? 'bg-slate-900/50 border-slate-800 hover:border-slate-700' 

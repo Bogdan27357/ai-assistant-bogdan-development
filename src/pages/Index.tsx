@@ -6,6 +6,7 @@ import APIKeysPanel from '@/components/APIKeysPanel';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AIModelsSection from '@/components/AIModelsSection';
+import AIModal from '@/components/AIModal';
 import AboutSection from '@/components/AboutSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import CTASection from '@/components/CTASection';
@@ -19,6 +20,7 @@ const Index = () => {
   const [showChat, setShowChat] = useState(false);
   const [showAPIKeys, setShowAPIKeys] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedModel, setSelectedModel] = useState<typeof aiModels[0] | null>(null);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('darkMode');
@@ -92,6 +94,7 @@ const Index = () => {
             aiModels={aiModels}
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
+            onModelClick={setSelectedModel}
           />
           
           <AboutSection darkMode={darkMode} teamMembers={teamMembers} projectHistory={projectHistory} />
@@ -102,6 +105,14 @@ const Index = () => {
           
           <SiteFooter darkMode={darkMode} />
         </>
+      )}
+      
+      {selectedModel && (
+        <AIModal
+          darkMode={darkMode}
+          model={selectedModel}
+          onClose={() => setSelectedModel(null)}
+        />
       )}
     </div>
   );
