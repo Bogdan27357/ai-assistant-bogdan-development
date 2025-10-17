@@ -12,6 +12,7 @@ const aiModels = [
     description: 'Самая мощная модель для сложных задач',
     icon: 'Zap',
     color: 'from-green-500 to-emerald-600',
+    category: 'text',
     features: ['Анализ изображений', 'Длинный контекст', 'Высокая точность']
   },
   {
@@ -21,6 +22,7 @@ const aiModels = [
     description: 'Отлично подходит для написания текстов',
     icon: 'FileText',
     color: 'from-purple-500 to-indigo-600',
+    category: 'text',
     features: ['200K контекст', 'Творческое письмо', 'Анализ кода']
   },
   {
@@ -30,6 +32,7 @@ const aiModels = [
     description: 'Быстрая и эффективная модель',
     icon: 'Sparkles',
     color: 'from-blue-500 to-cyan-600',
+    category: 'text',
     features: ['Мультимодальность', 'Скорость', 'Поиск в реальном времени']
   },
   {
@@ -39,7 +42,119 @@ const aiModels = [
     description: 'Открытая модель для разработчиков',
     icon: 'Code',
     color: 'from-orange-500 to-red-600',
+    category: 'text',
     features: ['Open Source', 'Настройка', 'Безопасность']
+  },
+  {
+    id: 'midjourney',
+    name: 'Midjourney',
+    provider: 'Midjourney',
+    description: 'Генерация художественных изображений',
+    icon: 'Image',
+    color: 'from-pink-500 to-rose-600',
+    category: 'image',
+    features: ['Высокое качество', 'Художественный стиль', 'V6 модель']
+  },
+  {
+    id: 'dall-e',
+    name: 'DALL-E 3',
+    provider: 'OpenAI',
+    description: 'Создание изображений по описанию',
+    icon: 'Palette',
+    color: 'from-yellow-500 to-orange-600',
+    category: 'image',
+    features: ['Точность описания', 'Высокое разрешение', 'Безопасность']
+  },
+  {
+    id: 'runway',
+    name: 'Runway Gen-2',
+    provider: 'Runway',
+    description: 'Генерация и редактирование видео',
+    icon: 'Video',
+    color: 'from-cyan-500 to-blue-600',
+    category: 'video',
+    features: ['Text-to-Video', 'Image-to-Video', 'Редактирование']
+  },
+  {
+    id: 'sora',
+    name: 'Sora',
+    provider: 'OpenAI',
+    description: 'Создание реалистичных видео',
+    icon: 'Film',
+    color: 'from-indigo-500 to-purple-600',
+    category: 'video',
+    features: ['60 секунд видео', 'Реализм', 'Физика движения']
+  },
+  {
+    id: 'elevenlabs',
+    name: 'ElevenLabs',
+    provider: 'ElevenLabs',
+    description: 'Синтез и клонирование голоса',
+    icon: 'Mic',
+    color: 'from-violet-500 to-fuchsia-600',
+    category: 'audio',
+    features: ['Озвучка текста', 'Клонирование', '29 языков']
+  },
+  {
+    id: 'whisper',
+    name: 'Whisper',
+    provider: 'OpenAI',
+    description: 'Распознавание речи и транскрибация',
+    icon: 'AudioLines',
+    color: 'from-emerald-500 to-teal-600',
+    category: 'audio',
+    features: ['99+ языков', 'Субтитры', 'Высокая точность']
+  },
+  {
+    id: 'stable-audio',
+    name: 'Stable Audio',
+    provider: 'Stability AI',
+    description: 'Генерация музыки и звуковых эффектов',
+    icon: 'Music',
+    color: 'from-red-500 to-pink-600',
+    category: 'audio',
+    features: ['До 3 минут', 'Коммерческое использование', 'Любой жанр']
+  },
+  {
+    id: 'photoshop-ai',
+    name: 'Photoshop AI',
+    provider: 'Adobe',
+    description: 'Редактирование фото с помощью AI',
+    icon: 'Wand2',
+    color: 'from-blue-600 to-indigo-700',
+    category: 'image',
+    features: ['Generative Fill', 'Удаление объектов', 'Расширение границ']
+  }
+];
+
+const teamMembers = [
+  {
+    name: 'Алексей Иванов',
+    role: 'Основатель & CEO',
+    avatar: '👨‍💼',
+    description: 'Эксперт в области AI с 10-летним опытом',
+    social: { linkedin: '#', twitter: '#' }
+  },
+  {
+    name: 'Мария Петрова',
+    role: 'CTO',
+    avatar: '👩‍💻',
+    description: 'Бывший инженер Google, специалист по ML',
+    social: { linkedin: '#', twitter: '#' }
+  },
+  {
+    name: 'Дмитрий Сидоров',
+    role: 'Head of Product',
+    avatar: '👨‍🎨',
+    description: 'Создатель продуктов для миллионов пользователей',
+    social: { linkedin: '#', twitter: '#' }
+  },
+  {
+    name: 'Анна Козлова',
+    role: 'Head of AI Research',
+    avatar: '👩‍🔬',
+    description: 'PhD в Computer Science, автор 20+ публикаций',
+    social: { linkedin: '#', twitter: '#' }
   }
 ];
 
@@ -69,6 +184,7 @@ const features = [
 const Index = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [showChat, setShowChat] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('darkMode');
@@ -190,13 +306,40 @@ const Index = () => {
               <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                 Доступные модели
               </h2>
-              <p className={`text-lg ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+              <p className={`text-lg ${darkMode ? 'text-slate-400' : 'text-slate-600'} mb-8`}>
                 Выбирайте лучшую нейросеть для каждой задачи
               </p>
+              
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                {[
+                  { id: 'all', label: 'Все', icon: 'Grid3x3' },
+                  { id: 'text', label: 'Текст', icon: 'MessageSquare' },
+                  { id: 'image', label: 'Изображения', icon: 'Image' },
+                  { id: 'video', label: 'Видео', icon: 'Video' },
+                  { id: 'audio', label: 'Аудио', icon: 'Headphones' }
+                ].map((cat) => (
+                  <Button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                    className={selectedCategory === cat.id 
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' 
+                      : darkMode 
+                        ? 'border-slate-700 text-slate-300 hover:bg-slate-800' 
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-100'
+                    }
+                  >
+                    <Icon name={cat.icon as any} size={16} className="mr-2" />
+                    {cat.label}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-              {aiModels.map((model) => (
+              {aiModels
+                .filter(model => selectedCategory === 'all' || model.category === selectedCategory)
+                .map((model) => (
                 <Card
                   key={model.id}
                   className={`${
@@ -227,6 +370,60 @@ const Index = () => {
                           </span>
                         </div>
                       ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* About Us Section */}
+          <section className="container mx-auto px-4 py-20">
+            <div className="text-center mb-12">
+              <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                О нас
+              </h2>
+              <p className={`text-lg ${darkMode ? 'text-slate-400' : 'text-slate-600'} max-w-3xl mx-auto`}>
+                Команда экспертов, объединенных одной целью — сделать искусственный интеллект доступным каждому
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
+              {teamMembers.map((member, idx) => (
+                <Card
+                  key={idx}
+                  className={`${
+                    darkMode 
+                      ? 'bg-slate-900/50 border-slate-800 hover:border-slate-700' 
+                      : 'bg-white border-slate-200 hover:border-slate-300'
+                  } transition-all hover:scale-105`}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className="text-6xl mb-4">{member.avatar}</div>
+                    <h3 className={`text-xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                      {member.name}
+                    </h3>
+                    <p className={`text-sm mb-3 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'} font-medium`}>
+                      {member.role}
+                    </p>
+                    <p className={`text-sm mb-4 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                      {member.description}
+                    </p>
+                    <div className="flex justify-center gap-3">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className={darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}
+                      >
+                        <Icon name="Linkedin" size={18} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className={darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}
+                      >
+                        <Icon name="Twitter" size={18} />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
