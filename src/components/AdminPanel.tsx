@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import AdminLogin from '@/components/AdminLogin';
@@ -13,6 +14,7 @@ const AdminPanel = () => {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [knowledgeBase, setKnowledgeBase] = useState('');
+  const [selectedModel, setSelectedModel] = useState('openai/gpt-4o');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<Array<{url: string, name: string}>>([]);
@@ -52,6 +54,7 @@ const AdminPanel = () => {
       
       setSystemPrompt(data.system_prompt || '');
       setKnowledgeBase(data.knowledge_base || '');
+      setSelectedModel(data.selected_model || 'openai/gpt-4o');
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
       toast.error('Не удалось загрузить настройки');
@@ -69,6 +72,7 @@ const AdminPanel = () => {
         body: JSON.stringify({
           system_prompt: systemPrompt,
           knowledge_base: knowledgeBase,
+          selected_model: selectedModel,
         }),
       });
       
@@ -193,6 +197,40 @@ const AdminPanel = () => {
           </Card>
         ) : (
           <div className="space-y-6">
+            <Card className="bg-slate-900/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Icon name="Bot" size={24} />
+                  Модель ИИ
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select value={selectedModel} onValueChange={setSelectedModel}>
+                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                    <SelectValue placeholder="Выберите модель" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                    <SelectItem value="anthropic/claude-3.5-sonnet">Anthropic: Claude 3.5 Sonnet</SelectItem>
+                    <SelectItem value="anthropic/claude-3-opus">Anthropic: Claude 3 Opus</SelectItem>
+                    <SelectItem value="anthropic/claude-3-sonnet">Anthropic: Claude 3 Sonnet</SelectItem>
+                    <SelectItem value="openai/gpt-4o">OpenAI: GPT-4o</SelectItem>
+                    <SelectItem value="openai/gpt-4o-mini">OpenAI: GPT-4o Mini</SelectItem>
+                    <SelectItem value="openai/o1-mini">OpenAI: O1 Mini</SelectItem>
+                    <SelectItem value="openai/o1-preview">OpenAI: O1 Preview</SelectItem>
+                    <SelectItem value="google/gemini-pro-1.5">Google: Gemini Pro 1.5</SelectItem>
+                    <SelectItem value="google/gemini-flash-1.5">Google: Gemini Flash 1.5</SelectItem>
+                    <SelectItem value="x-ai/grok-beta">xAI: Grok Beta</SelectItem>
+                    <SelectItem value="meta-llama/llama-3.1-8b-instruct">Meta: Llama 3.1 8B</SelectItem>
+                    <SelectItem value="meta-llama/llama-3.1-70b-instruct">Meta: Llama 3.1 70B</SelectItem>
+                    <SelectItem value="meta-llama/llama-3.1-405b-instruct">Meta: Llama 3.1 405B</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-slate-400 mt-2">
+                  Выберите модель ИИ для чата
+                </p>
+              </CardContent>
+            </Card>
+
             <Card className="bg-slate-900/50 border-slate-700">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
