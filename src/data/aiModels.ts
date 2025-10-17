@@ -249,5 +249,71 @@ export const aiModels: AIModel[] = [
     category: 'audio',
     features: ['1M символов/месяц', 'Бесплатно', '220+ голосов'],
     isFree: true
+  },
+  {
+    id: 'bark-audio',
+    name: 'Bark',
+    provider: 'Suno AI',
+    description: 'Генерация речи с эмоциями и звуками',
+    icon: 'Volume',
+    color: 'from-orange-500 to-red-600',
+    category: 'audio',
+    features: ['Полностью бесплатно', 'Open Source', 'Эмоции и смех'],
+    isFree: true
+  },
+  {
+    id: 'coqui-tts',
+    name: 'Coqui TTS',
+    provider: 'Coqui',
+    description: 'Open Source синтез речи',
+    icon: 'Speaker',
+    color: 'from-cyan-500 to-blue-500',
+    category: 'audio',
+    features: ['Бесплатно', 'Клонирование голоса', '1100+ голосов'],
+    isFree: true
+  },
+  {
+    id: 'whisper-openai',
+    name: 'Whisper',
+    provider: 'OpenAI',
+    description: 'Распознавание речи (локально)',
+    icon: 'Ear',
+    color: 'from-purple-500 to-indigo-600',
+    category: 'audio',
+    features: ['Бесплатно локально', 'Open Source', '99 языков'],
+    isFree: true
+  },
+  {
+    id: 'riffusion',
+    name: 'Riffusion',
+    provider: 'Riffusion',
+    description: 'Генерация музыки в реальном времени',
+    icon: 'Music2',
+    color: 'from-pink-500 to-rose-600',
+    category: 'audio',
+    features: ['Полностью бесплатно', 'Real-time', 'Open Source'],
+    isFree: true
+  },
+  {
+    id: 'musicgen',
+    name: 'MusicGen',
+    provider: 'Meta',
+    description: 'Генерация музыки от Meta',
+    icon: 'Music4',
+    color: 'from-blue-600 to-purple-600',
+    category: 'audio',
+    features: ['Бесплатно', 'Open Source', 'До 30 секунд'],
+    isFree: true
+  },
+  {
+    id: 'audioldm',
+    name: 'AudioLDM',
+    provider: 'Hugging Face',
+    description: 'Генерация звуков из текста',
+    icon: 'Waves',
+    color: 'from-teal-500 to-emerald-600',
+    category: 'audio',
+    features: ['Бесплатно', 'Sound Effects', 'Open Source'],
+    isFree: true
   }
 ];
