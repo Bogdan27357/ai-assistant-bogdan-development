@@ -91,6 +91,56 @@ export const aiModels: AIModel[] = [
     features: ['60 секунд видео', 'Реализм', 'Физика движения']
   },
   {
+    id: 'pika',
+    name: 'Pika',
+    provider: 'Pika Labs',
+    description: 'Создание и редактирование видео из текста и изображений',
+    icon: 'Clapperboard',
+    color: 'from-rose-500 to-pink-600',
+    category: 'video',
+    features: ['Text-to-Video', 'Image-to-Video', '3D анимация']
+  },
+  {
+    id: 'synthesia',
+    name: 'Synthesia',
+    provider: 'Synthesia',
+    description: 'Создание видео с AI аватарами',
+    icon: 'Users',
+    color: 'from-purple-500 to-violet-600',
+    category: 'video',
+    features: ['AI аватары', '120+ языков', 'Презентации']
+  },
+  {
+    id: 'heygen',
+    name: 'HeyGen',
+    provider: 'HeyGen',
+    description: 'Видео с говорящими аватарами',
+    icon: 'UserCircle',
+    color: 'from-blue-500 to-indigo-600',
+    category: 'video',
+    features: ['Клонирование лица', 'Перевод видео', '100+ аватаров']
+  },
+  {
+    id: 'descript',
+    name: 'Descript',
+    provider: 'Descript',
+    description: 'Редактирование видео через транскрибацию',
+    icon: 'FileVideo',
+    color: 'from-teal-500 to-cyan-600',
+    category: 'video',
+    features: ['Удаление пауз', 'Overdub', 'Удаление слов-паразитов']
+  },
+  {
+    id: 'fliki',
+    name: 'Fliki',
+    provider: 'Fliki',
+    description: 'Создание видео из текста с озвучкой',
+    icon: 'PlayCircle',
+    color: 'from-green-500 to-emerald-600',
+    category: 'video',
+    features: ['Text-to-Video', 'AI озвучка', '75+ языков']
+  },
+  {
     id: 'elevenlabs',
     name: 'ElevenLabs',
     provider: 'ElevenLabs',
