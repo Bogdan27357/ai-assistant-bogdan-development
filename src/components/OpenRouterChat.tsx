@@ -18,9 +18,6 @@ const OpenRouterChat = () => {
   const [preset, setPreset] = useState('default');
   const [selectedModel, setSelectedModel] = useState('openai/gpt-4o');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,68 +77,7 @@ const OpenRouterChat = () => {
 
 
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const base64 = reader.result as string;
-          const base64Data = base64.split(',')[1];
-          
-          toast.loading('Распознаю речь...');
-          
-          try {
-            const response = await fetch('https://functions.poehali.dev/4501b2e8-f8e5-461d-aeab-49a09fc5ed5f', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ audio: base64Data, format: 'webm' })
-            });
-            
-            const data = await response.json();
-            
-            if (data.text) {
-              setMessage(prev => prev ? `${prev}\n\n${data.text}` : data.text);
-              toast.success('Речь распознана!');
-            } else {
-              toast.error('Не удалось распознать речь');
-            }
-          } catch (error) {
-            console.error('Transcription error:', error);
-            toast.error('Ошибка распознавания');
-          }
-        };
-        reader.readAsDataURL(audioBlob);
-        
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      toast.success('Запись началась...');
-    } catch (error) {
-      console.error('Ошибка доступа к микрофону:', error);
-      toast.error('Не удалось получить доступ к микрофону');
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
 
   const handleSend = async () => {
     if (!message.trim() && uploadedImages.length === 0) {
@@ -350,16 +286,6 @@ const OpenRouterChat = () => {
               title="Загрузить изображение"
             >
               <Icon name="Image" size={16} />
-            </Button>
-
-            <Button
-              onClick={isRecording ? stopRecording : startRecording}
-              variant={isRecording ? 'destructive' : 'outline'}
-              disabled={isLoading}
-              className={isRecording ? 'animate-pulse' : 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300'}
-              title={isRecording ? 'Остановить запись' : 'Записать голосовое сообщение'}
-            >
-              <Icon name={isRecording ? 'MicOff' : 'Mic'} size={16} />
             </Button>
 
             <Button
