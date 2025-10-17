@@ -7,6 +7,7 @@ export interface AIModel {
   color: string;
   category: string;
   features: string[];
+  isFree?: boolean;
 }
 
 export const aiModels: AIModel[] = [
@@ -78,7 +79,8 @@ export const aiModels: AIModel[] = [
     icon: 'Video',
     color: 'from-cyan-500 to-blue-600',
     category: 'video',
-    features: ['Text-to-Video', 'Image-to-Video', 'Редактирование']
+    features: ['125 кредитов FREE', 'Text-to-Video', 'Image-to-Video'],
+    isFree: true
   },
   {
     id: 'sora',
@@ -98,7 +100,8 @@ export const aiModels: AIModel[] = [
     icon: 'Clapperboard',
     color: 'from-rose-500 to-pink-600',
     category: 'video',
-    features: ['Text-to-Video', 'Image-to-Video', '3D анимация']
+    features: ['250 кредитов FREE', 'Text-to-Video', '3D анимация'],
+    isFree: true
   },
   {
     id: 'synthesia',
@@ -148,7 +151,8 @@ export const aiModels: AIModel[] = [
     icon: 'Mic',
     color: 'from-violet-500 to-fuchsia-600',
     category: 'audio',
-    features: ['Озвучка текста', 'Клонирование', '29 языков']
+    features: ['10K символов/месяц', 'Бесплатный план', '29 языков'],
+    isFree: true
   },
   {
     id: 'whisper',
@@ -178,7 +182,8 @@ export const aiModels: AIModel[] = [
     icon: 'Radio',
     color: 'from-amber-500 to-orange-600',
     category: 'audio',
-    features: ['Генерация вокала', 'Полные песни', 'Тексты и мелодия']
+    features: ['50 кредитов/день', 'Бесплатный план', 'Тексты и мелодия'],
+    isFree: true
   },
   {
     id: 'photoshop-ai',
@@ -189,5 +194,60 @@ export const aiModels: AIModel[] = [
     color: 'from-blue-600 to-indigo-700',
     category: 'image',
     features: ['Generative Fill', 'Удаление объектов', 'Расширение границ']
+  },
+  {
+    id: 'stable-diffusion',
+    name: 'Stable Diffusion',
+    provider: 'Hugging Face',
+    description: 'Бесплатная генерация изображений',
+    icon: 'Sparkle',
+    color: 'from-emerald-500 to-green-600',
+    category: 'image',
+    features: ['Полностью бесплатно', 'Open Source', 'Неограниченно'],
+    isFree: true
+  },
+  {
+    id: 'leonardo-ai',
+    name: 'Leonardo.ai',
+    provider: 'Leonardo',
+    description: 'Генерация изображений и игровых ассетов',
+    icon: 'Layers',
+    color: 'from-purple-500 to-pink-600',
+    category: 'image',
+    features: ['150 токенов/день', 'Бесплатный план', 'Игровая графика'],
+    isFree: true
+  },
+  {
+    id: 'playground-ai',
+    name: 'Playground AI',
+    provider: 'Playground',
+    description: 'Простая генерация изображений',
+    icon: 'Paintbrush',
+    color: 'from-cyan-500 to-blue-600',
+    category: 'image',
+    features: ['500 изображений/день', 'Бесплатно', 'Простой интерфейс'],
+    isFree: true
+  },
+  {
+    id: 'capcut-ai',
+    name: 'CapCut AI',
+    provider: 'ByteDance',
+    description: 'Бесплатное редактирование видео с AI',
+    icon: 'Scissors',
+    color: 'from-black to-slate-600',
+    category: 'video',
+    features: ['Полностью бесплатно', 'Автосубтитры', 'Удаление фона'],
+    isFree: true
+  },
+  {
+    id: 'google-tts',
+    name: 'Google TTS',
+    provider: 'Google',
+    description: 'Синтез речи от Google',
+    icon: 'Volume2',
+    color: 'from-blue-500 to-cyan-600',
+    category: 'audio',
+    features: ['1M символов/месяц', 'Бесплатно', '220+ голосов'],
+    isFree: true
   }
 ];

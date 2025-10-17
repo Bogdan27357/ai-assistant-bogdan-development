@@ -11,6 +11,7 @@ interface AIModel {
   color: string;
   category: string;
   features: string[];
+  isFree?: boolean;
 }
 
 interface AIModelsSectionProps {
@@ -75,9 +76,16 @@ const AIModelsSection = ({ darkMode, aiModels, selectedCategory, onCategoryChang
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center mb-4`}>
                   <Icon name={model.icon as any} size={28} className="text-white" />
                 </div>
-                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                  {model.name}
-                </h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {model.name}
+                  </h3>
+                  {model.isFree && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500 text-white font-semibold">
+                      FREE
+                    </span>
+                  )}
+                </div>
                 <p className={`text-xs mb-3 ${darkMode ? 'text-slate-500' : 'text-slate-500'}`}>
                   {model.provider}
                 </p>
