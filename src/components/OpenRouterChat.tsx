@@ -17,10 +17,8 @@ const OpenRouterChat = () => {
   const [knowledgeBase, setKnowledgeBase] = useState('');
   const [preset, setPreset] = useState('default');
   const [selectedModel, setSelectedModel] = useState('openai/gpt-4o');
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const SETTINGS_API = 'https://functions.poehali.dev/c3585817-7caf-46b1-94b7-1c722a6f5748';
 
@@ -47,64 +45,21 @@ const OpenRouterChat = () => {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
 
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Можно загружать только изображения');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = event.target?.result as string;
-        setUploadedImages(prev => [...prev, base64]);
-        toast.success('Изображение загружено');
-      };
-      reader.readAsDataURL(file);
-    });
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index));
-  };
 
 
 
 
 
   const handleSend = async () => {
-    if (!message.trim() && uploadedImages.length === 0) {
-      toast.error('Введите сообщение или загрузите изображение');
+    if (!message.trim()) {
+      toast.error('Введите сообщение');
       return;
     }
 
     setIsLoading(true);
-
-    let userContent: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
     const messageToSend = message.trim();
-    
-    if (uploadedImages.length > 0) {
-      const contentParts = [];
-      
-      if (messageToSend) {
-        contentParts.push({ type: 'text', text: messageToSend });
-      }
-      
-      contentParts.push(...uploadedImages.map(img => ({ type: 'image_url', image_url: { url: img } })));
-      
-      userContent = contentParts;
-    } else {
-      userContent = messageToSend;
-    }
-
-    const newHistory = [...chatHistory, { role: 'user', content: userContent }];
+    const newHistory = [...chatHistory, { role: 'user', content: messageToSend }];
     setChatHistory(newHistory);
 
     const limitedHistory = chatHistory.slice(-10);
@@ -116,7 +71,7 @@ const OpenRouterChat = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: userContent,
+          message: messageToSend,
           history: limitedHistory,
           systemPrompt,
           knowledgeBase,
@@ -130,7 +85,6 @@ const OpenRouterChat = () => {
       if (data.response) {
         setChatHistory(prev => [...prev, { role: 'assistant', content: data.response }]);
         setMessage('');
-        setUploadedImages([]);
       } else {
         toast.error(data.error || 'Ошибка при отправке');
       }
@@ -145,7 +99,6 @@ const OpenRouterChat = () => {
   const clearChat = () => {
     setChatHistory([]);
     setMessage('');
-    setUploadedImages([]);
     toast.success('История очищена');
   };
 
@@ -234,25 +187,6 @@ const OpenRouterChat = () => {
         </div>
 
         <div className="space-y-3">
-          {uploadedImages.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {uploadedImages.map((img, idx) => (
-                <div key={`img-${idx}`} className="relative group">
-                  <img 
-                    src={img} 
-                    alt={`Upload ${idx + 1}`} 
-                    className="h-20 w-20 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
-                  />
-                  <button
-                    onClick={() => removeImage(idx)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Icon name="X" size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
           <Textarea
             placeholder="Введите ваше сообщение..."
             value={message}
@@ -269,25 +203,6 @@ const OpenRouterChat = () => {
           />
 
           <div className="flex gap-2">
-            <Input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              variant="outline"
-              disabled={isLoading}
-              className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
-              title="Загрузить изображение"
-            >
-              <Icon name="Image" size={16} />
-            </Button>
-
             <Button
               onClick={clearChat}
               variant="outline"
@@ -300,7 +215,7 @@ const OpenRouterChat = () => {
 
             <Button
               onClick={handleSend}
-              disabled={isLoading || (!message.trim() && uploadedImages.length === 0)}
+              disabled={isLoading || !message.trim()}
               className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               {isLoading ? (
