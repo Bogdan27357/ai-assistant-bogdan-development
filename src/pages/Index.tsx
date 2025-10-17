@@ -10,7 +10,7 @@ import FeaturesSection from '@/components/FeaturesSection';
 import CTASection from '@/components/CTASection';
 import SiteFooter from '@/components/SiteFooter';
 import { aiModels } from '@/data/aiModels';
-import { teamMembers } from '@/data/teamMembers';
+import { teamMembers, projectHistory } from '@/data/teamMembers';
 import { features } from '@/data/features';
 
 const Index = () => {
@@ -77,7 +77,7 @@ const Index = () => {
             onCategoryChange={setSelectedCategory}
           />
           
-          <AboutSection darkMode={darkMode} teamMembers={teamMembers} />
+          <AboutSection darkMode={darkMode} teamMembers={teamMembers} projectHistory={projectHistory} />
           
           <FeaturesSection darkMode={darkMode} features={features} />
           

@@ -19,11 +19,8 @@ const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat }: HeaderProp
             </div>
             <div>
               <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                AI Hub
+                МашаGPT
               </h1>
-              <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                Агрегатор нейросетей
-              </p>
             </div>
           </div>
           

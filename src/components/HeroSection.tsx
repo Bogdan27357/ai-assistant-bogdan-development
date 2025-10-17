@@ -17,31 +17,21 @@ const HeroSection = ({ darkMode, onStartChat }: HeroSectionProps) => {
         </div>
         
         <h1 className={`text-5xl md:text-7xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-          Агрегатор
-          <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text"> нейросетей</span>
+          Возможности <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">МашаGPT</span>
         </h1>
         
         <p className={`text-xl md:text-2xl mb-10 ${darkMode ? 'text-slate-300' : 'text-slate-600'} max-w-3xl mx-auto`}>
-          Используйте GPT-4, Claude, Gemini и другие AI-модели в едином интерфейсе. 
-          Без VPN и лишних подписок.
+          Генерация контента, создание изображений, обработка контента в файлах.
         </p>
         
         <div className="flex flex-wrap justify-center gap-4">
           <Button
             onClick={onStartChat}
             size="lg"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-lg px-8 py-6"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-lg px-8 py-6 rounded-full"
           >
             <Icon name="Sparkles" size={20} className="mr-2" />
-            Попробовать бесплатно
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className={`text-lg px-8 py-6 ${darkMode ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-50'}`}
-          >
-            <Icon name="Play" size={20} className="mr-2" />
-            Посмотреть демо
+            Начать работу
           </Button>
         </div>
       </div>

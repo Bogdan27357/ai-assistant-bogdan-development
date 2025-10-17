@@ -33,10 +33,10 @@ const AIModelsSection = ({ darkMode, aiModels, selectedCategory, onCategoryChang
     <section className="container mx-auto px-4 py-20">
       <div className="text-center mb-12">
         <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-          Доступные модели
+          Нейросети
         </h2>
         <p className={`text-lg ${darkMode ? 'text-slate-400' : 'text-slate-600'} mb-8`}>
-          Выбирайте лучшую нейросеть для каждой задачи
+          Работа с текстом, изображениями, видео и аудио
         </p>
         
         <div className="flex flex-wrap justify-center gap-3 mb-8">

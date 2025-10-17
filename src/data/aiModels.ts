@@ -121,6 +121,16 @@ export const aiModels: AIModel[] = [
     features: ['До 3 минут', 'Коммерческое использование', 'Любой жанр']
   },
   {
+    id: 'suno',
+    name: 'Suno AI',
+    provider: 'Suno',
+    description: 'Создание полноценных песен с вокалом',
+    icon: 'Radio',
+    color: 'from-amber-500 to-orange-600',
+    category: 'audio',
+    features: ['Генерация вокала', 'Полные песни', 'Тексты и мелодия']
+  },
+  {
     id: 'photoshop-ai',
     name: 'Photoshop AI',
     provider: 'Adobe',

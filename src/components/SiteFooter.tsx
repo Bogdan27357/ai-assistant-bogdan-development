@@ -14,11 +14,11 @@ const SiteFooter = ({ darkMode }: SiteFooterProps) => {
               <Icon name="Bot" size={18} className="text-white" />
             </div>
             <span className={`font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              AI Hub
+              МашаGPT
             </span>
           </div>
           <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-            © 2024 AI Hub. Все нейросети в одном месте.
+            © 2024 МашаGPT. Все нейросети в одном месте.
           </p>
           <div className="flex gap-4">
             <a href="#" className={`text-sm ${darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}>
