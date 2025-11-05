@@ -3,14 +3,15 @@ import os
 import urllib.request
 import urllib.error
 import psycopg2
-from typing import Dict, Any, List
+import base64
+from typing import Dict, Any
 
 def get_system_prompt(dsn: str) -> str:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     try:
         cur.execute(
-            "SELECT prompt_text FROM system_prompts WHERE ai_model = 'yandex-gpt' AND is_active = true ORDER BY created_at DESC LIMIT 1"
+            "SELECT prompt_text FROM system_prompts WHERE ai_model = 'gigachat' AND is_active = true ORDER BY created_at DESC LIMIT 1"
         )
         row = cur.fetchone()
         return row[0] if row else "Ты - полезный ассистент."
@@ -35,11 +36,30 @@ def get_knowledge_base(dsn: str) -> str:
         cur.close()
         conn.close()
 
+def get_gigachat_token(api_key: str) -> str:
+    auth_data = base64.b64encode(api_key.encode()).decode()
+    
+    req = urllib.request.Request(
+        'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',
+        data=b'scope=GIGACHAT_API_PERS',
+        headers={
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'RqUID': 'request-id-123',
+            'Authorization': f'Basic {auth_data}'
+        },
+        method='POST'
+    )
+    
+    response = urllib.request.urlopen(req)
+    data = json.loads(response.read().decode('utf-8'))
+    return data['access_token']
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: YandexGPT API with system prompts and knowledge base
+    Business: GigaChat API with system prompts and knowledge base
     Args: event with httpMethod (POST, OPTIONS), body with messages array
-    Returns: YandexGPT response with assistant message
+    Returns: GigaChat response with assistant message
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -62,7 +82,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Method not allowed'})
         }
     
-    api_key = os.environ.get('YANDEX_GPT_API_KEY')
+    api_key = os.environ.get('GIGACHAT_API_KEY')
     dsn = os.environ.get('DATABASE_URL')
     
     if not api_key:
@@ -79,30 +99,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     knowledge_base = get_knowledge_base(dsn) if dsn else ""
     
     messages = [
-        {'role': 'system', 'text': system_prompt + knowledge_base}
-    ] + user_messages
+        {'role': 'system', 'content': system_prompt + knowledge_base}
+    ]
     
-    request_payload = {
-        'modelUri': 'gpt://b1gfkd2baaso5298c7lt/yandexgpt-lite',
-        'completionOptions': {
-            'stream': False,
-            'temperature': 0.6,
-            'maxTokens': 2000
-        },
-        'messages': messages
-    }
-    
-    req = urllib.request.Request(
-        'https://llm.api.cloud.yandex.net/foundationModels/v1/completion',
-        data=json.dumps(request_payload).encode('utf-8'),
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Api-Key {api_key}'
-        },
-        method='POST'
-    )
+    for msg in user_messages:
+        messages.append({
+            'role': msg['role'],
+            'content': msg.get('text', msg.get('content', ''))
+        })
     
     try:
+        access_token = get_gigachat_token(api_key)
+        
+        request_payload = {
+            'model': 'GigaChat',
+            'messages': messages,
+            'temperature': 0.7,
+            'max_tokens': 2000
+        }
+        
+        req = urllib.request.Request(
+            'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
+            data=json.dumps(request_payload).encode('utf-8'),
+            headers={
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': f'Bearer {access_token}'
+            },
+            method='POST'
+        )
+        
         response = urllib.request.urlopen(req)
         response_data = json.loads(response.read().decode('utf-8'))
         

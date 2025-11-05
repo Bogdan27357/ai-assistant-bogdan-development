@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "GET all prompts",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET active prompt for model",
+      "method": "GET",
+      "path": "/?model=yandex-gpt",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

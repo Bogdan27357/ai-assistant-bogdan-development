@@ -1,0 +1,11 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request returns CORS headers",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

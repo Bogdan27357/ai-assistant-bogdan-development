@@ -1,6 +1,7 @@
 {
+  "prompts": "https://functions.poehali.dev/4cf138a9-29d9-4e15-9cb0-37d9868a2491",
+  "knowledge-base": "https://functions.poehali.dev/5fedd0d4-3448-4585-bd85-f0e04e5983d3",
+  "gigachat": "https://functions.poehali.dev/be992a8b-9252-4860-8bda-92bfa3e59d24",
   "yandex-gpt": "https://functions.poehali.dev/f986b49c-0ef9-4d28-b758-94d0fd26052b",
-  "transcribe": "https://functions.poehali.dev/4501b2e8-f8e5-461d-aeab-49a09fc5ed5f",
-  "settings": "https://functions.poehali.dev/c3585817-7caf-46b1-94b7-1c722a6f5748",
   "auth": "https://functions.poehali.dev/c19987e7-4131-461a-b588-ffe95460e8de"
 }

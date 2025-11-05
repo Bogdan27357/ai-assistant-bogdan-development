@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "GET all documents",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST create document",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "title": "Test Document",
+        "content": "Test content",
+        "category": "Test"
+      },
+      "expectedStatus": 201,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
