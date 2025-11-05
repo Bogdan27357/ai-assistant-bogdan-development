@@ -65,10 +65,36 @@ const ApiKeysCard = () => {
             </Button>
           </div>
 
+          <div className="p-4 bg-purple-900/30 border border-purple-700 rounded-lg">
+            <h4 className="text-purple-300 font-medium mb-2 flex items-center gap-2">
+              <Icon name="Info" size={16} />
+              GigaChat API (для чата ГигаЧат)
+            </h4>
+            <p className="text-slate-300 text-sm mb-3">
+              Для работы чата с ГигаЧат нужен API ключ
+            </p>
+            <ol className="text-slate-400 text-xs space-y-1 mb-3">
+              <li>1. Откройте <a href="https://developers.sber.ru/studio/" target="_blank" rel="noopener noreferrer" className="text-purple-400 underline">Sber Developers Studio</a></li>
+              <li>2. Зарегистрируйтесь и создайте проект GigaChat</li>
+              <li>3. Получите авторизационные данные (Client ID и Secret)</li>
+              <li>4. В редакторе poehali.dev откройте раздел "Секреты" 🔑</li>
+              <li>5. Добавьте секрет: GIGACHAT_API_KEY</li>
+              <li className="ml-4 text-yellow-400">• Формат: CLIENT_ID:CLIENT_SECRET</li>
+            </ol>
+            <Button
+              onClick={() => window.open('https://developers.sber.ru/studio/', '_blank')}
+              size="sm"
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <Icon name="ExternalLink" size={14} className="mr-2" />
+              Получить API ключ
+            </Button>
+          </div>
+
           <div className="p-3 bg-slate-800 rounded-lg border border-slate-700">
             <p className="text-xs text-slate-400 flex items-center gap-2">
               <Icon name="AlertCircle" size={14} />
-              <span>После добавления секретов голосовые функции заработают автоматически</span>
+              <span>После добавления секретов все функции заработают автоматически</span>
             </p>
           </div>
         </div>

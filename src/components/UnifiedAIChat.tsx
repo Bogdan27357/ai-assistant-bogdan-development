@@ -89,11 +89,12 @@ const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Ошибка API');
-      }
-
       const data = await response.json();
+      
+      if (!response.ok) {
+        const errorMsg = data.error || 'Ошибка API';
+        throw new Error(errorMsg);
+      }
       
       let assistantText = '';
       if (selectedModel === 'yandex-gpt') {
@@ -110,7 +111,13 @@ const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
       
       await playTextToSpeech(assistantText);
     } catch (error) {
-      toast.error(`Ошибка подключения к ${currentConfig.name}. Проверьте API ключ.`);
+      const errorMessage = error instanceof Error ? error.message : 'Ошибка подключения';
+      
+      if (errorMessage.includes('API key not configured')) {
+        toast.error(`${currentConfig.name}: API ключ не настроен. Добавьте ключ в секреты проекта.`);
+      } else {
+        toast.error(`${currentConfig.name}: ${errorMessage}`);
+      }
       console.error(error);
     } finally {
       setIsLoading(false);
