@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request returns CORS headers",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {}
+    },
+    {
+      "name": "POST request with messages returns completion",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "messages": [
+          {"role": "user", "text": "Привет"}
+        ]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "result": "object"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
