@@ -109,7 +109,8 @@ const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
       };
       setMessages(prev => [...prev, assistantMessage]);
       
-      await playTextToSpeech(assistantText);
+      // Автоматическая озвучка отключена из-за возможных проблем с кодировкой
+      // await playTextToSpeech(assistantText);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Ошибка подключения';
       
