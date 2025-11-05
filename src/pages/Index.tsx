@@ -11,6 +11,7 @@ import { features } from '@/data/features';
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('darkMode');
@@ -36,7 +37,7 @@ const Index = () => {
         toggleDarkMode={toggleDarkMode}
       />
 
-      <HeroSection darkMode={darkMode} />
+      <HeroSection darkMode={darkMode} onOpenChat={() => setIsChatOpen(true)} />
       
       <AboutSection darkMode={darkMode} teamMembers={teamMembers} projectHistory={projectHistory} />
       
@@ -46,7 +47,7 @@ const Index = () => {
       
       <SiteFooter darkMode={darkMode} />
       
-      <UnifiedAIChat />
+      <UnifiedAIChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 };

@@ -3,9 +3,10 @@ import Icon from '@/components/ui/icon';
 
 interface HeroSectionProps {
   darkMode: boolean;
+  onOpenChat: () => void;
 }
 
-const HeroSection = ({ darkMode }: HeroSectionProps) => {
+const HeroSection = ({ darkMode, onOpenChat }: HeroSectionProps) => {
   return (
     <section className="container mx-auto px-4 py-20">
       <div className="max-w-4xl mx-auto text-center">
@@ -23,10 +24,18 @@ const HeroSection = ({ darkMode }: HeroSectionProps) => {
           Подключайте нейросети от Яндекса и Сбера для генерации контента, анализа данных и решения бизнес-задач
         </p>
         
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-col items-center gap-4">
           <p className={`text-lg ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-            Попробуйте AI-ассистентов прямо сейчас через чат справа 👉
+            Попробуйте AI-ассистентов прямо сейчас 👇
           </p>
+          <Button 
+            onClick={onOpenChat}
+            size="lg"
+            className="bg-gradient-to-r from-purple-600 via-indigo-600 to-green-600 hover:from-purple-700 hover:via-indigo-700 hover:to-green-700 text-white font-semibold px-8 py-6 text-lg shadow-lg"
+          >
+            <Icon name="MessageSquare" size={24} className="mr-2" />
+            Открыть чат с AI
+          </Button>
         </div>
       </div>
     </section>

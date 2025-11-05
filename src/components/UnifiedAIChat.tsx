@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
@@ -36,14 +36,25 @@ const AI_CONFIGS = {
   }
 };
 
-const UnifiedAIChat = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface UnifiedAIChatProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
   const [selectedModel, setSelectedModel] = useState<AIModel>('yandex-gpt');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const currentConfig = AI_CONFIGS[selectedModel];
+
+  useEffect(() => {
+    if (!isOpen) {
+      setMessages([]);
+      setInputText('');
+    }
+  }, [isOpen]);
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -103,35 +114,35 @@ const UnifiedAIChat = () => {
     toast.success(`Переключено на ${AI_CONFIGS[newModel].name}`);
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      {!isOpen ? (
-        <Button
-          onClick={() => setIsOpen(true)}
-          className={`w-16 h-16 rounded-full bg-gradient-to-r ${currentConfig.gradient} hover:${currentConfig.hoverGradient} shadow-lg transition-all flex items-center justify-center`}
-        >
-          {currentConfig.logo}
-        </Button>
-      ) : (
-        <div className="w-[420px] h-[650px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col border border-slate-200 dark:border-slate-700">
-          <div className={`flex flex-col p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r ${currentConfig.gradient} rounded-t-2xl`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+    <>
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+        onClick={onClose}
+      />
+      
+      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div className="w-full max-w-4xl h-[80vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col border border-slate-200 dark:border-slate-700">
+          <div className={`flex flex-col p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r ${currentConfig.gradient} rounded-t-2xl`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
                 {currentConfig.logo}
-                <h3 className="font-semibold text-white">{currentConfig.name}</h3>
+                <h3 className="text-xl font-semibold text-white">{currentConfig.name}</h3>
               </div>
               <Button
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
                 variant="ghost"
                 size="icon"
                 className="text-white hover:bg-white/20"
               >
-                <Icon name="X" size={20} />
+                <Icon name="X" size={24} />
               </Button>
             </div>
             
             <Select value={selectedModel} onValueChange={(v) => handleModelChange(v as AIModel)}>
-              <SelectTrigger className="bg-white/20 border-white/30 text-white">
+              <SelectTrigger className="bg-white/20 border-white/30 text-white w-64">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-700">
@@ -151,11 +162,12 @@ const UnifiedAIChat = () => {
             </Select>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {messages.length === 0 && (
-              <div className="text-center text-slate-500 dark:text-slate-400 mt-8">
-                <div className="mb-2">{currentConfig.logo}</div>
-                <p>Начните диалог с {currentConfig.name}</p>
+              <div className="text-center text-slate-500 dark:text-slate-400 mt-16">
+                <div className="mb-4 flex justify-center">{currentConfig.logo}</div>
+                <p className="text-lg">Начните диалог с {currentConfig.name}</p>
+                <p className="text-sm mt-2">Задайте любой вопрос или попросите помощи</p>
               </div>
             )}
             {messages.map((msg, idx) => (
@@ -164,7 +176,7 @@ const UnifiedAIChat = () => {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
+                  className={`max-w-[75%] p-4 rounded-lg ${
                     msg.role === 'user'
                       ? `bg-gradient-to-r ${currentConfig.gradient} text-white`
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100'
@@ -176,7 +188,7 @@ const UnifiedAIChat = () => {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg">
+                <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg">
                   <div className="flex gap-1">
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -187,8 +199,8 @@ const UnifiedAIChat = () => {
             )}
           </div>
 
-          <div className="p-4 border-t border-slate-200 dark:border-slate-700">
-            <div className="flex gap-2">
+          <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex gap-3">
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
@@ -199,21 +211,21 @@ const UnifiedAIChat = () => {
                   }
                 }}
                 placeholder="Напишите сообщение..."
-                className="flex-1 resize-none rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                rows={2}
+                className="flex-1 resize-none rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500"
+                rows={3}
               />
               <Button
                 onClick={handleSend}
                 disabled={isLoading || !inputText.trim()}
-                className={`bg-gradient-to-r ${currentConfig.gradient} hover:${currentConfig.hoverGradient}`}
+                className={`bg-gradient-to-r ${currentConfig.gradient} hover:${currentConfig.hoverGradient} h-auto px-6`}
               >
-                <Icon name="Send" size={20} />
+                <Icon name="Send" size={24} />
               </Button>
             </div>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 
