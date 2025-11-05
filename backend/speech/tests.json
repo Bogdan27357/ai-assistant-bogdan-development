@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Test Yandex TTS",
+      "method": "POST",
+      "body": {
+        "action": "tts",
+        "provider": "yandex",
+        "text": "Привет"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "audio": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

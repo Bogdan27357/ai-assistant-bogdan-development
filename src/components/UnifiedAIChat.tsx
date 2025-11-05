@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+
+const SPEECH_API_URL = 'https://functions.poehali.dev/46fb1993-e9c6-4d5e-b05a-d78aaa64113d';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -46,6 +48,11 @@ const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentConfig = AI_CONFIGS[selectedModel];
 
@@ -100,6 +107,8 @@ const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
         content: assistantText
       };
       setMessages(prev => [...prev, assistantMessage]);
+      
+      await playTextToSpeech(assistantText);
     } catch (error) {
       toast.error(`Ошибка подключения к ${currentConfig.name}. Проверьте API ключ.`);
       console.error(error);
@@ -112,6 +121,150 @@ const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
     setSelectedModel(newModel);
     setMessages([]);
     toast.success(`Переключено на ${AI_CONFIGS[newModel].name}`);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        await processAudio(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start();
+      setIsRecording(true);
+      toast.success('Запись голоса началась');
+    } catch (error) {
+      toast.error('Не удалось получить доступ к микрофону');
+      console.error(error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      toast.success('Запись остановлена, обработка...');
+    }
+  };
+
+  const processAudio = async (audioBlob: Blob) => {
+    setIsLoading(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        const base64Audio = (reader.result as string).split(',')[1];
+        
+        const provider = selectedModel === 'yandex-gpt' ? 'yandex' : 'sber';
+        const response = await fetch(SPEECH_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'stt',
+            provider,
+            audio: base64Audio
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Ошибка распознавания речи');
+        }
+        
+        const data = await response.json();
+        const recognizedText = data.result || data.text || '';
+        
+        if (recognizedText) {
+          setInputText(recognizedText);
+          toast.success('Текст распознан!');
+        } else {
+          toast.error('Не удалось распознать речь');
+        }
+      };
+    } catch (error) {
+      toast.error('Ошибка при распознавании речи');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const playTextToSpeech = async (text: string) => {
+    if (!text) return;
+    
+    setIsPlayingAudio(true);
+    try {
+      const provider = selectedModel === 'yandex-gpt' ? 'yandex' : 'sber';
+      const response = await fetch(SPEECH_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'tts',
+          provider,
+          text
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Ошибка синтеза речи');
+      }
+      
+      const data = await response.json();
+      const audioBase64 = data.audio;
+      
+      if (audioBase64) {
+        const audioBlob = base64ToBlob(audioBase64, 'audio/ogg');
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        
+        audio.onended = () => {
+          setIsPlayingAudio(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('Ошибка воспроизведения:', error);
+      setIsPlayingAudio(false);
+    }
+  };
+
+  const base64ToBlob = (base64: string, mimeType: string): Blob => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+  };
+
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlayingAudio(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -200,27 +353,50 @@ const UnifiedAIChat = ({ isOpen, onClose }: UnifiedAIChatProps) => {
           </div>
 
           <div className="p-6 border-t border-slate-200 dark:border-slate-700">
-            <div className="flex gap-3">
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                placeholder="Напишите сообщение..."
-                className="flex-1 resize-none rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500"
-                rows={3}
-              />
-              <Button
-                onClick={handleSend}
-                disabled={isLoading || !inputText.trim()}
-                className={`bg-gradient-to-r ${currentConfig.gradient} hover:${currentConfig.hoverGradient} h-auto px-6`}
-              >
-                <Icon name="Send" size={24} />
-              </Button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <Button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  variant="outline"
+                  size="icon"
+                  className={isRecording ? 'border-red-500 text-red-500 animate-pulse' : ''}
+                  disabled={isLoading}
+                >
+                  <Icon name={isRecording ? 'MicOff' : 'Mic'} size={20} />
+                </Button>
+                {isPlayingAudio && (
+                  <Button
+                    onClick={stopAudio}
+                    variant="outline"
+                    size="icon"
+                  >
+                    <Icon name="Volume2" size={20} />
+                  </Button>
+                )}
+              </div>
+              
+              <div className="flex gap-3">
+                <textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  placeholder="Напишите сообщение или используйте голосовой ввод..."
+                  className="flex-1 resize-none rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  rows={3}
+                />
+                <Button
+                  onClick={handleSend}
+                  disabled={isLoading || !inputText.trim()}
+                  className={`bg-gradient-to-r ${currentConfig.gradient} hover:${currentConfig.hoverGradient} h-auto px-6`}
+                >
+                  <Icon name="Send" size={24} />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
