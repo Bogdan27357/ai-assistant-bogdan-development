@@ -19,8 +19,13 @@ const AdminPanel = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<Array<{url: string, name: string}>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const SETTINGS_API = 'https://functions.poehali.dev/c3585817-7caf-46b1-94b7-1c722a6f5748';
+  const AUTH_API = 'https://functions.poehali.dev/5fedd0d4-3448-4585-bd85-f0e04e5983d3';
 
   useEffect(() => {
     const storedUser = localStorage.getItem('adminUser');
@@ -156,6 +161,44 @@ const AdminPanel = () => {
     toast.success('Картинка удалена');
   };
 
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast.error('Новые пароли не совпадают');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error('Пароль должен быть минимум 6 символов');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${AUTH_API}?auth_action=change_password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: adminUser?.email,
+          old_password: oldPassword,
+          new_password: newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success('Пароль успешно изменён');
+        setShowPasswordChange(false);
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        toast.error(data.error || 'Ошибка изменения пароля');
+      }
+    } catch (error) {
+      toast.error('Не удалось изменить пароль');
+    }
+  };
+
   if (!isAuthenticated) {
     return <AdminLogin onSuccess={handleLoginSuccess} />;
   }
@@ -178,6 +221,14 @@ const AdminPanel = () => {
               Главная
             </Button>
             <Button
+              onClick={() => setShowPasswordChange(!showPasswordChange)}
+              variant="outline"
+              className="border-slate-600 text-slate-300 hover:bg-slate-800"
+            >
+              <Icon name="Key" size={16} className="mr-2" />
+              Сменить пароль
+            </Button>
+            <Button
               onClick={handleLogout}
               variant="outline"
               className="border-slate-600 text-slate-300 hover:bg-slate-800"
@@ -197,6 +248,73 @@ const AdminPanel = () => {
           </Card>
         ) : (
           <div className="space-y-6">
+            {showPasswordChange && (
+              <Card className="bg-slate-900/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Icon name="Lock" size={24} />
+                    Смена пароля
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="oldPassword" className="text-white mb-2">Текущий пароль</Label>
+                    <Input
+                      id="oldPassword"
+                      type="password"
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      className="bg-slate-800 border-slate-600 text-white"
+                      placeholder="Введите текущий пароль"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="newPassword" className="text-white mb-2">Новый пароль</Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="bg-slate-800 border-slate-600 text-white"
+                      placeholder="Минимум 6 символов"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirmPassword" className="text-white mb-2">Подтвердите пароль</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="bg-slate-800 border-slate-600 text-white"
+                      placeholder="Повторите новый пароль"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleChangePassword}
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    >
+                      <Icon name="Check" size={16} className="mr-2" />
+                      Сохранить
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowPasswordChange(false);
+                        setOldPassword('');
+                        setNewPassword('');
+                        setConfirmPassword('');
+                      }}
+                      variant="outline"
+                      className="border-slate-600 text-slate-300"
+                    >
+                      Отмена
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             <Card className="bg-slate-900/50 border-slate-700">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">

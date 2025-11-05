@@ -1,13 +1,14 @@
 import json
 import os
 import psycopg2
+import hashlib
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: API for managing knowledge base documents
-    Args: event with httpMethod (GET, POST, PUT, DELETE), body with document data
-    Returns: JSON with knowledge base documents or operation result
+    Business: API for knowledge base and admin auth (auth_action query param)
+    Args: event with httpMethod, body with document/auth data
+    Returns: JSON with documents or auth result
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -35,8 +36,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     try:
+        params = event.get('queryStringParameters', {}) or {}
+        auth_action = params.get('auth_action')
+        
+        if auth_action == 'login':
+            return handle_login(event, conn)
+        elif auth_action == 'change_password':
+            return handle_change_password(event, conn)
+        
         if method == 'GET':
-            params = event.get('queryStringParameters', {}) or {}
             doc_id = params.get('id')
             
             if doc_id:
@@ -144,3 +152,98 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     finally:
         cur.close()
         conn.close()
+
+def handle_login(event: Dict[str, Any], conn) -> Dict[str, Any]:
+    body_data = json.loads(event.get('body', '{}'))
+    email = body_data.get('email', '')
+    password = body_data.get('password', '')
+    
+    if not email or not password:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Email and password required'}),
+            'isBase64Encoded': False
+        }
+    
+    cursor = conn.cursor()
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    
+    cursor.execute(
+        "SELECT id, email, is_admin FROM admin_users WHERE email = %s AND password_hash = %s",
+        (email, password_hash)
+    )
+    
+    user = cursor.fetchone()
+    cursor.close()
+    
+    if user:
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({
+                'user': {
+                    'id': user[0],
+                    'email': user[1],
+                    'is_admin': user[2]
+                }
+            }),
+            'isBase64Encoded': False
+        }
+    else:
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid credentials'}),
+            'isBase64Encoded': False
+        }
+
+def handle_change_password(event: Dict[str, Any], conn) -> Dict[str, Any]:
+    body_data = json.loads(event.get('body', '{}'))
+    email = body_data.get('email', '')
+    old_password = body_data.get('old_password', '')
+    new_password = body_data.get('new_password', '')
+    
+    if not email or not old_password or not new_password:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'All fields required'}),
+            'isBase64Encoded': False
+        }
+    
+    cursor = conn.cursor()
+    old_password_hash = hashlib.sha256(old_password.encode()).hexdigest()
+    
+    cursor.execute(
+        "SELECT id FROM admin_users WHERE email = %s AND password_hash = %s",
+        (email, old_password_hash)
+    )
+    
+    user = cursor.fetchone()
+    
+    if not user:
+        cursor.close()
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid current password'}),
+            'isBase64Encoded': False
+        }
+    
+    new_password_hash = hashlib.sha256(new_password.encode()).hexdigest()
+    
+    cursor.execute(
+        "UPDATE admin_users SET password_hash = %s, updated_at = CURRENT_TIMESTAMP WHERE email = %s",
+        (new_password_hash, email)
+    )
+    
+    conn.commit()
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': json.dumps({'success': True, 'message': 'Password changed successfully'}),
+        'isBase64Encoded': False
+    }

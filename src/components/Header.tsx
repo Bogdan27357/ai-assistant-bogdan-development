@@ -24,6 +24,15 @@ const Header = ({ darkMode, toggleDarkMode }: HeaderProps) => {
           
           <div className="flex items-center gap-3">
             <Button
+              onClick={() => window.location.href = '/admin'}
+              variant="ghost"
+              size="sm"
+              className={darkMode ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}
+            >
+              <Icon name="Settings" size={16} className="mr-2" />
+              Админ
+            </Button>
+            <Button
               onClick={toggleDarkMode}
               variant="ghost"
               size="icon"

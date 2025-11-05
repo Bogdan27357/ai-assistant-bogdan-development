@@ -26,11 +26,10 @@ const AdminLogin = ({ onSuccess }: AdminLoginProps) => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://functions.poehali.dev/c19987e7-4131-461a-b588-ffe95460e8de', {
+      const response = await fetch('https://functions.poehali.dev/5fedd0d4-3448-4585-bd85-f0e04e5983d3?auth_action=login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'login',
           email,
           password
         })
