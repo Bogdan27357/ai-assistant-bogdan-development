@@ -43,7 +43,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     messages = body_data.get('messages', [])
     
     request_payload = {
-        'modelUri': 'gpt://b1gvlrnlei4l5idm0ph9/yandexgpt-lite',
+        'modelUri': 'gpt://b1gfkd2baaso5298c7lt/yandexgpt-lite',
         'completionOptions': {
             'stream': False,
             'temperature': 0.6,
@@ -62,15 +62,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         method='POST'
     )
     
-    response = urllib.request.urlopen(req)
-    response_data = json.loads(response.read().decode('utf-8'))
-    
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
-        'isBase64Encoded': False,
-        'body': json.dumps(response_data)
-    }
+    try:
+        response = urllib.request.urlopen(req)
+        response_data = json.loads(response.read().decode('utf-8'))
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'isBase64Encoded': False,
+            'body': json.dumps(response_data)
+        }
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode('utf-8')
+        return {
+            'statusCode': e.code,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'isBase64Encoded': False,
+            'body': json.dumps({'error': error_body})
+        }

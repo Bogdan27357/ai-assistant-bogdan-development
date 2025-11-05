@@ -23,19 +23,12 @@ const YandexGPTWidget = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://llm.api.cloud.yandex.net/foundationModels/v1/completion', {
+      const response = await fetch('https://functions.poehali.dev/f986b49c-0ef9-4d28-b758-94d0fd26052b', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Api-Key AQVN2LlSABvFhXqd8EjAzDt0yXXXXXXXXXXX'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          modelUri: 'gpt://b1gvlrnlei4l5idm0ph9/yandexgpt-lite',
-          completionOptions: {
-            stream: false,
-            temperature: 0.6,
-            maxTokens: 2000
-          },
           messages: [
             ...messages.map(m => ({ role: m.role, text: m.text })),
             { role: 'user', text: inputText }
