@@ -17,10 +17,10 @@ const FeaturesSection = ({ darkMode, features }: FeaturesSectionProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-            Почему выбирают нас
+            Доступные нейросети
           </h2>
           <p className={`text-lg ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-            Преимущества работы с AI Hub
+            Подключайте российские AI-модели для ваших задач
           </p>
         </div>
 

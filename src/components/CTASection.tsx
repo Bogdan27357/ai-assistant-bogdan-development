@@ -14,10 +14,10 @@ const CTASection = ({ darkMode }: CTASectionProps) => {
           : 'bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200'
       }`}>
         <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-          Начните работу с AI прямо сейчас
+          Попробуйте YandexGPT прямо сейчас
         </h2>
         <p className={`text-lg ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-          Откройте виджет в правом нижнем углу и начните диалог с помощником
+          Нажмите на виджет справа для начала работы с нейросетью
         </p>
       </div>
     </section>

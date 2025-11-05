@@ -17,7 +17,7 @@ const Header = ({ darkMode, toggleDarkMode }: HeaderProps) => {
             </div>
             <div>
               <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                БогданGPT
+                AI Platform
               </h1>
             </div>
           </div>
