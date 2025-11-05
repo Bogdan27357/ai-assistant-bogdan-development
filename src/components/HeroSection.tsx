@@ -25,7 +25,7 @@ const HeroSection = ({ darkMode }: HeroSectionProps) => {
         
         <div className="flex flex-wrap justify-center gap-4">
           <p className={`text-lg ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-            Попробуйте YandexGPT прямо сейчас через виджет справа 👉
+            Попробуйте AI-ассистентов прямо сейчас через чат справа 👉
           </p>
         </div>
       </div>

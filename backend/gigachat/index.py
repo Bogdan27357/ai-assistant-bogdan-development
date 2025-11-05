@@ -4,6 +4,7 @@ import urllib.request
 import urllib.error
 import psycopg2
 import base64
+import ssl
 from typing import Dict, Any
 
 def get_system_prompt(dsn: str) -> str:
@@ -39,6 +40,10 @@ def get_knowledge_base(dsn: str) -> str:
 def get_gigachat_token(api_key: str) -> str:
     auth_data = base64.b64encode(api_key.encode()).decode()
     
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    
     req = urllib.request.Request(
         'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',
         data=b'scope=GIGACHAT_API_PERS',
@@ -51,7 +56,7 @@ def get_gigachat_token(api_key: str) -> str:
         method='POST'
     )
     
-    response = urllib.request.urlopen(req)
+    response = urllib.request.urlopen(req, context=ctx)
     data = json.loads(response.read().decode('utf-8'))
     return data['access_token']
 
@@ -118,6 +123,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'max_tokens': 2000
         }
         
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        
         req = urllib.request.Request(
             'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
             data=json.dumps(request_payload).encode('utf-8'),
@@ -129,7 +138,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             method='POST'
         )
         
-        response = urllib.request.urlopen(req)
+        response = urllib.request.urlopen(req, context=ctx)
         response_data = json.loads(response.read().decode('utf-8'))
         
         return {
@@ -141,14 +150,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False,
             'body': json.dumps(response_data)
         }
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode('utf-8')
+    except Exception as e:
         return {
-            'statusCode': e.code,
+            'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
             'isBase64Encoded': False,
-            'body': json.dumps({'error': error_body})
+            'body': json.dumps({'error': str(e)})
         }

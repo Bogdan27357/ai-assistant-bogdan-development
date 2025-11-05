@@ -5,8 +5,7 @@ import AboutSection from '@/components/AboutSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import CTASection from '@/components/CTASection';
 import SiteFooter from '@/components/SiteFooter';
-import YandexGPTWidget from '@/components/YandexGPTWidget';
-import GigaChatWidget from '@/components/GigaChatWidget';
+import UnifiedAIChat from '@/components/UnifiedAIChat';
 import { teamMembers, projectHistory } from '@/data/teamMembers';
 import { features } from '@/data/features';
 
@@ -47,8 +46,7 @@ const Index = () => {
       
       <SiteFooter darkMode={darkMode} />
       
-      <YandexGPTWidget />
-      <GigaChatWidget />
+      <UnifiedAIChat />
     </div>
   );
 };
