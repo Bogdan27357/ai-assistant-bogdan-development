@@ -3,13 +3,10 @@ import Icon from '@/components/ui/icon';
 
 interface HeaderProps {
   darkMode: boolean;
-  showChat: boolean;
   toggleDarkMode: () => void;
-  onToggleChat: () => void;
-  onShowAPIKeys?: () => void;
 }
 
-const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat, onShowAPIKeys }: HeaderProps) => {
+const Header = ({ darkMode, toggleDarkMode }: HeaderProps) => {
   return (
     <header className={`border-b ${darkMode ? 'border-slate-800 bg-slate-950/50' : 'border-slate-200 bg-white/50'} backdrop-blur-lg sticky top-0 z-50`}>
       <div className="container mx-auto px-4 py-4">
@@ -26,17 +23,6 @@ const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat, onShowAPIKey
           </div>
           
           <div className="flex items-center gap-3">
-            {onShowAPIKeys && (
-              <Button
-                onClick={onShowAPIKeys}
-                variant="ghost"
-                size="icon"
-                className={darkMode ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}
-                title="API ключи"
-              >
-                <Icon name="Key" size={20} />
-              </Button>
-            )}
             <Button
               onClick={toggleDarkMode}
               variant="ghost"
@@ -44,13 +30,6 @@ const Header = ({ darkMode, showChat, toggleDarkMode, onToggleChat, onShowAPIKey
               className={darkMode ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}
             >
               <Icon name={darkMode ? 'Sun' : 'Moon'} size={20} />
-            </Button>
-            <Button
-              onClick={onToggleChat}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
-            >
-              <Icon name="MessageSquare" size={18} className="mr-2" />
-              {showChat ? 'На главную' : 'Начать общение'}
             </Button>
           </div>
         </div>
